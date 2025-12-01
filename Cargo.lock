@@ -71,7 +71,6 @@ dependencies = [
  "arborium-hcl",
  "arborium-hlsl",
  "arborium-html",
- "arborium-hyprlang",
  "arborium-idris",
  "arborium-ini",
  "arborium-java",
@@ -439,15 +438,6 @@ dependencies = [
 
 [[package]]
 name = "arborium-html"
-version = "0.1.0"
-dependencies = [
- "arborium-sysroot",
- "cc",
- "tree-sitter-patched-arborium",
-]
-
-[[package]]
-name = "arborium-hyprlang"
 version = "0.1.0"
 dependencies = [
  "arborium-sysroot",

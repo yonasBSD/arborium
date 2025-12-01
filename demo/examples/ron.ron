@@ -1,0 +1,32 @@
+// RON (Rusty Object Notation) example
+GameConfig(
+    title: "My Awesome Game",
+    version: (1, 0, 0),
+    debug: false,
+
+    window: WindowConfig(
+        width: 1920,
+        height: 1080,
+        fullscreen: true,
+        vsync: true,
+    ),
+
+    player: PlayerConfig(
+        name: "Hero",
+        health: 100.0,
+        speed: 5.5,
+        inventory: [
+            Item(name: "Sword", damage: 25),
+            Item(name: "Shield", defense: 15),
+            Item(name: "Potion", healing: 50),
+        ],
+        position: (x: 0.0, y: 0.0, z: 0.0),
+    ),
+
+    keybindings: {
+        "move_forward": Key(W),
+        "move_back": Key(S),
+        "jump": Key(Space),
+        "attack": MouseButton(Left),
+    },
+)

@@ -1,0 +1,36 @@
+# Caddyfile configuration
+example.com {
+    root * /var/www/html
+    file_server
+
+    # Reverse proxy
+    reverse_proxy /api/* localhost:8080 {
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+    }
+
+    # TLS configuration
+    tls admin@example.com {
+        protocols tls1.2 tls1.3
+    }
+
+    # Logging
+    log {
+        output file /var/log/caddy/access.log
+        format json
+    }
+
+    # Headers
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        -Server
+    }
+
+    # Compression
+    encode gzip zstd
+}
+
+:8443 {
+    respond "Hello from port 8443"
+}

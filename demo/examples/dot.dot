@@ -1,0 +1,26 @@
+// Graphviz DOT example
+digraph Architecture {
+    rankdir=TB;
+    node [shape=box, style=filled];
+
+    // Nodes with attributes
+    client [label="Web Client", fillcolor="#a8d5ba"];
+    api [label="API Gateway", fillcolor="#ffd6a5"];
+    auth [label="Auth Service", fillcolor="#ffadad"];
+    db [label="Database", shape=cylinder, fillcolor="#bdb2ff"];
+    cache [label="Redis Cache", shape=diamond, fillcolor="#fdffb6"];
+
+    // Edges with labels
+    client -> api [label="HTTPS"];
+    api -> auth [label="JWT"];
+    api -> db [label="SQL"];
+    api -> cache [label="GET/SET", style=dashed];
+    auth -> db [label="verify"];
+
+    // Subgraph
+    subgraph cluster_backend {
+        label="Backend Services";
+        style=dotted;
+        api; auth;
+    }
+}

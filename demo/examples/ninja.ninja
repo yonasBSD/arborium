@@ -1,0 +1,32 @@
+# Ninja build file
+ninja_required_version = 1.5
+
+# Variables
+builddir = build
+cxx = clang++
+cflags = -Wall -O2
+
+# Rules
+rule cxx
+  command = $cxx $cflags -c $in -o $out
+  description = Compiling $in
+
+rule link
+  command = $cxx $in -o $out
+  description = Linking $out
+
+rule clean
+  command = rm -rf $builddir
+  description = Cleaning build directory
+
+# Build edges
+build $builddir/main.o: cxx src/main.cpp
+build $builddir/utils.o: cxx src/utils.cpp
+
+build $builddir/app: link $builddir/main.o $builddir/utils.o
+
+# Default target
+default $builddir/app
+
+# Phony targets
+build clean: clean

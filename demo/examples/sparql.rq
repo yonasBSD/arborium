@@ -1,0 +1,24 @@
+# SPARQL query example
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX dbo: <http://dbpedia.org/ontology/>
+
+SELECT DISTINCT ?person ?name ?birthDate ?birthPlace
+WHERE {
+    ?person rdf:type dbo:Person ;
+            foaf:name ?name ;
+            dbo:birthDate ?birthDate .
+
+    OPTIONAL {
+        ?person dbo:birthPlace ?place .
+        ?place rdfs:label ?birthPlace .
+        FILTER (LANG(?birthPlace) = "en")
+    }
+
+    FILTER (?birthDate >= "1990-01-01"^^xsd:date)
+    FILTER (REGEX(?name, "^A", "i"))
+}
+ORDER BY DESC(?birthDate)
+LIMIT 100
+OFFSET 0

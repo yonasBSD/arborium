@@ -1,0 +1,41 @@
+// Device Tree Source example
+/dts-v1/;
+
+/ {
+    model = "Example Board";
+    compatible = "vendor,example-board";
+    #address-cells = <1>;
+    #size-cells = <1>;
+
+    memory@80000000 {
+        device_type = "memory";
+        reg = <0x80000000 0x40000000>;
+    };
+
+    cpus {
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        cpu@0 {
+            device_type = "cpu";
+            compatible = "arm,cortex-a53";
+            reg = <0>;
+            clock-frequency = <1200000000>;
+        };
+    };
+
+    soc {
+        compatible = "simple-bus";
+        #address-cells = <1>;
+        #size-cells = <1>;
+        ranges;
+
+        uart0: serial@10000000 {
+            compatible = "ns16550a";
+            reg = <0x10000000 0x100>;
+            interrupts = <1>;
+            clock-frequency = <24000000>;
+            status = "okay";
+        };
+    };
+};

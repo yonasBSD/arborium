@@ -1,0 +1,33 @@
+# Protocol Buffer Text Format example
+person {
+  name: "Alice Smith"
+  id: 12345
+  email: "alice@example.com"
+
+  phones {
+    number: "+1-555-123-4567"
+    type: MOBILE
+  }
+  phones {
+    number: "+1-555-987-6543"
+    type: HOME
+  }
+
+  address {
+    street: "123 Main Street"
+    city: "San Francisco"
+    state: "CA"
+    zip_code: "94102"
+    country: "USA"
+  }
+
+  metadata {
+    created_at {
+      seconds: 1699900000
+      nanos: 0
+    }
+    tags: "developer"
+    tags: "remote"
+    active: true
+  }
+}
