@@ -177,11 +177,17 @@
                     <h4>Why are tree-sitter parsers so large?</h4>
                     <p>Tree-sitter uses table-driven LR parsing. The grammar compiles down to massive state transition tables—every possible parser state and every possible token gets an entry. These tables are optimized for O(1) lookup speed, not size. A complex grammar like TypeScript can have tens of thousands of states. The tradeoff is worth it: you get real parsing (not regex hacks) that handles edge cases correctly and recovers gracefully from syntax errors.</p>
                 </div>
+                <div class="faq-item">
+                    <h4>Can I use this without Rust / just embed it on my website?</h4>
+                    <p>We don't provide a ready-to-embed kit yet but you can certainly make one.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>If there were a ready-to-embed kit, could it load the necessary grammars on-demand?</h4>
+                    <p>I have a wit-based idea for that: <a href="https://github.com/bearcove/arborium/issues/1">see GitHub issue #1</a>.</p>
+                </div>
             </div>
 
             <div class="cta-box">
-                <p class="cta-text">Enough learning, time for cargo adding:</p>
-                <code class="cta-command">cargo add arborium</code>
                 <div class="cta-buttons">
                     <a href="https://github.com/bearcove/arborium" class="cta-button primary">View on GitHub</a>
                     <a href="https://docs.rs/arborium" class="cta-button secondary">Read the Docs</a>
@@ -189,6 +195,7 @@
             </div>
 
             <p class="bundle-stats" id="bundle-stats"></p>
+            <p class="bundle-stats-note">(you probably don't need that many on your site)</p>
 
             <p class="links">
                 <a href="https://github.com/bearcove/arborium">GitHub</a>

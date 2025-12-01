@@ -1,0 +1,12 @@
+# Cobalt2 (vibrant blue theme)
+name = "Cobalt2"
+variant = "dark"
+
+[colors]
+bg = "#193549"
+keyword = "#ff9d00"
+function = "#ffc600"
+string = "#a5ff90"
+type = "#80ffbb"
+number = "#ff628c"
+macro = "#9effff"

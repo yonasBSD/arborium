@@ -195,6 +195,10 @@ fn lint_single_info_toml(path: &Path, lang_name: &str) -> LintResult {
     for field in REQUIRED_FIELDS {
         if !table.contains_key(*field) {
             result.errors.push(format!("Missing required field: {}", field));
+        } else if let Some(val) = table.get(*field) {
+            if val.as_str().is_some_and(|s| s.is_empty()) {
+                result.errors.push(format!("Required field '{}' is empty", field));
+            }
         }
     }
 
@@ -202,6 +206,10 @@ fn lint_single_info_toml(path: &Path, lang_name: &str) -> LintResult {
     for field in RECOMMENDED_FIELDS {
         if !table.contains_key(*field) {
             result.warnings.push(format!("Missing recommended field: {}", field));
+        } else if let Some(val) = table.get(*field) {
+            if val.as_str().is_some_and(|s| s.is_empty()) {
+                result.warnings.push(format!("Recommended field '{}' is empty", field));
+            }
         }
     }
 

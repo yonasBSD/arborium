@@ -1,0 +1,12 @@
+# Gruvbox Light
+name = "Gruvbox Light"
+variant = "light"
+
+[colors]
+bg = "#fbf1c7"
+keyword = "#9d0006"
+function = "#427b58"
+string = "#79740e"
+type = "#b57614"
+number = "#8f3f71"
+macro = "#076678"

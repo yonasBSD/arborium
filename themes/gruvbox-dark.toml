@@ -1,0 +1,12 @@
+# Gruvbox Dark
+name = "Gruvbox Dark"
+variant = "dark"
+
+[colors]
+bg = "#282828"
+keyword = "#fb4934"
+function = "#8ec07c"
+string = "#b8bb26"
+type = "#fabd2f"
+number = "#d3869b"
+macro = "#83a598"

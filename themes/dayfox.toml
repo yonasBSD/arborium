@@ -1,0 +1,12 @@
+# Dayfox (light theme from Nightfox family)
+name = "Dayfox"
+variant = "light"
+
+[colors]
+bg = "#f6f2ee"
+keyword = "#955ae7"
+function = "#1d5573"
+string = "#6d8f89"
+type = "#b38c52"
+number = "#a85447"
+macro = "#287980"

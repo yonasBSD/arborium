@@ -1,9 +1,9 @@
-# Monokai Pro (dark)
-name = "Monokai"
+# Monokai Aqua (dark variant with aqua tones)
+name = "Monokai Aqua"
 variant = "dark"
 
 [colors]
-bg = "#2d2a2e"
+bg = "#0d1926"
 keyword = "#ff6188"
 function = "#78dce8"
 string = "#a9dc76"

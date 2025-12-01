@@ -1,0 +1,12 @@
+# Zenburn (low-contrast warm theme)
+name = "Zenburn"
+variant = "dark"
+
+[colors]
+bg = "#3f3f3f"
+keyword = "#f0dfaf"
+function = "#efef8f"
+string = "#cc9393"
+type = "#8cd0d3"
+number = "#dca3a3"
+macro = "#7f9f7f"

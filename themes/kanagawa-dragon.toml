@@ -1,0 +1,12 @@
+# Kanagawa Dragon (dark variant inspired by The Great Wave off Kanagawa)
+name = "Kanagawa Dragon"
+variant = "dark"
+
+[colors]
+bg = "#181616"
+keyword = "#c4746e"
+function = "#8ba4b0"
+string = "#8a9a7b"
+type = "#c4b28a"
+number = "#b6927b"
+macro = "#7aa89f"

@@ -1,0 +1,12 @@
+# Rosé Pine Moon (dark variant)
+name = "Rosé Pine Moon"
+variant = "dark"
+
+[colors]
+bg = "#232136"
+keyword = "#3e8fb0"
+function = "#ea9a97"
+string = "#f6c177"
+type = "#c4a7e7"
+number = "#ea9a97"
+macro = "#9ccfd8"

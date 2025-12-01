@@ -275,6 +275,14 @@ h1 {
     color: var(--fg);
 }
 
+.about .bundle-stats-note {
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-style: italic;
+    text-align: center;
+    margin-top: -0.5rem;
+}
+
 /* Hero slogan */
 .about-hero {
     text-align: center;
@@ -1636,7 +1644,7 @@ footer {
     padding: 0.75rem;
     border-radius: 6px;
     font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     line-height: 1.4;
     overflow: hidden;
 }

@@ -1,0 +1,12 @@
+# Alabaster (minimal light theme)
+name = "Alabaster"
+variant = "light"
+
+[colors]
+bg = "#f7f7f7"
+keyword = "#aa3731"
+function = "#325cc0"
+string = "#448c27"
+type = "#7a3e9d"
+number = "#325cc0"
+macro = "#7a3e9d"
