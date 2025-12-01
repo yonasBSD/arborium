@@ -13,3 +13,10 @@ path = "samples/SparkPi.scala"
 description = "Apache Spark example computing Pi using RDDs, showing objects, methods, and functional style."
 link = "https://github.com/apache/spark/blob/master/examples/src/main/scala/org/apache/spark/examples/SparkPi.scala"
 license = "Apache-2.0"
+
+# amos-picked sample
+[[samples]]
+path = "samples/ResultResolver.scala"
+description = "Sangria GraphQL result resolver with Futures, cats-style Eithers, and async execution."
+link = "https://github.com/sangria-graphql/sangria/blob/main/modules/core/src/main/scala/sangria/execution/ResultResolver.scala"
+license = "Apache-2.0"
