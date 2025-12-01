@@ -1,4 +1,5 @@
-name = "vue"
+id = "vue"
+name = "Vue"
 tag = "markup"
 icon = "devicon-plain:vuejs"
 repo = "https://github.com/tree-sitter-grammars/tree-sitter-vue"

@@ -1,4 +1,5 @@
-name = "gleam"
+id = "gleam"
+name = "Gleam"
 tag = "code"
 icon = "devicon-plain:gleam"
 repo = "https://github.com/gleam-lang/tree-sitter-gleam"

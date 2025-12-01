@@ -1,4 +1,5 @@
-name = "uiua"
+id = "uiua"
+name = "Uiua"
 tag = "code"
 icon = "mdi:alpha-u-box-outline"
 aliases = ["ua"]
@@ -7,7 +8,7 @@ commit = ""
 license = ""
 inventor = "Daniel Diaz"
 year = 2023
-description = ""
+description = "A stack-based array programming language with a focus on tacit (point-free) code using Unicode glyphs."
 link = "https://www.uiua.org"
-trivia = ""
+trivia = "Uiua (pronounced 'wee-wuh') uses Unicode symbols for operations—you can type them with ASCII shortcuts that auto-convert."
 

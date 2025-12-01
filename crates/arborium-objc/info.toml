@@ -1,4 +1,5 @@
-name = "objc"
+id = "objc"
+name = "Objective-C"
 tag = "code"
 icon = "devicon-plain:objectivec"
 aliases = ["objective-c", "mm"]

@@ -1,4 +1,5 @@
-name = "thrift"
+id = "thrift"
+name = "Thrift"
 tag = "data"
 icon = "mdi:swap-horizontal"
 repo = "https://github.com/tree-sitter-grammars/tree-sitter-thrift"

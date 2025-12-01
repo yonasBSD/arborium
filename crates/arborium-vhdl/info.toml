@@ -1,4 +1,5 @@
-name = "vhdl"
+id = "vhdl"
+name = "VHDL"
 tag = "code"
 icon = "mdi:chip"
 aliases = ["vhd"]

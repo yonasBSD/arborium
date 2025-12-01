@@ -1,4 +1,5 @@
-name = "hcl"
+id = "hcl"
+name = "HCL"
 tag = "config"
 icon = "devicon-plain:terraform"
 aliases = ["terraform", "tf"]

@@ -1,4 +1,5 @@
-name = "c-sharp"
+id = "c-sharp"
+name = "C#"
 tag = "code"
 icon = "devicon-plain:csharp"
 aliases = ["cs", "csharp"]

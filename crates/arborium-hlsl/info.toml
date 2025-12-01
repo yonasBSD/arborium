@@ -1,4 +1,5 @@
-name = "hlsl"
+id = "hlsl"
+name = "HLSL"
 tag = "code"
 icon = "mdi:cube-outline"
 repo = "https://github.com/tree-sitter-grammars/tree-sitter-hlsl"

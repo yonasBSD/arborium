@@ -1,4 +1,5 @@
-name = "idris"
+id = "idris"
+name = "Idris"
 tag = "code"
 icon = "mdi:alpha-i-box-outline"
 aliases = ["idr"]

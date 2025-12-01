@@ -1,4 +1,5 @@
-name = "fsharp"
+id = "fsharp"
+name = "F#"
 tag = "code"
 icon = "devicon-plain:fsharp"
 aliases = ["fs", "f#"]

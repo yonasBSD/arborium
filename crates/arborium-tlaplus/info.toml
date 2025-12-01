@@ -1,4 +1,5 @@
-name = "tlaplus"
+id = "tlaplus"
+name = "TLA+"
 tag = "code"
 icon = "mdi:math-integral"
 aliases = ["tla"]

@@ -3101,18 +3101,20 @@ fn generate_demo() {
                 let keyword = colors.get("keyword").and_then(|v| v.as_str()).unwrap_or("#fff");
                 let function = colors.get("function").and_then(|v| v.as_str()).unwrap_or("#fff");
                 let string = colors.get("string").and_then(|v| v.as_str()).unwrap_or("#fff");
-                let type_color = colors.get("type").and_then(|v| v.as_str()).unwrap_or("#fff");
+                let number = colors.get("number").and_then(|v| v.as_str()).unwrap_or("#fff");
+                let macro_color = colors.get("macro").and_then(|v| v.as_str()).unwrap_or("#fff");
 
-                // Mini code preview: fn main() { let x = "hi"; }
+                // Mini code preview with number, function call, and macro
                 theme_swatches_html.push_str(&format!(
                     r#"<div class="theme-preview" title="{}">
                         <pre style="background: {}"><code><span style="color: {}">fn</span> <span style="color: {}">main</span>() {{
-  <span style="color: {}">let</span> x = <span style="color: {}">"hi"</span>;
+  <span style="color: {}">let</span> x = <span style="color: {}">42</span>;
+  <span style="color: {}">println!</span>(<span style="color: {}">"hi"</span>);
 }}</code></pre>
                         <span class="theme-name">{}</span>
                     </div>
 "#,
-                    name, bg, keyword, function, keyword, string, name
+                    name, bg, keyword, function, keyword, number, macro_color, string, name
                 ));
             }
         }

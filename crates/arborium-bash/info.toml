@@ -1,4 +1,5 @@
-name = "bash"
+id = "bash"
+name = "Bash"
 tag = "shell"
 icon = "devicon-plain:bash"
 aliases = ["sh", "shell"]

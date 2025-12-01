@@ -1,4 +1,5 @@
-name = "dart"
+id = "dart"
+name = "Dart"
 tag = "code"
 icon = "devicon-plain:dart"
 repo = "https://github.com/UserNobody14/tree-sitter-dart"

@@ -1,4 +1,5 @@
-name = "typescript"
+id = "typescript"
+name = "TypeScript"
 tag = "code"
 icon = "devicon-plain:typescript"
 aliases = ["ts", "tsx", "mts", "cts"]

@@ -1,4 +1,5 @@
-name = "ada"
+id = "ada"
+name = "Ada"
 tag = "code"
 icon = "mdi:alpha-a-box-outline"
 repo = ""

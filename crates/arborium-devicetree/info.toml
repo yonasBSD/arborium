@@ -1,4 +1,5 @@
-name = "devicetree"
+id = "devicetree"
+name = "Device Tree"
 tag = "config"
 icon = "mdi:file-tree"
 repo = "https://github.com/joelspadin/tree-sitter-devicetree"

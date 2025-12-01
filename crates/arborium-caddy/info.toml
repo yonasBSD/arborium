@@ -1,4 +1,5 @@
-name = "caddy"
+id = "caddy"
+name = "Caddyfile"
 tag = "config"
 icon = "simple-icons:caddy"
 repo = "https://github.com/Samonitari/tree-sitter-caddy"

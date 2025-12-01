@@ -1,4 +1,5 @@
-name = "svelte"
+id = "svelte"
+name = "Svelte"
 tag = "markup"
 icon = "devicon-plain:svelte"
 repo = "https://github.com/tree-sitter-grammars/tree-sitter-svelte"

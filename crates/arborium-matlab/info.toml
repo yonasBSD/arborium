@@ -1,4 +1,5 @@
-name = "matlab"
+id = "matlab"
+name = "MATLAB"
 tag = "code"
 icon = "devicon-plain:matlab"
 aliases = ["m"]
@@ -7,7 +8,7 @@ commit = ""
 license = ""
 inventor = "Cleve Moler"
 year = 1984
-description = ""
+description = "A numerical computing environment and programming language for matrix operations and data visualization."
 link = "https://en.wikipedia.org/wiki/MATLAB"
-trivia = ""
+trivia = "MATLAB was originally written to give students access to LINPACK and EISPACK without learning Fortran—the name means 'MATrix LABoratory.'"
 

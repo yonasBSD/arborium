@@ -1,4 +1,5 @@
-name = "meson"
+id = "meson"
+name = "Meson"
 tag = "build"
 icon = "mdi:hammer-wrench"
 repo = "https://github.com/tree-sitter-grammars/tree-sitter-meson"

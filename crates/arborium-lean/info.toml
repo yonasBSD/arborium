@@ -1,4 +1,5 @@
-name = "lean"
+id = "lean"
+name = "Lean"
 tag = "code"
 icon = "mdi:alpha-l-box-outline"
 repo = "https://github.com/Julian/tree-sitter-lean"

@@ -1,4 +1,5 @@
-name = "r"
+id = "r"
+name = "R"
 tag = "code"
 icon = "devicon-plain:r"
 aliases = ["rlang"]

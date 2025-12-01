@@ -1,4 +1,5 @@
-name = "go"
+id = "go"
+name = "Go"
 tag = "code"
 icon = "devicon-plain:go"
 aliases = ["golang"]

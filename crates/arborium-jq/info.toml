@@ -1,3 +1,4 @@
+id = "jq"
 name = "jq"
 tag = "query"
 icon = "mdi:code-json"

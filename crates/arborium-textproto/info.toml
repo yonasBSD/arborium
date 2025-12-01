@@ -1,4 +1,5 @@
-name = "textproto"
+id = "textproto"
+name = "Text Proto"
 tag = "data"
 icon = "mdi:message-outline"
 aliases = ["pbtxt", "textpb"]
@@ -7,7 +8,7 @@ commit = ""
 license = ""
 inventor = "Google"
 year = 2001
-description = ""
+description = "A human-readable text format for Protocol Buffer messages, commonly used for configuration files."
 link = "https://github.com/protocolbuffers/protobuf"
-trivia = ""
+trivia = "Protocol Buffers were developed at Google in 2001 and are used for nearly all inter-machine communication at the company."
 

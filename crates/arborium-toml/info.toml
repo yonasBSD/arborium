@@ -1,4 +1,5 @@
-name = "toml"
+id = "toml"
+name = "TOML"
 tag = "config"
 icon = "simple-icons:toml"
 repo = "https://github.com/tree-sitter-grammars/tree-sitter-toml"

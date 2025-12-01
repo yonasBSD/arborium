@@ -1,4 +1,5 @@
-name = "dockerfile"
+id = "dockerfile"
+name = "Dockerfile"
 tag = "config"
 icon = "devicon-plain:docker"
 aliases = ["docker"]

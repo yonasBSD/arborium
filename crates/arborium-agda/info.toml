@@ -1,11 +1,12 @@
-name = "agda"
+id = "agda"
+name = "Agda"
 tag = "code"
 repo = ""
 commit = ""
 license = ""
 inventor = "Ulf Norell"
 year = 2007
-description = ""
+description = "A dependently typed functional programming language and proof assistant."
 link = "https://en.wikipedia.org/wiki/Agda_(programming_language)"
-trivia = ""
+trivia = "Agda's name comes from a Swedish song about a woman named Agda who had a hen that laid eggs containing the words of the song."
 

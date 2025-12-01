@@ -1,4 +1,5 @@
-name = "scheme"
+id = "scheme"
+name = "Scheme"
 tag = "code"
 icon = "mdi:lambda"
 aliases = ["scm"]

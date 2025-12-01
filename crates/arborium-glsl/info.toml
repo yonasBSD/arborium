@@ -1,4 +1,5 @@
-name = "glsl"
+id = "glsl"
+name = "GLSL"
 tag = "code"
 icon = "devicon-plain:opengl"
 aliases = ["vert", "frag"]

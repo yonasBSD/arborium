@@ -1,4 +1,5 @@
-name = "haskell"
+id = "haskell"
+name = "Haskell"
 tag = "code"
 icon = "devicon-plain:haskell"
 aliases = ["hs"]

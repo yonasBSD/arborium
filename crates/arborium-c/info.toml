@@ -1,4 +1,5 @@
-name = "c"
+id = "c"
+name = "C"
 tag = "code"
 icon = "devicon-plain:c"
 aliases = ["h"]

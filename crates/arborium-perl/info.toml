@@ -1,4 +1,5 @@
-name = "perl"
+id = "perl"
+name = "Perl"
 tag = "code"
 icon = "devicon-plain:perl"
 aliases = ["pl", "pm"]

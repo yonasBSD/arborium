@@ -1,4 +1,5 @@
-name = "ron"
+id = "ron"
+name = "RON"
 tag = "data"
 icon = "devicon-plain:rust"
 repo = "https://github.com/tree-sitter-grammars/tree-sitter-ron"

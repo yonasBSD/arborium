@@ -1,4 +1,5 @@
-name = "scss"
+id = "scss"
+name = "SCSS"
 tag = "markup"
 icon = "simple-icons:sass"
 aliases = ["sass"]

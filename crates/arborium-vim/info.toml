@@ -1,4 +1,5 @@
-name = "vim"
+id = "vim"
+name = "Vimscript"
 tag = "code"
 icon = "devicon-plain:vim"
 aliases = ["viml", "vimscript"]

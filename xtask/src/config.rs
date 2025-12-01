@@ -4,6 +4,8 @@ use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
 
+use pulldown_cmark::{html, Parser};
+
 /// Grammar configuration from GRAMMARS.toml
 #[derive(Debug)]
 #[allow(dead_code)]
@@ -59,7 +61,8 @@ pub struct SampleInfo {
 /// Language metadata parsed from info.toml for the demo
 #[derive(Debug, Default)]
 pub struct LanguageInfo {
-    pub name: String,
+    pub id: String,        // crate identifier, e.g., "cpp"
+    pub name: String,      // pretty display name, e.g., "C++"
     pub tag: String,
     pub icon: Option<String>,
     pub aliases: Vec<String>,
@@ -346,6 +349,20 @@ pub fn sample_info_to_json(info: &SampleInfo) -> Option<serde_json::Value> {
     Some(serde_json::Value::Object(obj))
 }
 
+/// Render inline Markdown to HTML, stripping the outer <p> tags
+pub fn render_markdown_inline(markdown: &str) -> String {
+    let parser = Parser::new(markdown);
+    let mut html_output = String::new();
+    html::push_html(&mut html_output, parser);
+    // Strip outer <p> tags for inline use
+    let trimmed = html_output.trim();
+    if trimmed.starts_with("<p>") && trimmed.ends_with("</p>") {
+        trimmed[3..trimmed.len() - 4].to_string()
+    } else {
+        trimmed.to_string()
+    }
+}
+
 /// Helper to extract a string value from a TOML line like `key = "value"`
 pub fn extract_toml_string(line: &str, key: &str) -> Option<String> {
     if line.starts_with(key) {
@@ -372,7 +389,9 @@ pub fn parse_language_info(content: &str) -> Option<LanguageInfo> {
             break;
         }
 
-        if let Some(value) = extract_toml_string(line, "name") {
+        if let Some(value) = extract_toml_string(line, "id") {
+            info.id = value;
+        } else if let Some(value) = extract_toml_string(line, "name") {
             info.name = value;
         } else if let Some(value) = extract_toml_string(line, "tag") {
             info.tag = value;
@@ -420,6 +439,7 @@ pub fn parse_language_info(content: &str) -> Option<LanguageInfo> {
 pub fn language_info_to_json(info: &LanguageInfo, sample: Option<&SampleInfo>) -> serde_json::Value {
     let mut obj = serde_json::Map::new();
 
+    obj.insert("id".to_string(), serde_json::Value::String(info.id.clone()));
     obj.insert("name".to_string(), serde_json::Value::String(info.name.clone()));
     obj.insert("tag".to_string(), serde_json::Value::String(info.tag.clone()));
 
@@ -443,7 +463,8 @@ pub fn language_info_to_json(info: &LanguageInfo, sample: Option<&SampleInfo>) -
     }
 
     if let Some(description) = &info.description {
-        obj.insert("description".to_string(), serde_json::Value::String(description.clone()));
+        let html = render_markdown_inline(description);
+        obj.insert("description".to_string(), serde_json::Value::String(html));
     }
 
     if let Some(link) = &info.link {
@@ -451,7 +472,8 @@ pub fn language_info_to_json(info: &LanguageInfo, sample: Option<&SampleInfo>) -
     }
 
     if let Some(trivia) = &info.trivia {
-        obj.insert("trivia".to_string(), serde_json::Value::String(trivia.clone()));
+        let html = render_markdown_inline(trivia);
+        obj.insert("trivia".to_string(), serde_json::Value::String(html));
     }
 
     // Add sample metadata if available

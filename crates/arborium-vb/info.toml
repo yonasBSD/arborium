@@ -1,4 +1,5 @@
-name = "vb"
+id = "vb"
+name = "Visual Basic"
 tag = "code"
 icon = "devicon-plain:visualbasic"
 aliases = ["vbnet", "visualbasic"]

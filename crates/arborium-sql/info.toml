@@ -1,4 +1,5 @@
-name = "sql"
+id = "sql"
+name = "SQL"
 tag = "query"
 icon = "mdi:database-outline"
 aliases = ["mysql", "postgresql", "postgres", "sqlite"]

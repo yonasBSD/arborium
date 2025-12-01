@@ -1,4 +1,5 @@
-name = "yaml"
+id = "yaml"
+name = "YAML"
 tag = "config"
 icon = "devicon-plain:yaml"
 aliases = ["yml"]

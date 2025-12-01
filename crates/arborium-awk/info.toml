@@ -1,4 +1,5 @@
-name = "awk"
+id = "awk"
+name = "AWK"
 tag = "code"
 icon = "mdi:text-box-outline"
 repo = "https://github.com/Beaglefoot/tree-sitter-awk"

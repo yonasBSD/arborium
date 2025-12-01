@@ -1,4 +1,5 @@
-name = "lua"
+id = "lua"
+name = "Lua"
 tag = "code"
 icon = "devicon-plain:lua"
 repo = "https://github.com/tree-sitter-grammars/tree-sitter-lua"

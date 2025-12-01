@@ -1,4 +1,5 @@
-name = "x86asm"
+id = "x86asm"
+name = "x86 Assembly"
 tag = "code"
 icon = "mdi:memory"
 aliases = ["nasm", "x86"]

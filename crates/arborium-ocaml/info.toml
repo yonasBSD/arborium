@@ -1,4 +1,5 @@
-name = "ocaml"
+id = "ocaml"
+name = "OCaml"
 tag = "code"
 icon = "devicon-plain:ocaml"
 aliases = ["ml"]

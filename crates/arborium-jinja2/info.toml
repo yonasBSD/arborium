@@ -1,4 +1,5 @@
-name = "jinja2"
+id = "jinja2"
+name = "Jinja2"
 tag = "markup"
 icon = "mdi:code-braces"
 aliases = ["jinja", "j2"]

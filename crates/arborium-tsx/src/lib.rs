@@ -14,13 +14,21 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for tsx.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-typescript/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = concat!(
+    include_str!("../queries/inherited-javascript-highlights.scm"),
+    "\n",
+    include_str!("../queries/highlights.scm"),
+);
 
-/// The injections query for tsx (empty - no injections available).
-pub const INJECTIONS_QUERY: &str = "";
+/// The injections query for tsx.
+pub const INJECTIONS_QUERY: &str = include_str!("../queries/inherited-javascript-injections.scm");
 
 /// The locals query for tsx.
-pub const LOCALS_QUERY: &str = include_str!("../../../grammars/tree-sitter-typescript/queries/locals.scm");
+pub const LOCALS_QUERY: &str = concat!(
+    include_str!("../queries/inherited-javascript-locals.scm"),
+    "\n",
+    include_str!("../queries/locals.scm"),
+);
 
 #[cfg(test)]
 mod tests {

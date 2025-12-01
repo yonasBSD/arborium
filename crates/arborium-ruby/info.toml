@@ -1,4 +1,5 @@
-name = "ruby"
+id = "ruby"
+name = "Ruby"
 tag = "code"
 icon = "devicon-plain:ruby"
 aliases = ["rb"]
@@ -7,7 +8,7 @@ commit = ""
 license = ""
 inventor = "Yukihiro Matsumoto"
 year = 1995
-description = ""
+description = "A dynamic, object-oriented language designed for programmer happiness and productivity."
 link = "https://en.wikipedia.org/wiki/Ruby_(programming_language)"
-trivia = ""
+trivia = "Matz (Yukihiro Matsumoto) chose the name Ruby as a playful reference to Perl—ruby is a precious stone, like pearl."
 

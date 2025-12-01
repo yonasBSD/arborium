@@ -1,4 +1,5 @@
-name = "json"
+id = "json"
+name = "JSON"
 tag = "data"
 icon = "mdi:code-json"
 aliases = ["jsonc"]

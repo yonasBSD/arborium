@@ -1,4 +1,5 @@
-name = "julia"
+id = "julia"
+name = "Julia"
 tag = "code"
 icon = "devicon-plain:julia"
 aliases = ["jl"]
@@ -7,7 +8,7 @@ commit = ""
 license = ""
 inventor = "Jeff Bezanson, Stefan Karpinski, Viral B. Shah, Alan Edelman"
 year = 2012
-description = ""
+description = "A high-performance language for numerical and scientific computing with Python-like syntax."
 link = "https://en.wikipedia.org/wiki/Julia_(programming_language)"
-trivia = ""
+trivia = "Julia solves the 'two-language problem'—you can prototype in Julia and get C-like speed without rewriting in a lower-level language."
 

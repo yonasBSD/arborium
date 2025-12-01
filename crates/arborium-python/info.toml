@@ -1,4 +1,5 @@
-name = "python"
+id = "python"
+name = "Python"
 tag = "code"
 icon = "devicon-plain:python"
 aliases = ["py", "py3", "python3"]

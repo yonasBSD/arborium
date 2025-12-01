@@ -1,4 +1,5 @@
-name = "zsh"
+id = "zsh"
+name = "Zsh"
 tag = "shell"
 icon = "mdi:console"
 repo = "https://github.com/georgeharker/tree-sitter-zsh"

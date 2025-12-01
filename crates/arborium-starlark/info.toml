@@ -1,4 +1,5 @@
-name = "starlark"
+id = "starlark"
+name = "Starlark"
 tag = "build"
 icon = "mdi:star-outline"
 aliases = ["bzl", "bazel"]

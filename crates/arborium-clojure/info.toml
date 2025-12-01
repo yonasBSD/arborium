@@ -1,4 +1,5 @@
-name = "clojure"
+id = "clojure"
+name = "Clojure"
 tag = "code"
 icon = "simple-icons:clojure"
 aliases = ["clj"]

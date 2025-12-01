@@ -1,4 +1,5 @@
-name = "kotlin"
+id = "kotlin"
+name = "Kotlin"
 tag = "code"
 icon = "devicon-plain:kotlin"
 aliases = ["kt", "kts"]

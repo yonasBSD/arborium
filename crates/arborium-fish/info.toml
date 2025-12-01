@@ -1,4 +1,5 @@
-name = "fish"
+id = "fish"
+name = "Fish"
 tag = "shell"
 icon = "mdi:fish"
 repo = ""
@@ -6,7 +7,7 @@ commit = ""
 license = ""
 inventor = "Axel Liljencrantz"
 year = 2005
-description = ""
+description = "A user-friendly interactive shell with syntax highlighting and autosuggestions out of the box."
 link = "https://en.wikipedia.org/wiki/Friendly_interactive_shell"
-trivia = ""
+trivia = "Fish intentionally breaks POSIX compatibility for a cleaner syntax—its slogan is 'Finally, a command line shell for the 90s!'"
 

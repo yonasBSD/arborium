@@ -1,4 +1,5 @@
-name = "powershell"
+id = "powershell"
+name = "PowerShell"
 tag = "shell"
 icon = "devicon-plain:powershell"
 aliases = ["ps1", "pwsh"]

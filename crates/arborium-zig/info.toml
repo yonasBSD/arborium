@@ -1,4 +1,5 @@
-name = "zig"
+id = "zig"
+name = "Zig"
 tag = "code"
 icon = "simple-icons:zig"
 repo = "https://github.com/tree-sitter-grammars/tree-sitter-zig"

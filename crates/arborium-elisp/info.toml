@@ -1,4 +1,5 @@
-name = "elisp"
+id = "elisp"
+name = "Emacs Lisp"
 tag = "code"
 icon = "simple-icons:gnuemacs"
 aliases = ["emacs-lisp", "el"]
@@ -7,7 +8,7 @@ commit = ""
 license = ""
 inventor = "Richard Stallman"
 year = 1985
-description = ""
+description = "A Lisp dialect used to extend and customize the GNU Emacs text editor."
 link = "https://en.wikipedia.org/wiki/Emacs_Lisp"
-trivia = ""
+trivia = "Emacs Lisp has been called 'the most widely used Lisp dialect' due to Emacs's popularity—millions of lines of Elisp packages exist."
 

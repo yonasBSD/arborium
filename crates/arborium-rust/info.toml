@@ -1,4 +1,5 @@
-name = "rust"
+id = "rust"
+name = "Rust"
 tag = "code"
 icon = "devicon-plain:rust"
 aliases = ["rs"]

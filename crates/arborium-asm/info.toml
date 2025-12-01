@@ -1,4 +1,5 @@
-name = "asm"
+id = "asm"
+name = "Assembly"
 tag = "code"
 icon = "mdi:memory"
 aliases = ["assembly"]

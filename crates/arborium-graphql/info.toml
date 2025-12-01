@@ -1,4 +1,5 @@
-name = "graphql"
+id = "graphql"
+name = "GraphQL"
 tag = "query"
 icon = "devicon-plain:graphql"
 aliases = ["gql"]
@@ -7,7 +8,7 @@ commit = ""
 license = ""
 inventor = "Lee Byron, Nick Schrock"
 year = 2012
-description = ""
+description = "A query language for APIs that lets clients request exactly the data they need."
 link = "https://en.wikipedia.org/wiki/GraphQL"
-trivia = ""
+trivia = "GraphQL was developed internally at Facebook starting in 2012 to power the News Feed on mobile apps before being open-sourced in 2015."
 

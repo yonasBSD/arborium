@@ -1,4 +1,5 @@
-name = "tsx"
+id = "tsx"
+name = "TSX"
 tag = "code"
 icon = "simple-icons:react"
 repo = "https://github.com/tree-sitter/tree-sitter-typescript"

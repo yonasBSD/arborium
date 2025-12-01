@@ -1,4 +1,5 @@
-name = "capnp"
+id = "capnp"
+name = "Cap'n Proto"
 tag = "data"
 icon = "mdi:message-fast-outline"
 repo = "https://github.com/tree-sitter-grammars/tree-sitter-capnp"

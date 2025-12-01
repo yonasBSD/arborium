@@ -1,4 +1,5 @@
-name = "prolog"
+id = "prolog"
+name = "Prolog"
 tag = "code"
 icon = "mdi:head-question"
 aliases = ["pl"]

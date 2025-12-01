@@ -1,4 +1,5 @@
-name = "elm"
+id = "elm"
+name = "Elm"
 tag = "code"
 icon = "devicon-plain:elm"
 repo = "https://github.com/elm-tooling/tree-sitter-elm"

@@ -1,4 +1,5 @@
-name = "postscript"
+id = "postscript"
+name = "PostScript"
 tag = "code"
 icon = "mdi:printer"
 aliases = ["ps"]

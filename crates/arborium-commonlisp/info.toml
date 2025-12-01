@@ -1,4 +1,5 @@
-name = "commonlisp"
+id = "commonlisp"
+name = "Common Lisp"
 tag = "code"
 icon = "mdi:lambda"
 aliases = ["lisp", "cl"]
@@ -7,7 +8,7 @@ commit = ""
 license = ""
 inventor = "ANSI X3J13 committee"
 year = 1984
-description = ""
+description = "A multi-paradigm dialect of Lisp standardized by ANSI with powerful macro capabilities."
 link = "https://en.wikipedia.org/wiki/Common_Lisp"
-trivia = ""
+trivia = "The Common Lisp standard is over 1,000 pages long and defines nearly 1,000 symbols—making it one of the most comprehensive language specifications ever written."
 

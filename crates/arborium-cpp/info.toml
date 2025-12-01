@@ -1,4 +1,5 @@
-name = "cpp"
+id = "cpp"
+name = "C++"
 tag = "code"
 icon = "devicon-plain:cplusplus"
 aliases = ["c++", "cxx", "hpp"]

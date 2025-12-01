@@ -1,4 +1,5 @@
-name = "kdl"
+id = "kdl"
+name = "KDL"
 tag = "config"
 icon = "mdi:file-document-outline"
 repo = ""
@@ -6,7 +7,7 @@ commit = ""
 license = ""
 inventor = "KDL community"
 year = 2021
-description = ""
+description = "A document language with XML-like semantics and a more human-friendly syntax."
 link = "https://kdl.dev"
-trivia = ""
+trivia = "KDL stands for 'KDL Document Language'—the recursive acronym is intentional, inspired by GNU."
 

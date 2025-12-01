@@ -1,4 +1,5 @@
-name = "verilog"
+id = "verilog"
+name = "Verilog"
 tag = "code"
 icon = "mdi:chip"
 aliases = ["v", "sv", "systemverilog"]

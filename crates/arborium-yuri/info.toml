@@ -1,4 +1,5 @@
-name = "yuri"
+id = "yuri"
+name = "Yuri"
 tag = "code"
 icon = "mdi:palette"
 repo = "https://git.gay/yuri/tree-sitter-yuri"

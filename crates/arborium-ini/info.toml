@@ -1,4 +1,5 @@
-name = "ini"
+id = "ini"
+name = "INI"
 tag = "config"
 icon = "mdi:cog-outline"
 aliases = ["conf", "cfg"]

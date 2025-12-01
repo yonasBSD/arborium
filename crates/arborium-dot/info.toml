@@ -1,4 +1,5 @@
-name = "dot"
+id = "dot"
+name = "DOT/Graphviz"
 tag = "data"
 icon = "mdi:graph"
 repo = ""
@@ -6,7 +7,7 @@ commit = ""
 license = ""
 inventor = "Stephen North and AT&T Bell Labs"
 year = 1991
-description = ""
+description = "A graph description language for defining nodes, edges, and graph layouts in Graphviz."
 link = "https://en.wikipedia.org/wiki/DOT_(graph_description_language)"
-trivia = ""
+trivia = "Graphviz layout algorithms were developed at AT&T Labs and have been used to visualize everything from compiler internals to social networks."
 

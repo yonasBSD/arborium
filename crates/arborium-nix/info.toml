@@ -1,4 +1,5 @@
-name = "nix"
+id = "nix"
+name = "Nix"
 tag = "config"
 icon = "devicon-plain:nixos"
 repo = "https://github.com/nix-community/tree-sitter-nix"

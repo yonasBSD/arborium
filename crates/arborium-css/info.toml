@@ -1,4 +1,5 @@
-name = "css"
+id = "css"
+name = "CSS"
 tag = "markup"
 icon = "devicon-plain:css3"
 repo = "https://github.com/tree-sitter/tree-sitter-css"

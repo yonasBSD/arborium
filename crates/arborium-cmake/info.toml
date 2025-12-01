@@ -1,4 +1,5 @@
-name = "cmake"
+id = "cmake"
+name = "CMake"
 tag = "build"
 icon = "devicon-plain:cmake"
 repo = ""
@@ -6,7 +7,7 @@ commit = ""
 license = ""
 inventor = "Bill Hoffman"
 year = 2000
-description = ""
+description = "A cross-platform build system generator for C/C++ projects."
 link = "https://en.wikipedia.org/wiki/CMake"
-trivia = ""
+trivia = "CMake was originally developed to support the cross-platform build needs of the Insight Segmentation and Registration Toolkit (ITK)."
 

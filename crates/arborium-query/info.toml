@@ -1,4 +1,5 @@
-name = "query"
+id = "query"
+name = "Tree-sitter Query"
 tag = "query"
 icon = "mdi:file-tree-outline"
 aliases = ["scm"]
@@ -7,7 +8,7 @@ commit = ""
 license = ""
 inventor = "Max Brunsfeld"
 year = 2020
-description = ""
+description = "A S-expression based pattern language for matching nodes in tree-sitter syntax trees."
 link = "https://tree-sitter.github.io/tree-sitter/using-parsers#pattern-matching-with-queries"
-trivia = ""
+trivia = "Tree-sitter queries power syntax highlighting in editors like Neovim, Helix, and Zed—this is what arborium uses under the hood."
 

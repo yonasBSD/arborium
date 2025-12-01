@@ -1,4 +1,5 @@
-name = "swift"
+id = "swift"
+name = "Swift"
 tag = "code"
 icon = "devicon-plain:swift"
 repo = "https://github.com/alex-pinkus/tree-sitter-swift"

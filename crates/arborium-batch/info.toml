@@ -1,4 +1,5 @@
-name = "batch"
+id = "batch"
+name = "Batch"
 tag = "shell"
 icon = "mdi:console"
 aliases = ["bat", "cmd"]

@@ -1,4 +1,5 @@
-name = "ssh-config"
+id = "ssh-config"
+name = "SSH Config"
 tag = "config"
 icon = "mdi:key-chain"
 repo = ""
@@ -6,7 +7,7 @@ commit = ""
 license = ""
 inventor = "Tatu Ylönen"
 year = 1995
-description = ""
+description = "Configuration file format for OpenSSH client settings like hosts, keys, and connection options."
 link = "https://man.openbsd.org/ssh_config"
-trivia = ""
+trivia = "SSH was created in 1995 after a password-sniffing attack at Helsinki University of Technology prompted Tatu Ylönen to develop a secure replacement for rlogin."
 

@@ -1,4 +1,5 @@
-name = "elixir"
+id = "elixir"
+name = "Elixir"
 tag = "code"
 icon = "devicon-plain:elixir"
 aliases = ["ex", "exs"]

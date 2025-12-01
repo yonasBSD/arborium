@@ -1,4 +1,5 @@
-name = "javascript"
+id = "javascript"
+name = "JavaScript"
 tag = "code"
 icon = "devicon-plain:javascript"
 aliases = ["js", "jsx", "mjs", "cjs"]

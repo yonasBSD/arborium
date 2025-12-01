@@ -1,4 +1,5 @@
-name = "diff"
+id = "diff"
+name = "Diff"
 tag = "data"
 icon = "mdi:file-compare"
 aliases = ["patch"]
