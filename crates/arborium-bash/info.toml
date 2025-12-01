@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Brian Fox"
 year = 1989
 description = "Unix shell and command language for GNU; see the official [GNU Bash manual](https://www.gnu.org/software/bash/manual/)."
-wikipedia = "https://en.wikipedia.org/wiki/Bash_(Unix_shell)"
+link = "https://en.wikipedia.org/wiki/Bash_(Unix_shell)"
 trivia = "Bash means 'Bourne Again SHell', a nod to the Bourne shell; Fox began coding it in January 1988 and released the first beta in June 1989 for the GNU Project ([Bash history](https://www.gnu.org/software/bash/manual/bash.html#Bash-History))."
 
 [[samples]]

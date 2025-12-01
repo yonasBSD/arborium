@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Sun Microsystems (Open Firmware)"
 year = 1988
 description = "Data structure for describing hardware; documented in the [Devicetree Specification](https://www.devicetree.org/specifications/)."
-wikipedia = "https://en.wikipedia.org/wiki/Devicetree"
+link = "https://en.wikipedia.org/wiki/Devicetree"
 trivia = "Originated with Open Firmware (IEEE 1275-1994); the Flattened Device Tree format for Linux was introduced in 2005—see the [Devicetree spec](https://www.devicetree.org/specifications/)."
 
 [[samples]]

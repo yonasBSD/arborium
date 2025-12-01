@@ -5,8 +5,8 @@ license = "MIT"
 inventor = "Bjarne Stroustrup"
 year = 1985
 description = "General-purpose language extending C with zero-overhead abstractions; see Stroustrup’s official overview at [isocpp.org](https://isocpp.org/about)."
-wikipedia = "https://en.wikipedia.org/wiki/C%2B%2B"
-trivia = "Began as 'C with Classes' in 1979 and was renamed C++ (using the C increment operator) in 1983; Stroustrup recounts the history in ["The Design and Evolution of C++" excerpts](https://www.stroustrup.com/dne.html)."
+link = "https://en.wikipedia.org/wiki/C%2B%2B"
+trivia = "Began as 'C with Classes' in 1979 and was renamed C++ (using the C increment operator) in 1983; Stroustrup recounts the history in The Design and Evolution of C++ (https://www.stroustrup.com/dne.html)."
 
 [[samples]]
 path = "samples/chrono-test.cc"

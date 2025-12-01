@@ -1,0 +1,10 @@
+# Nord (dark)
+name = "Nord"
+variant = "dark"
+
+[colors]
+bg = "#2e3440"
+keyword = "#81a1c1"
+function = "#88c0d0"
+string = "#a3be8c"
+type = "#8fbcbb"

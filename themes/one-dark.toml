@@ -1,0 +1,10 @@
+# One Dark
+name = "One Dark"
+variant = "dark"
+
+[colors]
+bg = "#282c34"
+keyword = "#c678dd"
+function = "#61afef"
+string = "#98c379"
+type = "#e5c07b"

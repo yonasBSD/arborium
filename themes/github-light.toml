@@ -1,0 +1,10 @@
+# GitHub Light
+name = "GitHub Light"
+variant = "light"
+
+[colors]
+bg = "#ffffff"
+keyword = "#cf222e"
+function = "#8250df"
+string = "#0a3069"
+type = "#953800"

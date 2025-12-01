@@ -5,7 +5,7 @@ license = "GPL-3.0"
 inventor = "Armin Ronacher"
 year = 2008
 description = "Python templating engine inspired by Django; official docs at [jinja.palletsprojects.com](https://jinja.palletsprojects.com/)."
-wikipedia = "https://en.wikipedia.org/wiki/Jinja_(template_engine)"
+link = "https://en.wikipedia.org/wiki/Jinja_(template_engine)"
 trivia = "Named after the Jinja shrine; released as part of the Pocoo suite. See the [Jinja design notes](https://jinja.palletsprojects.com/en/stable/#design-goals) and early release history in the docs."
 
 [[samples]]

@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Paul Falstad"
 year = 1990
 description = "Extended Unix shell with rich scripting; reference manual at [zsh.sourceforge.io/Doc](https://zsh.sourceforge.io/Doc/)."
-wikipedia = "https://en.wikipedia.org/wiki/Z_shell"
+link = "https://en.wikipedia.org/wiki/Z_shell"
 trivia = "Created by Falstad while at Princeton; named after TA Zhong Shao. The [zsh FAQ](https://zsh.sourceforge.io/FAQ/) documents its history and feature set."
 
 [[samples]]

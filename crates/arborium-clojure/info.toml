@@ -5,7 +5,7 @@ license = "Unlicense"
 inventor = "Rich Hickey"
 year = 2007
 description = "Functional Lisp dialect for the JVM with strong concurrency support; official site: [clojure.org](https://clojure.org/)."
-wikipedia = "https://en.wikipedia.org/wiki/Clojure"
+link = "https://en.wikipedia.org/wiki/Clojure"
 trivia = "Hickey designed Clojure to simplify concurrent programming; the language was announced publicly in 2007 and documented in the [original release notes](https://clojure.org/releases/downloads)."
 
 [[samples]]

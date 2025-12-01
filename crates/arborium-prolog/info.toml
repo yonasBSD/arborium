@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Alain Colmerauer and Philippe Roussel"
 year = 1972
 description = "Logic programming language for AI and computational linguistics; early definition in Colmerauer’s 1972 Marseille reports."
-wikipedia = "https://en.wikipedia.org/wiki/Prolog"
+link = "https://en.wikipedia.org/wiki/Prolog"
 trivia = "Prolog (PROgrammation en LOGique) emerged in 1972; used in Japan’s Fifth Generation Project (1982). The ISO standard is [ISO/IEC 13211-1](https://www.iso.org/standard/21413.html)."
 
 [[samples]]

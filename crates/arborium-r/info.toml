@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Ross Ihaka and Robert Gentleman"
 year = 1993
 description = "Language and environment for statistical computing; official manuals at [CRAN docs](https://cran.r-project.org/manuals.html)."
-wikipedia = "https://en.wikipedia.org/wiki/R_(programming_language)"
+link = "https://en.wikipedia.org/wiki/R_(programming_language)"
 trivia = "Named for Ross and Robert and as a successor to S; initial public release was 1995. The [R Language Definition](https://cran.r-project.org/doc/manuals/r-release/R-lang.html) documents core semantics."
 
 [[samples]]

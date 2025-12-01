@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Microsoft"
 year = 2002
 description = "High-Level Shading Language for DirectX; official reference in the [DirectX Shader Model docs](https://learn.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-pguide)."
-wikipedia = "https://en.wikipedia.org/wiki/High-Level_Shading_Language"
+link = "https://en.wikipedia.org/wiki/High-Level_Shading_Language"
 trivia = "Introduced with DirectX 9; modern compiler `dxc` targets DXIL and SPIR-V—see the [DirectX Shader Compiler repo](https://github.com/microsoft/DirectXShaderCompiler)."
 
 [[samples]]

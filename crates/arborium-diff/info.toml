@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Wayne Davison"
 year = 1990
 description = "Unified diff format for representing file differences; GNU diffutils manual documents the format ([GNU diffutils](https://www.gnu.org/software/diffutils/manual/))."
-wikipedia = "https://en.wikipedia.org/wiki/Diff"
+link = "https://en.wikipedia.org/wiki/Diff"
 trivia = "Wayne Davison proposed the unified format in Aug 1990 on comp.sources.misc; GNU diff added support in version 1.15 (Jan 1991) per the [diffutils ChangeLog](https://git.savannah.gnu.org/gitweb/?p=diffutils.git;a=blob;f=NEWS;hb=refs/tags/v1.15)."
 
 [[samples]]

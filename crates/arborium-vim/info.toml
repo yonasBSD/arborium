@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Bram Moolenaar"
 year = 1991
 description = "Modal text editor language (Vimscript); official reference at [:help usr_41.txt](https://vimhelp.org/usr_41.txt.html)."
-wikipedia = "https://en.wikipedia.org/wiki/Vim_(text_editor)"
+link = "https://en.wikipedia.org/wiki/Vim_(text_editor)"
 trivia = "Moolenaar released Vim 1.14 for Amiga in 1991; Vimscript reference is built into `:help` and online at [vimhelp.org](https://vimhelp.org)."
 
 [[samples]]

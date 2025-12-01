@@ -1,0 +1,10 @@
+# Catppuccin Latte (light)
+name = "Latte"
+variant = "light"
+
+[colors]
+bg = "#eff1f5"
+keyword = "#8839ef"
+function = "#1e66f5"
+string = "#40a02b"
+type = "#df8e1d"

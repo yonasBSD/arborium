@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Leslie Lamport"
 year = 1999
 description = "Temporal Logic of Actions (TLA+) for formal specs; the canonical reference is Lamport’s book [Specifying Systems](https://lamport.azurewebsites.net/tla/book.html)."
-wikipedia = "https://en.wikipedia.org/wiki/TLA+"
+link = "https://en.wikipedia.org/wiki/TLA+"
 trivia = "Lamport introduced TLA+ in the late 1990s; AWS famously uses it to find subtle bugs—see Lamport’s papers and the TLA+ hyperbook."
 
 [[samples]]

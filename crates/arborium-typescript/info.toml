@@ -6,7 +6,7 @@ subdir = "typescript"  # grammar has typescript/ and tsx/ subdirs
 inventor = "Anders Hejlsberg"
 year = 2012
 description = "Statically typed superset of JavaScript; official handbook at [TypeScript docs](https://www.typescriptlang.org/docs/)."
-wikipedia = "https://en.wikipedia.org/wiki/TypeScript"
+link = "https://en.wikipedia.org/wiki/TypeScript"
 trivia = "Announced by Microsoft in Oct 2012 to add optional types to JS; design is documented in the TypeScript spec and Handbook."
 
 # amos-picked sample

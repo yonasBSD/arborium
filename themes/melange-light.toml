@@ -1,0 +1,10 @@
+# Melange Light
+name = "Melange Light"
+variant = "light"
+
+[colors]
+bg = "#f1f1f1"
+keyword = "#bc5c00"
+function = "#4c7399"
+string = "#6f894e"
+type = "#c29830"

@@ -1,0 +1,10 @@
+# GitHub Dark
+name = "GitHub Dark"
+variant = "dark"
+
+[colors]
+bg = "#0d1117"
+keyword = "#ff7b72"
+function = "#79c0ff"
+string = "#7ee787"
+type = "#ffa657"

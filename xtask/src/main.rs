@@ -10,6 +10,11 @@
 //!   generate-demo    Generate demo/index.html from template and example files
 //!   generate-readme  Generate README.md from GRAMMARS.toml
 //!   serve-demo       Build and serve the WASM demo locally
+//!   lint-info-toml   Lint all info.toml files for missing/invalid fields
+
+mod config;
+mod lint;
+mod util;
 
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::env;
@@ -112,6 +117,7 @@ fn main() {
             }
             serve_demo(&addr, port, dev_mode);
         }
+        "lint-info-toml" | "lint" => lint::lint_info_toml(),
         "help" | "--help" | "-h" => print_usage(),
         cmd => {
             eprintln!("Unknown command: {}", cmd);
@@ -136,6 +142,7 @@ fn print_usage() {
     eprintln!("                   Options: -a <address> (default: 127.0.0.1)");
     eprintln!("                            -p <port> (default: auto-select 8000-8010)");
     eprintln!("                            --dev (fast dev build: -O1, no wasm-opt, fast compression)");
+    eprintln!("  lint-info-toml   Lint all info.toml files for missing/invalid fields");
     eprintln!("  help             Show this help message");
 }
 
@@ -3098,9 +3105,53 @@ fn generate_demo() {
         .replace("{{EXAMPLES}}", &examples_js)
         .replace("{{ICONS}}", &icons_js);
 
-    // Step 8: Process template.html - replace {{ICON:xxx}} with inline SVGs
+    // Step 8: Generate theme previews from themes/*.toml
+    println!("  Generating theme previews...");
+    let themes_dir = repo_root.join("themes");
+    let mut theme_swatches_html = String::new();
+    if themes_dir.exists() {
+        let mut themes: Vec<_> = fs::read_dir(&themes_dir)
+            .expect("Failed to read themes directory")
+            .filter_map(|e| e.ok())
+            .filter(|e| e.path().extension().is_some_and(|ext| ext == "toml"))
+            .collect();
+        themes.sort_by_key(|e| e.path());
+
+        for entry in themes {
+            let path = entry.path();
+            let content = fs::read_to_string(&path).expect("Failed to read theme file");
+            let theme: toml::Value = content.parse().expect("Failed to parse theme TOML");
+
+            let name = theme.get("name").and_then(|v| v.as_str()).unwrap_or("Unknown");
+            let colors = theme.get("colors").and_then(|v| v.as_table());
+
+            if let Some(colors) = colors {
+                let bg = colors.get("bg").and_then(|v| v.as_str()).unwrap_or("#000");
+                let keyword = colors.get("keyword").and_then(|v| v.as_str()).unwrap_or("#fff");
+                let function = colors.get("function").and_then(|v| v.as_str()).unwrap_or("#fff");
+                let string = colors.get("string").and_then(|v| v.as_str()).unwrap_or("#fff");
+                let type_color = colors.get("type").and_then(|v| v.as_str()).unwrap_or("#fff");
+
+                // Mini code preview: fn main() { let x = "hi"; }
+                theme_swatches_html.push_str(&format!(
+                    r#"<div class="theme-preview" title="{}">
+                        <pre style="background: {}"><code><span style="color: {}">fn</span> <span style="color: {}">main</span>() {{
+  <span style="color: {}">let</span> x = <span style="color: {}">"hi"</span>;
+}}</code></pre>
+                        <span class="theme-name">{}</span>
+                    </div>
+"#,
+                    name, bg, keyword, function, keyword, string, name
+                ));
+            }
+        }
+        println!("    Generated {} theme previews", themes_dir.read_dir().unwrap().count());
+    }
+
+    // Step 9: Process template.html - replace {{ICON:xxx}} with inline SVGs
     println!("  Processing template.html...");
     let mut html_output = template.clone();
+    html_output = html_output.replace("{{THEME_SWATCHES}}", &theme_swatches_html);
     for cap in icon_pattern.captures_iter(&template) {
         let full_match = cap.get(0).unwrap().as_str();
         let icon_name = cap.get(1).unwrap().as_str();

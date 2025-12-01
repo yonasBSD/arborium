@@ -5,7 +5,7 @@ license = "Apache-2.0"
 inventor = "Louis Pilfold"
 year = 2016
 description = "Statically typed functional language for the BEAM; official docs at [gleam.run](https://gleam.run/)."
-wikipedia = "https://en.wikipedia.org/wiki/Gleam_(programming_language)"
+link = "https://en.wikipedia.org/wiki/Gleam_(programming_language)"
 trivia = "Pilfold announced Gleam in 2016 to bring ML-style typing to Erlang; version 1.0 shipped in March 2024 per the [Gleam 1.0 release notes](https://gleam.run/news/gleam-v1.0/)."
 
 [[samples]]

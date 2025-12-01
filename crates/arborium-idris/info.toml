@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Edwin Brady"
 year = 2009
 description = "Dependently typed functional language for verified software; see the official site [idris-lang.org](https://www.idris-lang.org/)."
-wikipedia = "https://en.wikipedia.org/wiki/Idris_(programming_language)"
+link = "https://en.wikipedia.org/wiki/Idris_(programming_language)"
 trivia = "Brady introduced Idris in 2009 to bring dependent types to general-purpose programming; the [Idris tutorial](https://www.idris-lang.org/documentation/) demonstrates length-indexed vectors and other proofs in code."
 
 [[samples]]

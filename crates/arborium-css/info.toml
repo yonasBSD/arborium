@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Håkon Wium Lie"
 year = 1996
 description = "Style sheet language for web documents; the living standard is maintained by the W3C ([CSS current drafts](https://www.w3.org/TR/CSS/))."
-wikipedia = "https://en.wikipedia.org/wiki/CSS"
+link = "https://en.wikipedia.org/wiki/CSS"
 trivia = "Wium Lie proposed CSS on 10 Oct 1994 while at CERN and it became a W3C Recommendation in 1996; see his original [proposal memo](https://www.w3.org/People/howcome/p/Spec/) and the [CSS1 recommendation](https://www.w3.org/TR/REC-CSS1-961217)."
 
 [[samples]]

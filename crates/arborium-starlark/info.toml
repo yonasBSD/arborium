@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Laurent Le Brun and Google"
 year = 2015
 description = "Deterministic, hermetic build language used by Bazel/Buck2; spec at [Starlark language](https://bazel.build/rules/language)."
-wikipedia = "https://en.wikipedia.org/wiki/Starlark"
+link = "https://en.wikipedia.org/wiki/Starlark"
 trivia = "Originally named Skylark (2015), renamed Starlark in 2018; deterministic semantics documented in the [spec](https://bazel.build/rules/language)."
 
 [[samples]]

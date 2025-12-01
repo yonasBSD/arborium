@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Jeffrey Snover"
 year = 2006
 description = "Task automation shell and scripting language; official docs at [learn.microsoft.com/powershell](https://learn.microsoft.com/powershell/)."
-wikipedia = "https://en.wikipedia.org/wiki/PowerShell"
+link = "https://en.wikipedia.org/wiki/PowerShell"
 trivia = "Born from Snover's 2002 'Monad Manifesto'; first released 2006. Open-sourced and cross-platform in 2016 as PowerShell Core—see the [PowerShell repo](https://github.com/PowerShell/PowerShell)."
 
 [[samples]]

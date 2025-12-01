@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Rich Harris"
 year = 2016
 description = "Compiler-based UI framework that outputs minimal JS; official tutorial at [svelte.dev](https://svelte.dev/docs/introduction)."
-wikipedia = "https://en.wikipedia.org/wiki/Svelte"
+link = "https://en.wikipedia.org/wiki/Svelte"
 trivia = "Harris announced Svelte in 2016 to eliminate the virtual DOM; the [Svelte blog](https://svelte.dev/blog) covers milestones like SvelteKit and run-time improvements."
 
 [[samples]]

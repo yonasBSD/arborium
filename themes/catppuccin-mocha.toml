@@ -1,0 +1,10 @@
+# Catppuccin Mocha (dark)
+name = "Mocha"
+variant = "dark"
+
+[colors]
+bg = "#1e1e2e"
+keyword = "#cba6f7"
+function = "#89b4fa"
+string = "#a6e3a1"
+type = "#f9e2af"

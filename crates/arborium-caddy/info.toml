@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Matt Holt and Caddy contributors"
 year = 2015
 description = "Caddyfile configuration language for the Caddy web server; official docs at [caddyserver.com/docs/caddyfile](https://caddyserver.com/docs/caddyfile)."
-wikipedia = "https://caddyserver.com/docs/"
+link = "https://caddyserver.com/docs/"
 trivia = "Caddy launched in 2015 with automatic HTTPS via Let's Encrypt; minimal syntax allows a single-line site definition—documented in the [Caddyfile spec](https://caddyserver.com/docs/caddyfile)."
 
 [[samples]]

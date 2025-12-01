@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Evan You"
 year = 2014
 description = "Progressive JavaScript framework for UIs; official docs at [vuejs.org](https://vuejs.org/guide/introduction.html)."
-wikipedia = "https://en.wikipedia.org/wiki/Vue.js"
+link = "https://en.wikipedia.org/wiki/Vue.js"
 trivia = "You released Vue in Feb 2014 after working on Angular at Google; the [release notes](https://github.com/vuejs/core/releases) and guide document its evolution from 0.10 to Vue 3/4 composition API."
 
 [[samples]]

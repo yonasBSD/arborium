@@ -6,7 +6,7 @@ subdir = "xml"  # Multi-grammar repo: use xml/ subdirectory
 inventor = "W3C XML Working Group"
 year = 1998
 description = "Extensible Markup Language defined by the [W3C XML 1.0 Recommendation](https://www.w3.org/TR/xml/)."
-wikipedia = "https://en.wikipedia.org/wiki/XML"
+link = "https://en.wikipedia.org/wiki/XML"
 trivia = "Work began in 1996; XML 1.0 became a W3C Recommendation on Feb 10, 1998, led by Bray, Paoli, and Sperberg-McQueen."
 
 [[samples]]

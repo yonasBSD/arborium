@@ -1,0 +1,10 @@
+# Melange Dark
+name = "Melange Dark"
+variant = "dark"
+
+[colors]
+bg = "#292522"
+keyword = "#bd8183"
+function = "#7d9bba"
+string = "#78997a"
+type = "#c1a78e"

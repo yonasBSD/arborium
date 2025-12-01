@@ -6,7 +6,7 @@ subdir = "php"  # Multi-grammar repo: use php/ subdirectory
 inventor = "Rasmus Lerdorf"
 year = 1995
 description = "Server-side scripting language; the official manual is at [php.net/manual](https://www.php.net/manual/en/)."
-wikipedia = "https://en.wikipedia.org/wiki/PHP"
+link = "https://en.wikipedia.org/wiki/PHP"
 trivia = "Started as 'Personal Home Page Tools' in 1994/95; renamed 'PHP: Hypertext Preprocessor' in 1997. History is documented in the [PHP changelog](https://www.php.net/ChangeLog-8.php) and manual preface."
 
 # llm-picked sample

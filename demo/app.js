@@ -828,5 +828,32 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// Populate language marquee
+function populateLangMarquee() {
+    const marquee = document.getElementById('lang-marquee');
+    if (!marquee) return;
+
+    // Get all language names sorted alphabetically
+    const langNames = Object.entries(languageInfo)
+        .map(([id, info]) => ({ id, name: info.name || id, icon: info.icon }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+    // Create items - duplicate the list for seamless scrolling
+    const createItems = () => langNames.map(lang => {
+        const iconSvg = getIconSvg(lang.id);
+        return `<span class="lang-marquee-item">${iconSvg}${lang.name}</span>`;
+    }).join('');
+
+    // Duplicate content for seamless loop
+    marquee.innerHTML = createItems() + createItems();
+
+    // Update lang count
+    const langCount = document.getElementById('lang-count');
+    if (langCount) {
+        langCount.textContent = langNames.length;
+    }
+}
+
 initialize();
 loadBundleInfo();
+populateLangMarquee();

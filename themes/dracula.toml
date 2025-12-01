@@ -1,0 +1,10 @@
+# Dracula (dark)
+name = "Dracula"
+variant = "dark"
+
+[colors]
+bg = "#282a36"
+keyword = "#ff79c6"
+function = "#8be9fd"
+string = "#50fa7b"
+type = "#f1fa8c"

@@ -1,0 +1,10 @@
+# Monokai Pro (dark)
+name = "Monokai"
+variant = "dark"
+
+[colors]
+bg = "#2d2a2e"
+keyword = "#ff6188"
+function = "#78dce8"
+string = "#a9dc76"
+type = "#ffd866"

@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Evan Czaplicki"
 year = 2012
 description = "Purely functional language for reliable web apps; see the official [Elm Guide](https://guide.elm-lang.org/)."
-wikipedia = "https://en.wikipedia.org/wiki/Elm_(programming_language)"
+link = "https://en.wikipedia.org/wiki/Elm_(programming_language)"
 trivia = "Introduced by Czaplicki in 2012 with 'The Elm Architecture' that later inspired Redux; documented in the [Elm Architecture](https://guide.elm-lang.org/architecture/) section of the guide."
 
 [[samples]]

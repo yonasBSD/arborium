@@ -85,12 +85,12 @@
                 </p>
                 <div class="compare-boxes">
                     <div class="compare-box old">
-                        <span class="compare-label">The old way</span>
-                        <code>&lt;span class="keyword"&gt;fn&lt;/span&gt;</code>
+                        <span class="compare-label">Traditional</span>
+                        <code><a-tg>&lt;span</a-tg> <a-at>class</a-at><a-p>=</a-p><a-s>"keyword"</a-s><a-tg>&gt;</a-tg>fn<a-tg>&lt;/span&gt;</a-tg></code>
                     </div>
                     <div class="compare-box new">
                         <span class="compare-label">arborium</span>
-                        <code>&lt;a-k&gt;fn&lt;/a-k&gt;</code>
+                        <code><a-tg>&lt;a-k&gt;</a-tg><a-k>fn</a-k><a-tg>&lt;/a-k&gt;</a-tg></code>
                     </div>
                 </div>
                 <p>
@@ -117,7 +117,7 @@
                             <span class="platform-logo" title="WebAssembly">{{ICON:simple-icons:webassembly}}</span>
                         </div>
                         <p>
-                            <strong>WebAssembly</strong> — the hard one. Compiling Rust to WASM with C code that
+                            <strong>WebAssembly</strong> — that one's hard. Compiling Rust to WASM with C code that
                             assumes a standard library is tricky. We provide a sysroot that makes this work,
                             enabling Rust-on-the-frontend scenarios like this demo.
                         </p>
@@ -131,6 +131,9 @@
                     <strong id="lang-count">90+</strong> languages included, each behind a feature flag.
                     Enable only what you need, or use <code>all-languages</code> for everything.
                 </p>
+                <div class="lang-marquee-container">
+                    <div class="lang-marquee" id="lang-marquee"></div>
+                </div>
                 <p>
                     Each feature flag comment includes the grammar's license, so you always know what
                     you're shipping.
@@ -143,25 +146,46 @@
                     The highlighter supports themes for both <strong>HTML</strong> and <strong>ANSI</strong> output.
                 </p>
                 <p class="theme-list-label">Bundled themes:</p>
-                <div class="theme-chips">
-                    <span class="theme-chip">Catppuccin Mocha</span>
-                    <span class="theme-chip">Catppuccin Latte</span>
-                    <span class="theme-chip">Catppuccin Frappé</span>
-                    <span class="theme-chip">Catppuccin Macchiato</span>
-                    <span class="theme-chip">Dracula</span>
-                    <span class="theme-chip">Tokyo Night</span>
-                    <span class="theme-chip">Nord</span>
-                    <span class="theme-chip">One Dark</span>
-                    <span class="theme-chip">GitHub Dark</span>
-                    <span class="theme-chip">GitHub Light</span>
-                    <span class="theme-chip">Monokai Pro</span>
-                    <span class="theme-chip">Melange Dark</span>
-                    <span class="theme-chip">Melange Light</span>
+                <div class="theme-swatches">
+                    {{THEME_SWATCHES}}
                 </div>
                 <p>
                     Custom themes can be defined programmatically using RGB colors and style attributes
                     (bold, italic, underline, strikethrough).
                 </p>
+            </div>
+
+            <div class="about-card faq">
+                <h3>FAQ</h3>
+                <div class="faq-item">
+                    <h4>Why not highlight.js or Shiki?</h4>
+                    <p>Those use regex-based tokenization (TextMate grammars). Regexes can't count brackets, track scope, or understand structure—they just pattern-match. Tree-sitter actually <em>parses</em> your code into a syntax tree, so it knows that <code>fn</code> is a keyword only in the right context, handles deeply nested structures correctly, and recovers gracefully from syntax errors. IDEs with LSP support (like rust-analyzer) can do even better with <em>semantic</em> highlighting—they understand types and dependencies across files—but tree-sitter gets you 90% of the way there without needing a full language server.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Why "arborium"?</h4>
+                    <p><em>Arbor</em> is Latin for tree (as in tree-sitter), and <em>-ium</em> denotes a place or collection (like aquarium, arboretum). It's a place where tree-sitter grammars live.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>I have a grammar that's not included. Can you add it?</h4>
+                    <p>Yes! <a href="https://github.com/bearcove/arborium/issues">Open an issue</a> on the repo with a link to the grammar. We'll review it and add it if the grammar and highlight queries are in good shape.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Why not use the WASM builds from tree-sitter CLI?</h4>
+                    <p>When doing full-stack Rust, it's nice to have <em>exactly</em> the same code on the frontend and the backend. Rust crates compile to both native and WASM, so you get one dependency that works everywhere.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Why are tree-sitter parsers so large?</h4>
+                    <p>Tree-sitter uses table-driven LR parsing. The grammar compiles down to massive state transition tables—every possible parser state and every possible token gets an entry. These tables are optimized for O(1) lookup speed, not size. A complex grammar like TypeScript can have tens of thousands of states. The tradeoff is worth it: you get real parsing (not regex hacks) that handles edge cases correctly and recovers gracefully from syntax errors.</p>
+                </div>
+            </div>
+
+            <div class="cta-box">
+                <p class="cta-text">Enough learning, time for cargo adding:</p>
+                <code class="cta-command">cargo add arborium</code>
+                <div class="cta-buttons">
+                    <a href="https://github.com/bearcove/arborium" class="cta-button primary">View on GitHub</a>
+                    <a href="https://docs.rs/arborium" class="cta-button secondary">Read the Docs</a>
+                </div>
             </div>
 
             <p class="bundle-stats" id="bundle-stats"></p>

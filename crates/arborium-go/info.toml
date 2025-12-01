@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Robert Griesemer, Rob Pike, Ken Thompson"
 year = 2009
 description = "Statically typed compiled language from Google; the canonical spec is the [Go Language Specification](https://go.dev/ref/spec)."
-wikipedia = "https://en.wikipedia.org/wiki/Go_(programming_language)"
+link = "https://en.wikipedia.org/wiki/Go_(programming_language)"
 trivia = "Announced publicly in Nov 2009; its mascot the Gopher was created by Renée French and documented on the [Go blog](https://go.dev/blog/gopher)."
 
 [[samples]]

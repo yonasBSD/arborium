@@ -5,7 +5,7 @@ license = "MIT OR Apache-2.0"
 inventor = "kvark and torkleyy"
 year = 2015
 description = "Rusty Object Notation, a Rust-friendly data format; reference at [ron-rs.github.io](https://docs.rs/ron/latest/ron/)."
-wikipedia = "https://github.com/ron-rs/ron"
+link = "https://github.com/ron-rs/ron"
 trivia = "Designed for a (canceled) game project and revived by the Rust community; features trailing commas, comments, and Rust-like enums—see the crate docs on [docs.rs](https://docs.rs/ron)."
 
 [[samples]]

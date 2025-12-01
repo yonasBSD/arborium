@@ -5,7 +5,7 @@ license = "GPL-3.0"
 inventor = "Igor Sysoev"
 year = 2004
 description = "Configuration language for the nginx web server; official reference at [nginx.org/r/directives](https://nginx.org/en/docs/dirindex.html)."
-wikipedia = "https://en.wikipedia.org/wiki/Nginx"
+link = "https://en.wikipedia.org/wiki/Nginx"
 trivia = "Sysoev began nginx in 2002; first public release in 2004. The configuration syntax is documented in the [nginx docs](https://nginx.org/en/docs/)."
 
 [[samples]]

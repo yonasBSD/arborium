@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Kathleen Booth"
 year = 1947
 description = "Low-level programming language that maps mnemonic instructions directly to machine code; the earliest published example was Booth's 1947 ARC2 'Contracted Notation' assembler ([Kathleen Booth bio](https://en.wikipedia.org/wiki/Kathleen_Booth))."
-wikipedia = "https://en.wikipedia.org/wiki/Assembly_language"
+link = "https://en.wikipedia.org/wiki/Assembly_language"
 trivia = "Booth detailed one of the first assemblers in her 1947 ARC report, and backward compatibility means [Intel's 8086 programs still run on modern x86 chips](https://archive.org/details/Intel8086ProgrammersReferenceManual)."
 
 [[samples]]

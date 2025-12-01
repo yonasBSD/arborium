@@ -5,7 +5,7 @@ license = "Apache-2.0"
 inventor = "Yuri contributors"
 year = 2024
 description = "Yuri shader language; see repository README for current design status."
-wikipedia = ""
+link = ""
 trivia = "Yuri is an in-progress shader language and compiler; the design is not finalized and is released under Apache-2.0."
 
 [[samples]]

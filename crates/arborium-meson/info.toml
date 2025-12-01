@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Jussi Pakkanen"
 year = 2013
 description = "Fast, user-friendly build system using Ninja backend; official docs at [mesonbuild.com](https://mesonbuild.com/Manual.html)."
-wikipedia = "https://en.wikipedia.org/wiki/Meson_(software)"
+link = "https://en.wikipedia.org/wiki/Meson_(software)"
 trivia = "Pakkanen published Meson in Feb 2013; see the [initial blog post](https://nibblestew.blogspot.com/2013/02/introducing-meson-build-system.html) and the manual highlighting sub-1s configure times."
 
 [[samples]]

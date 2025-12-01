@@ -1,0 +1,10 @@
+# Tokyo Night (dark)
+name = "Tokyo Night"
+variant = "dark"
+
+[colors]
+bg = "#1a1b26"
+keyword = "#bb9af7"
+function = "#7aa2f7"
+string = "#9ece6a"
+type = "#e0af68"

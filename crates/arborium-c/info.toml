@@ -5,7 +5,7 @@ license = "MIT"
 inventor = "Dennis Ritchie"
 year = 1972
 description = "General-purpose systems language created at Bell Labs; see Ritchie's retrospective [“The Development of the C Language”](https://www.bell-labs.com/usr/dmr/www/chist.html)."
-wikipedia = "https://en.wikipedia.org/wiki/C_(programming_language)"
+link = "https://en.wikipedia.org/wiki/C_(programming_language)"
 trivia = "C evolved from B/BCPL during 1969–1973 alongside Unix; Ritchie notes the name comes from its predecessor B ([Ritchie 1993 history](https://www.bell-labs.com/usr/dmr/www/chist.html))."
 
 [[samples]]
