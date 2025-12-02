@@ -1,0 +1,70 @@
+# Catppuccin Mocha
+# https://github.com/catppuccin/catppuccin
+
+name = "Catppuccin Mocha"
+variant = "dark"
+background = "#1e1e2e"
+foreground = "#cdd6f4"
+
+"attribute" = { fg = "yellow" }
+"constant" = { fg = "peach" }
+"function.builtin" = { fg = "sky" }
+"function" = { fg = "blue" }
+"keyword" = { fg = "mauve" }
+"operator" = { fg = "teal" }
+"property" = { fg = "blue" }
+"punctuation" = { fg = "overlay2" }
+"punctuation.bracket" = { fg = "overlay2" }
+"punctuation.delimiter" = { fg = "overlay2" }
+"string" = { fg = "green" }
+"string.special" = { fg = "red" }
+"tag" = { fg = "blue" }
+"type" = { fg = "yellow" }
+"type.builtin" = { fg = "yellow" }
+"variable" = { fg = "text" }
+"variable.builtin" = { fg = "red" }
+"variable.parameter" = { fg = "peach" }
+"comment" = { fg = "overlay0" }
+"macro" = { fg = "teal" }
+"label" = { fg = "pink" }
+"diff.plus" = { fg = "green" }
+"diff.minus" = { fg = "red" }
+"number" = { fg = "peach" }
+"text.literal" = { fg = "text" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "blue", modifiers = ["underlined"] }
+"text.reference" = { fg = "sky" }
+"string.escape" = { fg = "peach" }
+"text.title" = { fg = "mauve", modifiers = ["bold"] }
+"punctuation.special" = { fg = "pink" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "text" }
+
+[palette]
+rosewater = "#f5e0dc"
+flamingo = "#f2cdcd"
+pink = "#f5c2e7"
+mauve = "#cba6f7"
+red = "#f38ba8"
+maroon = "#eba0ac"
+peach = "#fab387"
+yellow = "#f9e2af"
+green = "#a6e3a1"
+teal = "#94e2d5"
+sky = "#89dceb"
+sapphire = "#74c7ec"
+blue = "#89b4fa"
+lavender = "#b4befe"
+text = "#cdd6f4"
+subtext1 = "#bac2de"
+subtext0 = "#a6adc8"
+overlay2 = "#9399b2"
+overlay1 = "#7f849c"
+overlay0 = "#6c7086"
+surface2 = "#585b70"
+surface1 = "#45475a"
+surface0 = "#313244"
+base = "#1e1e2e"
+mantle = "#181825"
+crust = "#11111b"

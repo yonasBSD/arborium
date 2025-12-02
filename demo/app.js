@@ -129,7 +129,7 @@ function filterLanguages(query) {
     return filtered;
 }
 
-// Render dropdown
+// Render dropdown - simplified to icon + name only
 function renderDropdown(languages) {
     if (languages.length === 0) {
         langDropdown.innerHTML = '<div class="lang-dropdown-empty">No languages found</div>';
@@ -141,15 +141,6 @@ function renderDropdown(languages) {
         const nameHtml = lang.nameMatch
             ? highlightMatches(info.name, lang.nameMatch)
             : info.name;
-        const idHtml = lang.idMatch
-            ? highlightMatches(lang.id, lang.idMatch)
-            : lang.id;
-
-        // Show first alias if any
-        const aliases = info.aliases || [];
-        const aliasesHtml = aliases.length > 0
-            ? `<span class="lang-aliases">${aliases[0]}</span>`
-            : '';
 
         const isSelected = selectedLang === lang.id;
         const isHighlighted = idx === highlightedIndex;
@@ -160,23 +151,22 @@ function renderDropdown(languages) {
                  data-id="${lang.id}" data-index="${idx}">
                 <span class="lang-icon">${iconSvg}</span>
                 <span class="lang-name">${nameHtml}</span>
-                <span class="lang-id">${idHtml}</span>
-                ${aliasesHtml}
-                <span class="tag tag-${info.tag}">${info.tag}</span>
             </div>
         `;
     }).join('');
 }
 
-// Update the rich label display
+// Update the rich label display (no tag in toolbar - keep controls clean)
 function updateLabel(id) {
     const info = languageInfo[id] || { name: id, tag: 'code' };
     const iconSvg = getIconSvg(id);
+    // Get the caret element to preserve it
+    const caretEl = langLabel.querySelector('.picker-caret');
+    const caretHtml = caretEl ? caretEl.outerHTML : '';
     langLabel.innerHTML = `
         <span class="lang-icon">${iconSvg}</span>
         <span class="lang-name">${info.name}</span>
-        <span class="lang-id">${id}</span>
-        <span class="tag tag-${info.tag}">${info.tag}</span>
+        ${caretHtml}
     `;
 
     // Update language info panel
@@ -197,7 +187,7 @@ function updateWatermark(id) {
     watermark.innerHTML = getIconSvg(id);
 }
 
-// Update language info panel with metadata (trading card style)
+// Update language info panel with metadata (marginalia style - museum label)
 function updateLangInfoPanel(id) {
     const info = languageInfo[id];
     const panel = document.getElementById('lang-info-panel');
@@ -209,9 +199,6 @@ function updateLangInfoPanel(id) {
         return;
     }
 
-    const iconSvg = getIconSvg(id);
-    const tag = info.tag || 'code';
-
     // Build attribution line: "2020, Author Name" or just "Author Name" or just "2020"
     let attribution = '';
     if (info.year && info.inventor) {
@@ -222,19 +209,36 @@ function updateLangInfoPanel(id) {
         attribution = info.inventor;
     }
 
-    // Language name - link to url or wikipedia if available
+    // "About [Language]" heading - link if URL available
     const linkUrl = info.url || info.wikipedia;
+    const headingText = `About ${info.name}`;
     const nameHtml = linkUrl
-        ? `<a class="lang-name-link" href="${linkUrl}" target="_blank" rel="noopener">${info.name}</a>`
-        : `<span class="lang-name">${info.name}</span>`;
+        ? `<a class="lang-name-link" href="${linkUrl}" target="_blank" rel="noopener">${headingText}</a>`
+        : `<span class="lang-name">${headingText}</span>`;
 
-    // Update sample bar (separate from card)
+    // Update sample bar (separate from panel)
     const sampleBar = document.getElementById('sample-bar');
     if (info.sample && sampleBar) {
         const s = info.sample;
+        // Parse org/repo from URL like https://github.com/org/repo/...
+        let repoLabel = 'Source';
+        if (s.link) {
+            try {
+                const url = new URL(s.link);
+                const parts = url.pathname.split('/').filter(Boolean);
+                if (parts.length >= 2) {
+                    repoLabel = `${parts[0]}/${parts[1]}`;
+                }
+            } catch (e) {
+                // Keep default
+            }
+        }
+        const gitIcon = icons['mdi:git'] || icons['mdi:source-branch'] || '';
+        const scalesIcon = icons['mdi:scale-balance'] || '';
         sampleBar.innerHTML = `
             <span class="sample-desc">${s.description || 'Sample code'}</span>
-            ${s.link ? `<a class="sample-link" href="${s.link}" target="_blank" rel="noopener">Source ↗</a>` : ''}
+            ${s.license ? `<span class="sample-license"><span class="sample-license-icon">${scalesIcon}</span>${s.license}</span>` : ''}
+            ${s.link ? `<a class="sample-link" href="${s.link}" target="_blank" rel="noopener"><span class="sample-icon">${gitIcon}</span>${repoLabel}</a>` : ''}
         `;
         sampleBar.classList.add('visible');
     } else if (sampleBar) {
@@ -242,12 +246,8 @@ function updateLangInfoPanel(id) {
     }
 
     panel.innerHTML = `
-        <div class="card-hero">
-            <span class="hero-icon">${iconSvg}</span>
-        </div>
         <div class="card-header">
             ${nameHtml}
-            <span class="tag tag-${tag}">${tag}</span>
         </div>
         ${attribution ? `<div class="card-attribution">${attribution}</div>` : ''}
         ${info.description ? `<div class="card-body"><p class="card-description">${info.description}</p></div>` : ''}
@@ -409,24 +409,38 @@ langDropdown.addEventListener('mouseover', (e) => {
             option.classList.add('highlighted');
             highlightedIndex = newIndex;
         }
-        // Preview the hovered language
-        previewLanguage(option.dataset.id);
+        // Don't preview on hover - too noisy. Only preview on keyboard nav.
     }
 });
 
 // Theme metadata: id -> { name, variant }
 const themeInfo = {
+    // Catppuccin family
     'mocha': { name: 'Catppuccin Mocha', variant: 'dark' },
     'macchiato': { name: 'Catppuccin Macchiato', variant: 'dark' },
     'frappe': { name: 'Catppuccin Frappe', variant: 'dark' },
     'latte': { name: 'Catppuccin Latte', variant: 'light' },
+    // Popular dark themes
     'tokyo-night': { name: 'Tokyo Night', variant: 'dark' },
     'dracula': { name: 'Dracula', variant: 'dark' },
     'monokai': { name: 'Monokai Pro', variant: 'dark' },
+    'monokai-aqua': { name: 'Monokai Aqua', variant: 'dark' },
+    'one-dark': { name: 'One Dark', variant: 'dark' },
+    'nord': { name: 'Nord', variant: 'dark' },
+    'gruvbox-dark': { name: 'Gruvbox Dark', variant: 'dark' },
+    'rose-pine-moon': { name: 'Rosé Pine Moon', variant: 'dark' },
+    'kanagawa-dragon': { name: 'Kanagawa Dragon', variant: 'dark' },
+    'cobalt2': { name: 'Cobalt2', variant: 'dark' },
+    'zenburn': { name: 'Zenburn', variant: 'dark' },
+    'desert256': { name: 'Desert256', variant: 'dark' },
+    'melange-dark': { name: 'Melange Dark', variant: 'dark' },
+    // GitHub
     'github-dark': { name: 'GitHub Dark', variant: 'dark' },
     'github-light': { name: 'GitHub Light', variant: 'light' },
-    'one-dark': { name: 'One Dark', variant: 'dark' },
-    'melange-dark': { name: 'Melange Dark', variant: 'dark' },
+    // Light themes
+    'gruvbox-light': { name: 'Gruvbox Light', variant: 'light' },
+    'alabaster': { name: 'Alabaster', variant: 'light' },
+    'dayfox': { name: 'Dayfox', variant: 'light' },
     'melange-light': { name: 'Melange Light', variant: 'light' },
 };
 
@@ -449,9 +463,26 @@ const themePairs = {
     // GitHub
     'github-dark': 'github-light',
     'github-light': 'github-dark',
+    // Gruvbox
+    'gruvbox-dark': 'gruvbox-light',
+    'gruvbox-light': 'gruvbox-dark',
     // Melange
     'melange-dark': 'melange-light',
     'melange-light': 'melange-dark',
+    // Light themes without dark pairs -> mocha
+    'alabaster': 'mocha',
+    'dayfox': 'mocha',
+    // Dark themes without light pairs -> latte
+    'tokyo-night': 'latte',
+    'dracula': 'latte',
+    'monokai': 'latte',
+    'monokai-aqua': 'latte',
+    'one-dark': 'latte',
+    'nord': 'latte',
+    'rose-pine-moon': 'latte',
+    'kanagawa-dragon': 'latte',
+    'cobalt2': 'latte',
+    'zenburn': 'latte',
 };
 
 function setMode(mode) {
@@ -526,6 +557,9 @@ function renderThemeDropdown(themes) {
         return;
     }
 
+    const moonIcon = icons['mdi:weather-night'] || '';
+    const sunIcon = icons['mdi:weather-sunny'] || '';
+
     themeDropdown.innerHTML = themes.map((theme, idx) => {
         const nameHtml = theme.nameMatch
             ? highlightMatches(theme.name, theme.nameMatch)
@@ -533,23 +567,27 @@ function renderThemeDropdown(themes) {
 
         const isSelected = selectedTheme === theme.id;
         const isHighlighted = idx === themeHighlightedIndex;
+        const variantIcon = theme.variant === 'dark' ? moonIcon : sunIcon;
 
         return `
             <div class="theme-option ${isSelected ? 'selected' : ''} ${isHighlighted ? 'highlighted' : ''}"
                  data-id="${theme.id}" data-index="${idx}">
                 <span class="theme-name-text">${nameHtml}</span>
-                <span class="tag tag-${theme.variant}">${theme.variant}</span>
+                <span class="theme-variant-icon">${variantIcon}</span>
             </div>
         `;
     }).join('');
 }
 
-// Update theme label display
+// Update theme label display (no tag in toolbar - keep controls clean)
 function updateThemeLabel(id) {
     const info = themeInfo[id];
+    // Get the caret element to preserve it
+    const caretEl = themeLabel.querySelector('.picker-caret');
+    const caretHtml = caretEl ? caretEl.outerHTML : '';
     themeLabel.innerHTML = `
         <span class="theme-name">${info.name}</span>
-        <span class="tag tag-${info.variant}">${info.variant}</span>
+        ${caretHtml}
     `;
 }
 
@@ -672,8 +710,7 @@ themeDropdown.addEventListener('mouseover', (e) => {
             option.classList.add('highlighted');
             themeHighlightedIndex = newIndex;
         }
-        // Preview the hovered theme
-        previewTheme(option.dataset.id);
+        // Don't preview on hover - too noisy. Only preview on keyboard nav.
     }
 });
 
@@ -723,7 +760,7 @@ async function initialize() {
             selectLanguage(allLanguages[0]);
         }
 
-        updateStatus('WASM module loaded successfully', true);
+        // WASM loaded silently
 
     } catch (error) {
         document.getElementById('output').innerHTML = `<span class="error">Failed to load WASM: ${error}</span>`;
@@ -852,6 +889,38 @@ function populateLangMarquee() {
     if (langCount) {
         langCount.textContent = langNames.length;
     }
+
+    // Update tagline
+    const tagline = document.getElementById('tagline');
+    if (tagline) {
+        tagline.textContent = `Regex hater club`;
+    }
+}
+
+// Random button - randomize language and theme together
+const randomBtn = document.getElementById('random-btn');
+if (randomBtn) {
+    randomBtn.addEventListener('click', () => {
+        if (!wasmLoaded || allLanguages.length === 0) return;
+
+        // Pick a random language
+        const randomLangIndex = Math.floor(Math.random() * allLanguages.length);
+        const randomLang = allLanguages[randomLangIndex];
+
+        // Pick a random theme that matches current mode
+        const themesForMode = allThemes.filter(id => themeInfo[id].variant === currentMode);
+        const randomThemeIndex = Math.floor(Math.random() * themesForMode.length);
+        const randomTheme = themesForMode[randomThemeIndex];
+
+        // Apply both with a subtle animation effect
+        randomBtn.style.transform = 'rotate(180deg)';
+        setTimeout(() => {
+            randomBtn.style.transform = '';
+        }, 300);
+
+        selectLanguage(randomLang);
+        selectTheme(randomTheme);
+    });
 }
 
 initialize();

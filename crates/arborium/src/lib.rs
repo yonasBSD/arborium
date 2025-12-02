@@ -48,6 +48,7 @@ pub use tree_sitter_highlight_patched_arborium as tree_sitter_highlight;
 
 pub mod html;
 pub mod ansi;
+pub mod theme;
 
 #[cfg(all(feature = "wasm-fix", target_family = "wasm"))]
 mod wasm;

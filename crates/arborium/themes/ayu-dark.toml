@@ -1,0 +1,57 @@
+# Ayu Dark
+# https://github.com/ayu-theme/ayu-colors
+
+name = "Ayu Dark"
+variant = "dark"
+background = "#0d1017"
+foreground = "#bfbdb6"
+
+"attribute" = { fg = "orange" }
+"constant" = { fg = "constant" }
+"function.builtin" = { fg = "func" }
+"function" = { fg = "func" }
+"keyword" = { fg = "keyword" }
+"operator" = { fg = "operator" }
+"property" = { fg = "entity" }
+"punctuation" = { fg = "punctuation" }
+"punctuation.bracket" = { fg = "punctuation" }
+"punctuation.delimiter" = { fg = "punctuation" }
+"string" = { fg = "string" }
+"string.special" = { fg = "regexp" }
+"tag" = { fg = "tag" }
+"type" = { fg = "entity" }
+"type.builtin" = { fg = "entity" }
+"variable" = { fg = "text" }
+"variable.builtin" = { fg = "keyword" }
+"variable.parameter" = { fg = "text" }
+"comment" = { fg = "comment", modifiers = ["italic"] }
+"macro" = { fg = "func" }
+"label" = { fg = "tag" }
+"diff.plus" = { fg = "string" }
+"diff.minus" = { fg = "error" }
+"number" = { fg = "constant" }
+"text.literal" = { fg = "text" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "tag", modifiers = ["underlined"] }
+"text.reference" = { fg = "entity" }
+"string.escape" = { fg = "regexp" }
+"text.title" = { fg = "entity", modifiers = ["bold"] }
+"punctuation.special" = { fg = "special" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "text" }
+
+[palette]
+text = "#bfbdb6"
+comment = "#626a73"
+keyword = "#ff8f40"
+constant = "#d2a6ff"
+entity = "#59c2ff"
+func = "#ffb454"
+tag = "#39bae6"
+string = "#aad94c"
+regexp = "#95e6cb"
+operator = "#f29668"
+special = "#e6b673"
+error = "#d95757"
+punctuation = "#bfbdb688"

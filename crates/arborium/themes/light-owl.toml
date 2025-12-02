@@ -1,0 +1,56 @@
+# Light Owl
+# https://github.com/sdras/night-owl-vscode-theme
+# A light theme color balanced from Night Owl for easy viewing in daylight
+
+name = "Light Owl"
+variant = "light"
+background = "#fbfbfb"
+foreground = "#403f53"
+
+"attribute" = { fg = "blue", modifiers = ["italic"] }
+"constant" = { fg = "blue" }
+"function.builtin" = { fg = "blue", modifiers = ["italic"] }
+"function" = { fg = "blue", modifiers = ["italic"] }
+"keyword" = { fg = "purple", modifiers = ["italic"] }
+"operator" = { fg = "teal" }
+"property" = { fg = "blue" }
+"punctuation" = { fg = "fg" }
+"punctuation.bracket" = { fg = "fg" }
+"punctuation.delimiter" = { fg = "fg" }
+"string" = { fg = "string" }
+"string.special" = { fg = "regex" }
+"tag" = { fg = "purple" }
+"type" = { fg = "dark" }
+"type.builtin" = { fg = "dark" }
+"variable" = { fg = "fg" }
+"variable.builtin" = { fg = "bool" }
+"variable.parameter" = { fg = "fg" }
+"comment" = { fg = "comment", modifiers = ["italic"] }
+"macro" = { fg = "purple" }
+"label" = { fg = "teal" }
+"diff.plus" = { fg = "teal" }
+"diff.minus" = { fg = "error" }
+"number" = { fg = "number" }
+"text.literal" = { fg = "fg" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "blue", modifiers = ["underlined"] }
+"text.reference" = { fg = "blue" }
+"string.escape" = { fg = "teal" }
+"text.title" = { fg = "purple", modifiers = ["bold"] }
+"punctuation.special" = { fg = "teal" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "fg" }
+
+[palette]
+fg = "#403f53"
+dark = "#111111"
+comment = "#989fb1"
+purple = "#994cc3"
+blue = "#4876d6"
+teal = "#0c969b"
+string = "#c96765"
+number = "#aa0982"
+bool = "#bc5454"
+regex = "#5ca7e4"
+error = "#e64d49"

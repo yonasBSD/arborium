@@ -1,0 +1,63 @@
+# Melange Light
+# https://github.com/savq/melange-nvim
+# A warm colorscheme: control flow uses warm colors, data uses cold colors
+
+name = "Melange Light"
+variant = "light"
+background = "#f1f1f1"
+foreground = "#54433a"
+
+"attribute" = { fg = "c_yellow" }
+"constant" = { fg = "magenta" }
+"function.builtin" = { fg = "blue" }
+"function" = { fg = "blue" }
+"keyword" = { fg = "c_yellow" }
+"operator" = { fg = "c_yellow" }
+"property" = { fg = "c_yellow" }
+"punctuation" = { fg = "fg" }
+"punctuation.bracket" = { fg = "fg" }
+"punctuation.delimiter" = { fg = "fg" }
+"string" = { fg = "green" }
+"string.special" = { fg = "red" }
+"tag" = { fg = "c_yellow" }
+"type" = { fg = "c_yellow" }
+"type.builtin" = { fg = "c_yellow" }
+"variable" = { fg = "fg" }
+"variable.builtin" = { fg = "red" }
+"variable.parameter" = { fg = "c_yellow" }
+"comment" = { fg = "com", modifiers = ["italic"] }
+"macro" = { fg = "blue" }
+"label" = { fg = "magenta" }
+"diff.plus" = { fg = "green" }
+"diff.minus" = { fg = "red" }
+"number" = { fg = "magenta" }
+"text.literal" = { fg = "fg" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "blue", modifiers = ["underlined"] }
+"text.reference" = { fg = "blue" }
+"string.escape" = { fg = "yellow" }
+"text.title" = { fg = "c_yellow", modifiers = ["bold"] }
+"punctuation.special" = { fg = "magenta" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "fg" }
+
+[palette]
+bg = "#f1f1f1"
+float = "#e9e1db"
+sel = "#d9d3ce"
+ui = "#a98a78"
+com = "#7d6658"
+fg = "#54433a"
+red = "#bf0021"
+yellow = "#a06d00"
+green = "#3a684a"
+cyan = "#3d6568"
+blue = "#465aa4"
+magenta = "#904180"
+c_red = "#c77b8b"
+c_yellow = "#bc5c00"
+c_green = "#6e9b72"
+c_cyan = "#739797"
+c_blue = "#7892bd"
+c_magenta = "#be79bb"

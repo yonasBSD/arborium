@@ -1,0 +1,70 @@
+# Catppuccin Latte (light)
+# https://github.com/catppuccin/catppuccin
+
+name = "Catppuccin Latte"
+variant = "light"
+background = "#eff1f5"
+foreground = "#4c4f69"
+
+"attribute" = { fg = "yellow" }
+"constant" = { fg = "peach" }
+"function.builtin" = { fg = "sky" }
+"function" = { fg = "blue" }
+"keyword" = { fg = "mauve" }
+"operator" = { fg = "teal" }
+"property" = { fg = "blue" }
+"punctuation" = { fg = "overlay2" }
+"punctuation.bracket" = { fg = "overlay2" }
+"punctuation.delimiter" = { fg = "overlay2" }
+"string" = { fg = "green" }
+"string.special" = { fg = "red" }
+"tag" = { fg = "blue" }
+"type" = { fg = "yellow" }
+"type.builtin" = { fg = "yellow" }
+"variable" = { fg = "text" }
+"variable.builtin" = { fg = "red" }
+"variable.parameter" = { fg = "peach" }
+"comment" = { fg = "overlay0" }
+"macro" = { fg = "teal" }
+"label" = { fg = "pink" }
+"diff.plus" = { fg = "green" }
+"diff.minus" = { fg = "red" }
+"number" = { fg = "peach" }
+"text.literal" = { fg = "text" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "blue", modifiers = ["underlined"] }
+"text.reference" = { fg = "sky" }
+"string.escape" = { fg = "peach" }
+"text.title" = { fg = "mauve", modifiers = ["bold"] }
+"punctuation.special" = { fg = "pink" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "text" }
+
+[palette]
+rosewater = "#dc8a78"
+flamingo = "#dd7878"
+pink = "#ea76cb"
+mauve = "#8839ef"
+red = "#d20f39"
+maroon = "#e64553"
+peach = "#fe640b"
+yellow = "#df8e1d"
+green = "#40a02b"
+teal = "#179299"
+sky = "#04a5e5"
+sapphire = "#209fb5"
+blue = "#1e66f5"
+lavender = "#7287fd"
+text = "#4c4f69"
+subtext1 = "#5c5f77"
+subtext0 = "#6c6f85"
+overlay2 = "#7c7f93"
+overlay1 = "#8c8fa1"
+overlay0 = "#9ca0b0"
+surface2 = "#acb0be"
+surface1 = "#bcc0cc"
+surface0 = "#ccd0da"
+base = "#eff1f5"
+mantle = "#e6e9ef"
+crust = "#dce0e8"

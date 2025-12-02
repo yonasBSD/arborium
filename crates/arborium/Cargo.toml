@@ -132,6 +132,7 @@ lang-zsh = ["dep:arborium-zsh"]
 [dependencies]
 tree-sitter-patched-arborium = { version = "0.25.10", path = "../../tree-sitter" }
 tree-sitter-highlight-patched-arborium = { version = "0.25.10", path = "../../tree-sitter-highlight" }
+toml = "0.8"
 
 # WASM allocator (only for wasm-fix feature on wasm targets)
 [target.'cfg(target_family = "wasm")'.dependencies]

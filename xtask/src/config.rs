@@ -5,11 +5,13 @@ use std::fs;
 use std::path::Path;
 
 use pulldown_cmark::{html, Parser};
+use serde::Deserialize;
 
 /// Grammar configuration from GRAMMARS.toml
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 #[allow(dead_code)]
 pub struct GrammarConfig {
+    #[serde(skip)]
     pub name: String,
     pub repo: String,
     pub commit: String,
@@ -51,6 +53,7 @@ pub struct GrammarCrateConfig {
 }
 
 /// Sample metadata parsed from info.toml
+#[derive(Debug, Deserialize, Default)]
 pub struct SampleInfo {
     pub path: Option<String>,
     pub description: Option<String>,
@@ -59,12 +62,16 @@ pub struct SampleInfo {
 }
 
 /// Language metadata parsed from info.toml for the demo
-#[derive(Debug, Default)]
+#[derive(Debug, Deserialize, Default)]
 pub struct LanguageInfo {
+    #[serde(default)]
     pub id: String,        // crate identifier, e.g., "cpp"
+    #[serde(default)]
     pub name: String,      // pretty display name, e.g., "C++"
+    #[serde(default)]
     pub tag: String,
     pub icon: Option<String>,
+    #[serde(default)]
     pub aliases: Vec<String>,
     pub inventor: Option<String>,
     pub year: Option<u32>,
@@ -73,57 +80,39 @@ pub struct LanguageInfo {
     pub trivia: Option<String>,
 }
 
+/// Full info.toml structure for deserialization
+#[derive(Debug, Deserialize, Default)]
+pub struct InfoToml {
+    #[serde(default)]
+    pub id: String,
+    #[serde(default)]
+    pub name: String,
+    #[serde(default)]
+    pub tag: String,
+    pub icon: Option<String>,
+    #[serde(default)]
+    pub aliases: Vec<String>,
+    pub inventor: Option<String>,
+    pub year: Option<u32>,
+    pub description: Option<String>,
+    pub link: Option<String>,
+    pub trivia: Option<String>,
+    #[serde(default)]
+    pub samples: Vec<SampleInfo>,
+}
+
 /// Parse GRAMMARS.toml
 pub fn parse_grammars_toml(repo_root: &Path) -> Result<BTreeMap<String, GrammarConfig>, Box<dyn std::error::Error>> {
     let path = repo_root.join("GRAMMARS.toml");
     let contents = fs::read_to_string(&path)?;
 
-    let mut grammars = BTreeMap::new();
-    let mut current_name: Option<String> = None;
-    let mut current_repo: Option<String> = None;
-    let mut current_commit: Option<String> = None;
-    let mut current_license: Option<String> = None;
+    let parsed: BTreeMap<String, GrammarConfig> = toml::from_str(&contents)?;
 
-    for line in contents.lines() {
-        let line = line.trim();
-
-        // Skip comments and empty lines
-        if line.starts_with('#') || line.is_empty() {
-            continue;
-        }
-
-        // Section header [name]
-        if line.starts_with('[') && line.ends_with(']') {
-            // Save previous grammar if any
-            if let (Some(name), Some(repo), Some(commit), Some(license)) =
-                (current_name.take(), current_repo.take(), current_commit.take(), current_license.take())
-            {
-                grammars.insert(name.clone(), GrammarConfig { name, repo, commit, license });
-            }
-            current_name = Some(line[1..line.len()-1].to_string());
-            continue;
-        }
-
-        // Key = value
-        if let Some((key, value)) = line.split_once('=') {
-            let key = key.trim();
-            let value = value.trim().trim_matches('"');
-
-            match key {
-                "repo" => current_repo = Some(value.to_string()),
-                "commit" => current_commit = Some(value.to_string()),
-                "license" => current_license = Some(value.to_string()),
-                _ => {}
-            }
-        }
-    }
-
-    // Save last grammar
-    if let (Some(name), Some(repo), Some(commit), Some(license)) =
-        (current_name, current_repo, current_commit, current_license)
-    {
-        grammars.insert(name.clone(), GrammarConfig { name, repo, commit, license });
-    }
+    // Fill in the name field from the key
+    let grammars = parsed.into_iter().map(|(name, mut config)| {
+        config.name = name.clone();
+        (name, config)
+    }).collect();
 
     Ok(grammars)
 }
@@ -264,71 +253,20 @@ pub fn parse_samples_from_info_toml(path: &Path) -> Vec<String> {
         Err(_) => return vec![],
     };
 
-    let mut samples = Vec::new();
-    let mut in_samples_block = false;
+    let info: InfoToml = match toml::from_str(&content) {
+        Ok(i) => i,
+        Err(_) => return vec![],
+    };
 
-    for line in content.lines() {
-        let line = line.trim();
-
-        if line == "[[samples]]" {
-            in_samples_block = true;
-            continue;
-        }
-
-        if in_samples_block && line.starts_with("path") {
-            if let Some(value) = line.split('=').nth(1) {
-                let value = value.split('#').next().unwrap_or(value);
-                let value = value.trim().trim_matches('"').trim_matches('\'');
-                if !value.is_empty() {
-                    samples.push(value.to_string());
-                }
-            }
-            in_samples_block = false;
-        }
-    }
-
-    samples
+    info.samples.iter()
+        .filter_map(|s| s.path.clone())
+        .collect()
 }
 
 /// Parse the first [[samples]] entry from info.toml
 pub fn parse_sample_info(content: &str) -> Option<SampleInfo> {
-    let mut in_samples_block = false;
-    let mut path = None;
-    let mut description = None;
-    let mut link = None;
-    let mut license = None;
-
-    for line in content.lines() {
-        let line = line.trim();
-
-        if line == "[[samples]]" {
-            if in_samples_block {
-                // Already found first sample, stop
-                break;
-            }
-            in_samples_block = true;
-            continue;
-        }
-
-        if in_samples_block {
-            if let Some(value) = extract_toml_string(line, "path") {
-                path = Some(value);
-            } else if let Some(value) = extract_toml_string(line, "description") {
-                description = Some(value);
-            } else if let Some(value) = extract_toml_string(line, "link") {
-                link = Some(value);
-            } else if let Some(value) = extract_toml_string(line, "license") {
-                license = Some(value);
-            }
-        }
-    }
-
-    // Only return if we found a path
-    if path.is_some() {
-        Some(SampleInfo { path, description, link, license })
-    } else {
-        None
-    }
+    let info: InfoToml = toml::from_str(content).ok()?;
+    info.samples.into_iter().next()
 }
 
 /// Convert SampleInfo to JSON for the demo (without path)
@@ -363,76 +301,26 @@ pub fn render_markdown_inline(markdown: &str) -> String {
     }
 }
 
-/// Helper to extract a string value from a TOML line like `key = "value"`
-pub fn extract_toml_string(line: &str, key: &str) -> Option<String> {
-    if line.starts_with(key) {
-        if let Some(value) = line.split('=').nth(1) {
-            let value = value.split('#').next().unwrap_or(value); // strip comments
-            let value = value.trim().trim_matches('"').trim_matches('\'');
-            if !value.is_empty() {
-                return Some(value.to_string());
-            }
-        }
-    }
-    None
-}
-
 /// Parse LanguageInfo from info.toml content
 pub fn parse_language_info(content: &str) -> Option<LanguageInfo> {
-    let mut info = LanguageInfo::default();
-
-    for line in content.lines() {
-        let line = line.trim();
-
-        // Stop when we hit samples section
-        if line.starts_with("[[") {
-            break;
-        }
-
-        if let Some(value) = extract_toml_string(line, "id") {
-            info.id = value;
-        } else if let Some(value) = extract_toml_string(line, "name") {
-            info.name = value;
-        } else if let Some(value) = extract_toml_string(line, "tag") {
-            info.tag = value;
-        } else if let Some(value) = extract_toml_string(line, "icon") {
-            info.icon = Some(value);
-        } else if let Some(value) = extract_toml_string(line, "inventor") {
-            info.inventor = Some(value);
-        } else if let Some(value) = extract_toml_string(line, "description") {
-            info.description = Some(value);
-        } else if let Some(value) = extract_toml_string(line, "link") {
-            info.link = Some(value);
-        } else if let Some(value) = extract_toml_string(line, "trivia") {
-            info.trivia = Some(value);
-        } else if line.starts_with("year") {
-            if let Some(value) = line.split('=').nth(1) {
-                let value = value.split('#').next().unwrap_or(value).trim();
-                if let Ok(year) = value.parse::<u32>() {
-                    info.year = Some(year);
-                }
-            }
-        } else if line.starts_with("aliases") {
-            // Parse aliases = ["a", "b", "c"]
-            if let Some(value) = line.split('=').nth(1) {
-                let value = value.trim();
-                if value.starts_with('[') && value.ends_with(']') {
-                    let inner = &value[1..value.len()-1];
-                    info.aliases = inner
-                        .split(',')
-                        .map(|s| s.trim().trim_matches('"').trim_matches('\'').to_string())
-                        .filter(|s| !s.is_empty())
-                        .collect();
-                }
-            }
-        }
-    }
+    let info: InfoToml = toml::from_str(content).ok()?;
 
     if info.name.is_empty() {
-        None
-    } else {
-        Some(info)
+        return None;
     }
+
+    Some(LanguageInfo {
+        id: info.id,
+        name: info.name,
+        tag: info.tag,
+        icon: info.icon,
+        aliases: info.aliases,
+        inventor: info.inventor,
+        year: info.year,
+        description: info.description,
+        link: info.link,
+        trivia: info.trivia,
+    })
 }
 
 /// Convert LanguageInfo to JSON for the demo

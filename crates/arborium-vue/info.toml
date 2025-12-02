@@ -13,6 +13,6 @@ trivia = "You released Vue in Feb 2014 after working on Angular at Google; the [
 
 [[samples]]
 path = "samples/App.vue"
-description = "Vue 3 example component with template, script setup, and scoped styles."
-link = "https://github.com/vuejs/core/blob/main/packages/vue/examples/official-pkg-usage/App.vue"
+description = "Element Plus Button component with Vue 3 Composition API, TypeScript, and dynamic styling."
+link = "https://github.com/element-plus/element-plus/blob/dev/packages/components/button/src/button.vue"
 license = "MIT"

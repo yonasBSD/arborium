@@ -1,0 +1,56 @@
+# Lucius Light
+# https://github.com/jonathanfilip/vim-lucius
+# A light and balanced color scheme for comfortable reading
+
+name = "Lucius Light"
+variant = "light"
+background = "#eeeeee"
+foreground = "#444444"
+
+"attribute" = { fg = "preproc" }
+"constant" = { fg = "constant" }
+"function.builtin" = { fg = "function" }
+"function" = { fg = "function" }
+"keyword" = { fg = "keyword" }
+"operator" = { fg = "keyword" }
+"property" = { fg = "function" }
+"punctuation" = { fg = "fg" }
+"punctuation.bracket" = { fg = "fg" }
+"punctuation.delimiter" = { fg = "fg" }
+"string" = { fg = "constant" }
+"string.special" = { fg = "special" }
+"tag" = { fg = "keyword" }
+"type" = { fg = "type" }
+"type.builtin" = { fg = "type" }
+"variable" = { fg = "fg" }
+"variable.builtin" = { fg = "special" }
+"variable.parameter" = { fg = "fg" }
+"comment" = { fg = "comment", modifiers = ["italic"] }
+"macro" = { fg = "preproc" }
+"label" = { fg = "preproc" }
+"diff.plus" = { fg = "function" }
+"diff.minus" = { fg = "error" }
+"number" = { fg = "constant" }
+"text.literal" = { fg = "fg" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "keyword", modifiers = ["underlined"] }
+"text.reference" = { fg = "keyword" }
+"string.escape" = { fg = "preproc" }
+"text.title" = { fg = "keyword", modifiers = ["bold"] }
+"punctuation.special" = { fg = "special" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "fg" }
+
+[palette]
+fg = "#444444"
+comment = "#808080"
+keyword = "#005faf"
+function = "#008700"
+constant = "#af5f00"
+type = "#005f87"
+preproc = "#008787"
+special = "#870087"
+error = "#af0000"
+todo = "#875f00"
+directory = "#00875f"

@@ -5,46 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>arborium - Syntax Highlighting Demo</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path fill='%23cba6f7' d='m88.9248123 48.5812683c0 11.6753769-9.468483 21.1437912-21.1439285 21.1437912h-12.9468384l2.1543617 27.7749405h-13.9768142l2.1543617-27.8800049h-12.9468422c-11.6754398 0-21.1439209-9.4684792-21.1439209-21.1437912 0-9.678669 6.5259514-17.7809505 15.3640556-20.3030987-.1051903-.746151-.1051903-1.3766575-.1051903-2.0071621.0000001-13.0415144 10.6245575-23.6659431 23.6659432-23.6659431s23.6659393 10.6244287 23.6659393 23.6659431c0 .735569-.1051865 1.3766575-.1051865 2.0071621 8.8381043 2.5221482 15.3640595 10.6244297 15.3640595 20.4081631z'/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="pkg/styles.css">
 </head>
 <body>
     <div class="container">
         <!-- Hidden icons for JS use -->
-        <div style="display:none">{{ICON:mdi:calendar}}{{ICON:mdi:account}}{{ICON:mdi:wikipedia}}{{ICON:simple-icons:webassembly}}{{ICON:devicon-plain:rust}}{{ICON:mdi:apple}}{{ICON:mdi:linux}}{{ICON:mdi:microsoft-windows}}{{ICON:mdi:check-circle}}</div>
+        <div style="display:none">{{ICON:mdi:calendar}}{{ICON:mdi:account}}{{ICON:mdi:wikipedia}}{{ICON:simple-icons:webassembly}}{{ICON:devicon-plain:rust}}{{ICON:mdi:apple}}{{ICON:mdi:linux}}{{ICON:mdi:microsoft-windows}}{{ICON:mdi:check-circle}}{{ICON:mdi:chevron-down}}{{ICON:mdi:shuffle-variant}}{{ICON:mdi:git}}{{ICON:mdi:scale-balance}}</div>
 
-        <div class="controls">
+        <div class="page-header">
             <h1>
                 <span class="arborium-icon">{{ICON:mdi:tree}}</span>
                 arborium
             </h1>
-            <div class="theme-picker" id="theme-picker">
-                <div class="theme-picker-label" id="theme-label">
-                    <span class="theme-name">Select a theme...</span>
-                </div>
-                <input type="text" class="theme-picker-input" id="theme-input" placeholder="Type to search..." autocomplete="off">
-                <div class="theme-dropdown" id="theme-dropdown"></div>
-            </div>
-            <div class="mode-toggle" id="mode-toggle">
-                <button class="mode-btn" data-mode="dark" id="mode-dark" title="Dark themes">
-                    <span class="mode-icon">{{ICON:mdi:weather-night}}</span>
-                </button>
-                <button class="mode-btn" data-mode="light" id="mode-light" title="Light themes">
-                    <span class="mode-icon">{{ICON:mdi:weather-sunny}}</span>
-                </button>
-            </div>
-            <div class="lang-picker" id="lang-picker">
-                <div class="lang-picker-label" id="lang-label">
-                    <span class="lang-name">Select a language...</span>
-                </div>
-                <input type="text" class="lang-picker-input" id="lang-input" placeholder="Type to search..." autocomplete="off">
-                <div class="lang-dropdown" id="lang-dropdown"></div>
-            </div>
-            <a href="#about" class="whats-this">What's this?</a>
+            <span class="tagline" id="tagline"></span>
+            <a href="https://github.com/bearcove/arborium" class="github-link" target="_blank" rel="noopener">{{ICON:mdi:github}} GitHub</a>
         </div>
 
         <div class="main-layout">
+            <aside class="about-panel">
+                <div class="about-panel-header">About arborium</div>
+                <p>Batteries-included syntax highlighting with <a href="https://tree-sitter.github.io/tree-sitter/">tree-sitter</a>.</p>
+                <p>Every grammar builds for native &amp; WASM, with working highlight queries.</p>
+                <div class="about-panel-links">
+                    <a href="https://github.com/bearcove/arborium">GitHub</a>
+                    <a href="https://docs.rs/arborium">Docs</a>
+                    <a href="https://crates.io/crates/arborium">Crates.io</a>
+                </div>
+            </aside>
+
             <div class="editor-container">
                 <div class="panel">
+                    <div class="editor-toolbar">
+                        <div class="toolbar-controls">
+                            <div class="lang-picker" id="lang-picker">
+                                <div class="lang-picker-label" id="lang-label">
+                                    <span class="lang-icon"></span>
+                                    <span class="lang-name">Select a language...</span>
+                                    <span class="picker-caret">{{ICON:mdi:chevron-down}}</span>
+                                </div>
+                                <input type="text" class="lang-picker-input" id="lang-input" placeholder="Type to search..." autocomplete="off">
+                                <div class="lang-dropdown" id="lang-dropdown"></div>
+                            </div>
+                            <div class="theme-picker" id="theme-picker">
+                                <div class="theme-picker-label" id="theme-label">
+                                    <span class="theme-name">Select a theme...</span>
+                                    <span class="picker-caret">{{ICON:mdi:chevron-down}}</span>
+                                </div>
+                                <input type="text" class="theme-picker-input" id="theme-input" placeholder="Type to search..." autocomplete="off">
+                                <div class="theme-dropdown" id="theme-dropdown"></div>
+                            </div>
+                            <div class="mode-toggle" id="mode-toggle">
+                                <button class="mode-btn" data-mode="dark" id="mode-dark" title="Dark themes">
+                                    <span class="mode-icon">{{ICON:mdi:weather-night}}</span>
+                                </button>
+                                <button class="mode-btn" data-mode="light" id="mode-light" title="Light themes">
+                                    <span class="mode-icon">{{ICON:mdi:weather-sunny}}</span>
+                                </button>
+                            </div>
+                            <button class="random-btn" id="random-btn" title="Random language & theme">
+                                {{ICON:mdi:shuffle-variant}} Randomize
+                            </button>
+                        </div>
+                    </div>
                     <div class="editor-scroll">
                         <div class="editor-layers">
                             <div id="output" class="output">
@@ -57,12 +82,12 @@
                 </div>
             </div>
 
-            <div id="lang-info-panel" class="lang-info-panel"></div>
+            <aside id="lang-info-panel" class="lang-info-panel"></aside>
         </div>
 
         <div id="status" class="status"></div>
 
-        <section id="about" class="about">
+        <div class="cards-container">
             <div class="about-card solution">
                 <h3>arborium</h3>
                 <p>Finding good tree-sitter grammars is hard. In arborium, every grammar:</p>
@@ -158,32 +183,53 @@
             <div class="about-card faq">
                 <h3>FAQ</h3>
                 <div class="faq-item">
-                    <h4>Why not highlight.js or Shiki?</h4>
-                    <p>Those use regex-based tokenization (TextMate grammars). Regexes can't count brackets, track scope, or understand structure—they just pattern-match. Tree-sitter actually <em>parses</em> your code into a syntax tree, so it knows that <code>fn</code> is a keyword only in the right context, handles deeply nested structures correctly, and recovers gracefully from syntax errors. IDEs with LSP support (like rust-analyzer) can do even better with <em>semantic</em> highlighting—they understand types and dependencies across files—but tree-sitter gets you 90% of the way there without needing a full language server.</p>
+                    <h4><span class="faq-icon">{{ICON:mdi:regex}}</span>Why not highlight.js or Shiki?</h4>
+                    <div class="faq-answer">
+                        <p>Those use regex-based tokenization (TextMate grammars). Regexes can't count brackets, track scope, or understand structure—they just pattern-match.</p>
+                        <p>Tree-sitter actually <em>parses</em> your code into a syntax tree, so it knows that <code>fn</code> is a keyword only in the right context, handles deeply nested structures correctly, and recovers gracefully from syntax errors.</p>
+                        <p>IDEs with LSP support (like rust-analyzer) can do even better with <em>semantic</em> highlighting—they understand types and dependencies across files—but tree-sitter gets you 90% of the way there without needing a full language server.</p>
+                    </div>
                 </div>
                 <div class="faq-item">
-                    <h4>Why "arborium"?</h4>
-                    <p><em>Arbor</em> is Latin for tree (as in tree-sitter), and <em>-ium</em> denotes a place or collection (like aquarium, arboretum). It's a place where tree-sitter grammars live.</p>
+                    <h4><span class="faq-icon">{{ICON:mdi:forest}}</span>Why "arborium"?</h4>
+                    <div class="faq-answer">
+                        <p><em>Arbor</em> is Latin for tree (as in tree-sitter), and <em>-ium</em> denotes a place or collection (like aquarium, arboretum).</p>
+                        <p>It's a place where tree-sitter grammars live.</p>
+                    </div>
                 </div>
                 <div class="faq-item">
-                    <h4>I have a grammar that's not included. Can you add it?</h4>
-                    <p>Yes! <a href="https://github.com/bearcove/arborium/issues">Open an issue</a> on the repo with a link to the grammar. We'll review it and add it if the grammar and highlight queries are in good shape.</p>
+                    <h4><span class="faq-icon">{{ICON:mdi:plus-circle-outline}}</span>I have a grammar that's not included. Can you add it?</h4>
+                    <div class="faq-answer">
+                        <p>Yes! <a href="https://github.com/bearcove/arborium/issues">Open an issue</a> on the repo with a link to the grammar.</p>
+                        <p>We'll review it and add it if the grammar and highlight queries are in good shape.</p>
+                    </div>
                 </div>
                 <div class="faq-item">
-                    <h4>Why not use the WASM builds from tree-sitter CLI?</h4>
-                    <p>When doing full-stack Rust, it's nice to have <em>exactly</em> the same code on the frontend and the backend. Rust crates compile to both native and WASM, so you get one dependency that works everywhere.</p>
+                    <h4><span class="faq-icon">{{ICON:simple-icons:webassembly}}</span>Why not use the WASM builds from tree-sitter CLI?</h4>
+                    <div class="faq-answer">
+                        <p>When doing full-stack Rust, it's nice to have <em>exactly</em> the same code on the frontend and the backend.</p>
+                        <p>Rust crates compile to both native and WASM, so you get one dependency that works everywhere.</p>
+                    </div>
                 </div>
                 <div class="faq-item">
-                    <h4>Why are tree-sitter parsers so large?</h4>
-                    <p>Tree-sitter uses table-driven LR parsing. The grammar compiles down to massive state transition tables—every possible parser state and every possible token gets an entry. These tables are optimized for O(1) lookup speed, not size. A complex grammar like TypeScript can have tens of thousands of states. The tradeoff is worth it: you get real parsing (not regex hacks) that handles edge cases correctly and recovers gracefully from syntax errors.</p>
+                    <h4><span class="faq-icon">{{ICON:mdi:weight}}</span>Why are tree-sitter parsers so large?</h4>
+                    <div class="faq-answer">
+                        <p>Tree-sitter uses table-driven LR parsing. The grammar compiles down to massive state transition tables—every possible parser state and every possible token gets an entry.</p>
+                        <p>These tables are optimized for O(1) lookup speed, not size. A complex grammar like TypeScript can have tens of thousands of states.</p>
+                        <p>The tradeoff is worth it: you get real parsing (not regex hacks) that handles edge cases correctly and recovers gracefully from syntax errors.</p>
+                    </div>
                 </div>
                 <div class="faq-item">
-                    <h4>Can I use this without Rust / just embed it on my website?</h4>
-                    <p>We don't provide a ready-to-embed kit yet but you can certainly make one.</p>
+                    <h4><span class="faq-icon">{{ICON:mdi:language-html5}}</span>Can I use this without Rust / just embed it on my website?</h4>
+                    <div class="faq-answer">
+                        <p>We don't provide a ready-to-embed kit yet, but you can certainly make one.</p>
+                    </div>
                 </div>
                 <div class="faq-item">
-                    <h4>If there were a ready-to-embed kit, could it load the necessary grammars on-demand?</h4>
-                    <p>I have a wit-based idea for that: <a href="https://github.com/bearcove/arborium/issues/1">see GitHub issue #1</a>.</p>
+                    <h4><span class="faq-icon">{{ICON:mdi:cloud-download-outline}}</span>Could a ready-to-embed kit load grammars on-demand?</h4>
+                    <div class="faq-answer">
+                        <p>I have a wit-based idea for that: <a href="https://github.com/bearcove/arborium/issues/1">see GitHub issue #1</a>.</p>
+                    </div>
                 </div>
             </div>
 
@@ -202,12 +248,13 @@
                 <a href="https://crates.io/crates/arborium">crates.io</a>
                 <a href="https://docs.rs/arborium">Documentation</a>
             </p>
-        </section>
+        </div>
 
         <footer>
             <p>
                 put together by <a href="https://fasterthanli.me/">fasterthanlime</a> ·
-                Licensed under MIT or Apache-2.0
+                Licensed under MIT or Apache-2.0 ·
+                Code font: <a href="https://typeof.net/Iosevka/">Iosevka</a>
             </p>
         </footer>
     </div>

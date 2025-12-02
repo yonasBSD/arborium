@@ -1,0 +1,56 @@
+# Rosé Pine Moon
+# https://rosepinetheme.com
+
+name = "Rosé Pine Moon"
+variant = "dark"
+background = "#232136"
+foreground = "#e0def4"
+
+"attribute" = { fg = "gold" }
+"constant" = { fg = "gold" }
+"function.builtin" = { fg = "foam" }
+"function" = { fg = "rose" }
+"keyword" = { fg = "pine" }
+"operator" = { fg = "subtle" }
+"property" = { fg = "foam" }
+"punctuation" = { fg = "subtle" }
+"punctuation.bracket" = { fg = "subtle" }
+"punctuation.delimiter" = { fg = "subtle" }
+"string" = { fg = "gold" }
+"string.special" = { fg = "love" }
+"tag" = { fg = "foam" }
+"type" = { fg = "iris" }
+"type.builtin" = { fg = "iris" }
+"variable" = { fg = "text" }
+"variable.builtin" = { fg = "love" }
+"variable.parameter" = { fg = "iris" }
+"comment" = { fg = "muted", modifiers = ["italic"] }
+"macro" = { fg = "foam" }
+"label" = { fg = "foam" }
+"diff.plus" = { fg = "foam" }
+"diff.minus" = { fg = "love" }
+"number" = { fg = "gold" }
+"text.literal" = { fg = "text" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "iris", modifiers = ["underlined"] }
+"text.reference" = { fg = "foam" }
+"string.escape" = { fg = "pine" }
+"text.title" = { fg = "gold", modifiers = ["bold"] }
+"punctuation.special" = { fg = "subtle" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "text" }
+
+[palette]
+base = "#232136"
+surface = "#2a273f"
+overlay = "#393552"
+muted = "#6e6a86"
+subtle = "#908caa"
+text = "#e0def4"
+love = "#eb6f92"
+gold = "#f6c177"
+rose = "#ea9a97"
+pine = "#3e8fb0"
+foam = "#9ccfd8"
+iris = "#c4a7e7"

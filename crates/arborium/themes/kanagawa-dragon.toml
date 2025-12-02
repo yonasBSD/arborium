@@ -1,0 +1,56 @@
+# Kanagawa Dragon
+# https://github.com/rebelot/kanagawa.nvim
+
+name = "Kanagawa Dragon"
+variant = "dark"
+background = "#181616"
+foreground = "#c5c9c5"
+
+"attribute" = { fg = "yellow" }
+"constant" = { fg = "orange" }
+"function.builtin" = { fg = "teal" }
+"function" = { fg = "blue" }
+"keyword" = { fg = "red" }
+"operator" = { fg = "red" }
+"property" = { fg = "yellow" }
+"punctuation" = { fg = "fg" }
+"punctuation.bracket" = { fg = "fg" }
+"punctuation.delimiter" = { fg = "fg" }
+"string" = { fg = "green" }
+"string.special" = { fg = "pink" }
+"tag" = { fg = "red" }
+"type" = { fg = "aqua" }
+"type.builtin" = { fg = "aqua" }
+"variable" = { fg = "fg" }
+"variable.builtin" = { fg = "red" }
+"variable.parameter" = { fg = "gray" }
+"comment" = { fg = "comment" }
+"macro" = { fg = "teal" }
+"label" = { fg = "pink" }
+"diff.plus" = { fg = "green" }
+"diff.minus" = { fg = "red" }
+"number" = { fg = "pink" }
+"text.literal" = { fg = "fg" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "blue", modifiers = ["underlined"] }
+"text.reference" = { fg = "teal" }
+"string.escape" = { fg = "pink" }
+"text.title" = { fg = "aqua", modifiers = ["bold"] }
+"punctuation.special" = { fg = "teal" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "fg" }
+
+[palette]
+bg = "#181616"
+fg = "#c5c9c5"
+comment = "#625e5a"
+red = "#c4746e"
+orange = "#b6927b"
+yellow = "#c4b28a"
+green = "#8a9a7b"
+aqua = "#8ea4a2"
+teal = "#7aa89f"
+blue = "#8ba4b0"
+pink = "#a292a3"
+gray = "#9c9c9c"

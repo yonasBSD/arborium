@@ -118,6 +118,7 @@ dependencies = [
  "arborium-zig",
  "arborium-zsh",
  "dlmalloc",
+ "toml",
  "tree-sitter-highlight-patched-arborium",
  "tree-sitter-patched-arborium",
 ]
@@ -2211,6 +2212,7 @@ checksum = "1e9df38ee2d2c3c5948ea468a8406ff0db0b29ae1ffde1bcf20ef305bcc95c51"
 name = "xtask"
 version = "0.1.0"
 dependencies = [
+ "arborium",
  "brotli",
  "flate2",
  "indicatif",

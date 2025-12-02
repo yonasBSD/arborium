@@ -1,0 +1,65 @@
+# Nord
+# https://www.nordtheme.com
+
+name = "Nord"
+variant = "dark"
+background = "#2e3440"
+foreground = "#eceff4"
+
+"attribute" = { fg = "nord7" }
+"constant" = { fg = "nord15" }
+"function.builtin" = { fg = "nord8" }
+"function" = { fg = "nord8" }
+"keyword" = { fg = "nord9" }
+"operator" = { fg = "nord9" }
+"property" = { fg = "nord8" }
+"punctuation" = { fg = "nord6" }
+"punctuation.bracket" = { fg = "nord6" }
+"punctuation.delimiter" = { fg = "nord6" }
+"string" = { fg = "nord14" }
+"string.special" = { fg = "nord11" }
+"tag" = { fg = "nord9" }
+"type" = { fg = "nord7" }
+"type.builtin" = { fg = "nord7" }
+"variable" = { fg = "nord6" }
+"variable.builtin" = { fg = "nord11" }
+"variable.parameter" = { fg = "nord12" }
+"comment" = { fg = "nord3bright" }
+"macro" = { fg = "nord10" }
+"label" = { fg = "nord12" }
+"diff.plus" = { fg = "nord14" }
+"diff.minus" = { fg = "nord11" }
+"number" = { fg = "nord15" }
+"text.literal" = { fg = "nord6" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "nord8", modifiers = ["underlined"] }
+"text.reference" = { fg = "nord8" }
+"string.escape" = { fg = "nord13" }
+"text.title" = { fg = "nord9", modifiers = ["bold"] }
+"punctuation.special" = { fg = "nord12" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "nord6" }
+
+[palette]
+# Polar Night
+nord0 = "#2e3440"
+nord1 = "#3b4252"
+nord2 = "#434c5e"
+nord3 = "#4c566a"
+nord3bright = "#616e88"
+# Snow Storm
+nord4 = "#d8dee9"
+nord5 = "#e5e9f0"
+nord6 = "#eceff4"
+# Frost
+nord7 = "#8fbcbb"
+nord8 = "#88c0d0"
+nord9 = "#81a1c1"
+nord10 = "#5e81ac"
+# Aurora
+nord11 = "#bf616a"
+nord12 = "#d08770"
+nord13 = "#ebcb8b"
+nord14 = "#a3be8c"
+nord15 = "#b48ead"

@@ -1,0 +1,54 @@
+# Gruvbox Light
+# https://github.com/morhetz/gruvbox
+
+name = "Gruvbox Light"
+variant = "light"
+background = "#fbf1c7"
+foreground = "#3c3836"
+
+"attribute" = { fg = "yellow" }
+"constant" = { fg = "purple" }
+"function.builtin" = { fg = "aqua" }
+"function" = { fg = "aqua" }
+"keyword" = { fg = "red" }
+"operator" = { fg = "fg" }
+"property" = { fg = "blue" }
+"punctuation" = { fg = "fg" }
+"punctuation.bracket" = { fg = "fg" }
+"punctuation.delimiter" = { fg = "fg" }
+"string" = { fg = "green" }
+"string.special" = { fg = "orange" }
+"tag" = { fg = "red" }
+"type" = { fg = "yellow" }
+"type.builtin" = { fg = "yellow" }
+"variable" = { fg = "fg" }
+"variable.builtin" = { fg = "orange" }
+"variable.parameter" = { fg = "blue" }
+"comment" = { fg = "gray" }
+"macro" = { fg = "aqua" }
+"label" = { fg = "red" }
+"diff.plus" = { fg = "green" }
+"diff.minus" = { fg = "red" }
+"number" = { fg = "purple" }
+"text.literal" = { fg = "fg" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "blue", modifiers = ["underlined"] }
+"text.reference" = { fg = "aqua" }
+"string.escape" = { fg = "orange" }
+"text.title" = { fg = "green", modifiers = ["bold"] }
+"punctuation.special" = { fg = "orange" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "fg" }
+
+[palette]
+bg = "#fbf1c7"
+fg = "#3c3836"
+gray = "#928374"
+red = "#9d0006"
+green = "#79740e"
+yellow = "#b57614"
+blue = "#076678"
+purple = "#8f3f71"
+aqua = "#427b58"
+orange = "#af3a03"

@@ -13,6 +13,6 @@ trivia = "Pakkanen published Meson in Feb 2013; see the [initial blog post](http
 
 [[samples]]
 path = "samples/meson.build"
-description = "Minimal Meson build definition with project declaration and executable target."
-link = "https://github.com/mesonbuild/meson/blob/master/test%20cases/common/1%20trivial/meson.build"
-license = "Apache-2.0"
+description = "Real-world Meson build with MSVC/GCC detection, subprojects, and conditional dependencies."
+link = "https://github.com/LAK132/lak/blob/trunk/meson.build"
+license = "Unlicense"

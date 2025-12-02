@@ -1,0 +1,60 @@
+# Solarized Dark
+# https://ethanschoonover.com/solarized/
+
+name = "Solarized Dark"
+variant = "dark"
+background = "#002b36"
+foreground = "#839496"
+
+"attribute" = { fg = "yellow" }
+"constant" = { fg = "cyan" }
+"function.builtin" = { fg = "blue" }
+"function" = { fg = "blue" }
+"keyword" = { fg = "green" }
+"operator" = { fg = "base1" }
+"property" = { fg = "blue" }
+"punctuation" = { fg = "base1" }
+"punctuation.bracket" = { fg = "base1" }
+"punctuation.delimiter" = { fg = "base1" }
+"string" = { fg = "cyan" }
+"string.special" = { fg = "orange" }
+"tag" = { fg = "blue" }
+"type" = { fg = "yellow" }
+"type.builtin" = { fg = "yellow" }
+"variable" = { fg = "base0" }
+"variable.builtin" = { fg = "magenta" }
+"variable.parameter" = { fg = "base0" }
+"comment" = { fg = "base01", modifiers = ["italic"] }
+"macro" = { fg = "orange" }
+"label" = { fg = "violet" }
+"diff.plus" = { fg = "green" }
+"diff.minus" = { fg = "red" }
+"number" = { fg = "magenta" }
+"text.literal" = { fg = "base0" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "cyan", modifiers = ["underlined"] }
+"text.reference" = { fg = "blue" }
+"string.escape" = { fg = "orange" }
+"text.title" = { fg = "yellow", modifiers = ["bold"] }
+"punctuation.special" = { fg = "red" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "base0" }
+
+[palette]
+base03 = "#002b36"
+base02 = "#073642"
+base01 = "#586e75"
+base00 = "#657b83"
+base0 = "#839496"
+base1 = "#93a1a1"
+base2 = "#eee8d5"
+base3 = "#fdf6e3"
+yellow = "#b58900"
+orange = "#cb4b16"
+red = "#dc322f"
+magenta = "#d33682"
+violet = "#6c71c4"
+blue = "#268bd2"
+cyan = "#2aa198"
+green = "#859900"

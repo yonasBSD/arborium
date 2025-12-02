@@ -1,0 +1,55 @@
+# Dracula
+# https://draculatheme.com
+
+name = "Dracula"
+variant = "dark"
+background = "#282a36"
+foreground = "#f8f8f2"
+
+"attribute" = { fg = "green" }
+"constant" = { fg = "purple" }
+"function.builtin" = { fg = "cyan" }
+"function" = { fg = "green" }
+"keyword" = { fg = "pink" }
+"operator" = { fg = "pink" }
+"property" = { fg = "cyan" }
+"punctuation" = { fg = "fg" }
+"punctuation.bracket" = { fg = "fg" }
+"punctuation.delimiter" = { fg = "fg" }
+"string" = { fg = "yellow" }
+"string.special" = { fg = "red" }
+"tag" = { fg = "pink" }
+"type" = { fg = "cyan" }
+"type.builtin" = { fg = "cyan" }
+"variable" = { fg = "fg" }
+"variable.builtin" = { fg = "purple" }
+"variable.parameter" = { fg = "orange" }
+"comment" = { fg = "comment" }
+"macro" = { fg = "green" }
+"label" = { fg = "cyan" }
+"diff.plus" = { fg = "green" }
+"diff.minus" = { fg = "red" }
+"number" = { fg = "purple" }
+"text.literal" = { fg = "fg" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "cyan", modifiers = ["underlined"] }
+"text.reference" = { fg = "cyan" }
+"string.escape" = { fg = "pink" }
+"text.title" = { fg = "purple", modifiers = ["bold"] }
+"punctuation.special" = { fg = "pink" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "fg" }
+
+[palette]
+bg = "#282a36"
+fg = "#f8f8f2"
+selection = "#44475a"
+comment = "#6272a4"
+red = "#ff5555"
+orange = "#ffb86c"
+yellow = "#f1fa8c"
+green = "#50fa7b"
+purple = "#bd93f9"
+cyan = "#8be9fd"
+pink = "#ff79c6"

@@ -1,0 +1,54 @@
+# GitHub Light
+# https://github.com/primer/github-vscode-theme
+
+name = "GitHub Light"
+variant = "light"
+background = "#ffffff"
+foreground = "#24292f"
+
+"attribute" = { fg = "blue" }
+"constant" = { fg = "blue" }
+"function.builtin" = { fg = "purple" }
+"function" = { fg = "purple" }
+"keyword" = { fg = "red" }
+"operator" = { fg = "red" }
+"property" = { fg = "blue" }
+"punctuation" = { fg = "fg" }
+"punctuation.bracket" = { fg = "fg" }
+"punctuation.delimiter" = { fg = "fg" }
+"string" = { fg = "darkblue" }
+"string.special" = { fg = "red" }
+"tag" = { fg = "green" }
+"type" = { fg = "orange" }
+"type.builtin" = { fg = "orange" }
+"variable" = { fg = "fg" }
+"variable.builtin" = { fg = "orange" }
+"variable.parameter" = { fg = "orange" }
+"comment" = { fg = "comment" }
+"macro" = { fg = "blue" }
+"label" = { fg = "purple" }
+"diff.plus" = { fg = "green" }
+"diff.minus" = { fg = "red" }
+"number" = { fg = "blue" }
+"text.literal" = { fg = "fg" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "linkblue", modifiers = ["underlined"] }
+"text.reference" = { fg = "purple" }
+"string.escape" = { fg = "blue" }
+"text.title" = { fg = "purple", modifiers = ["bold"] }
+"punctuation.special" = { fg = "blue" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "fg" }
+
+[palette]
+bg = "#ffffff"
+fg = "#24292f"
+comment = "#6e7781"
+red = "#cf222e"
+orange = "#953800"
+green = "#116329"
+blue = "#0550ae"
+darkblue = "#0a3069"
+purple = "#8250df"
+linkblue = "#0969da"

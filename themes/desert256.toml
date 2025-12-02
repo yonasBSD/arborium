@@ -1,0 +1,12 @@
+# Desert256 (Henry So's 256-color adaptation of desert.vim)
+name = "Desert256"
+variant = "dark"
+
+[colors]
+bg = "#000000"
+keyword = "#f0e68c"
+function = "#98fb98"
+string = "#ffa0a0"
+type = "#bdb76b"
+number = "#ffa0a0"
+macro = "#cd5c5c"

@@ -1,0 +1,57 @@
+# Tokyo Night
+# https://github.com/enkia/tokyo-night-vscode-theme
+
+name = "Tokyo Night"
+variant = "dark"
+background = "#1a1b26"
+foreground = "#c0caf5"
+
+"attribute" = { fg = "yellow" }
+"constant" = { fg = "orange" }
+"function.builtin" = { fg = "sky" }
+"function" = { fg = "blue" }
+"keyword" = { fg = "purple" }
+"operator" = { fg = "cyan" }
+"property" = { fg = "blue" }
+"punctuation" = { fg = "fg" }
+"punctuation.bracket" = { fg = "fg" }
+"punctuation.delimiter" = { fg = "fg" }
+"string" = { fg = "green" }
+"string.special" = { fg = "red" }
+"tag" = { fg = "red" }
+"type" = { fg = "teal" }
+"type.builtin" = { fg = "teal" }
+"variable" = { fg = "text" }
+"variable.builtin" = { fg = "red" }
+"variable.parameter" = { fg = "yellow" }
+"comment" = { fg = "comment" }
+"macro" = { fg = "sky" }
+"label" = { fg = "orange" }
+"diff.plus" = { fg = "green" }
+"diff.minus" = { fg = "red" }
+"number" = { fg = "orange" }
+"text.literal" = { fg = "fg" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "blue", modifiers = ["underlined"] }
+"text.reference" = { fg = "sky" }
+"string.escape" = { fg = "cyan" }
+"text.title" = { fg = "purple", modifiers = ["bold"] }
+"punctuation.special" = { fg = "cyan" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "fg" }
+
+[palette]
+bg = "#1a1b26"
+fg = "#a9b1d6"
+text = "#c0caf5"
+comment = "#565f89"
+red = "#f7768e"
+orange = "#ff9e64"
+yellow = "#e0af68"
+green = "#9ece6a"
+teal = "#2ac3de"
+sky = "#7dcfff"
+blue = "#7aa2f7"
+purple = "#bb9af7"
+cyan = "#89ddff"

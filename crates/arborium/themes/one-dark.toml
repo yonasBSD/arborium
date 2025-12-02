@@ -1,0 +1,54 @@
+# One Dark
+# https://github.com/atom/one-dark-syntax
+
+name = "One Dark"
+variant = "dark"
+background = "#282c34"
+foreground = "#abb2bf"
+
+"attribute" = { fg = "orange" }
+"constant" = { fg = "orange" }
+"function.builtin" = { fg = "cyan" }
+"function" = { fg = "blue" }
+"keyword" = { fg = "purple" }
+"operator" = { fg = "cyan" }
+"property" = { fg = "red" }
+"punctuation" = { fg = "fg" }
+"punctuation.bracket" = { fg = "fg" }
+"punctuation.delimiter" = { fg = "fg" }
+"string" = { fg = "green" }
+"string.special" = { fg = "red" }
+"tag" = { fg = "red" }
+"type" = { fg = "yellow" }
+"type.builtin" = { fg = "yellow" }
+"variable" = { fg = "fg" }
+"variable.builtin" = { fg = "red" }
+"variable.parameter" = { fg = "orange" }
+"comment" = { fg = "comment" }
+"macro" = { fg = "cyan" }
+"label" = { fg = "red" }
+"diff.plus" = { fg = "green" }
+"diff.minus" = { fg = "red" }
+"number" = { fg = "orange" }
+"text.literal" = { fg = "fg" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "blue", modifiers = ["underlined"] }
+"text.reference" = { fg = "cyan" }
+"string.escape" = { fg = "cyan" }
+"text.title" = { fg = "red", modifiers = ["bold"] }
+"punctuation.special" = { fg = "purple" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "fg" }
+
+[palette]
+bg = "#282c34"
+fg = "#abb2bf"
+comment = "#5c6370"
+red = "#e06c75"
+orange = "#d19a66"
+yellow = "#e5c07b"
+green = "#98c379"
+cyan = "#56b6c2"
+blue = "#61afef"
+purple = "#c678dd"

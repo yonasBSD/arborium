@@ -1,0 +1,53 @@
+# Monokai Pro
+# https://monokai.pro
+
+name = "Monokai"
+variant = "dark"
+background = "#2d2a2e"
+foreground = "#fcfcfa"
+
+"attribute" = { fg = "green" }
+"constant" = { fg = "purple" }
+"function.builtin" = { fg = "cyan" }
+"function" = { fg = "green" }
+"keyword" = { fg = "pink" }
+"operator" = { fg = "pink" }
+"property" = { fg = "cyan" }
+"punctuation" = { fg = "fg" }
+"punctuation.bracket" = { fg = "fg" }
+"punctuation.delimiter" = { fg = "fg" }
+"string" = { fg = "yellow" }
+"string.special" = { fg = "purple" }
+"tag" = { fg = "pink" }
+"type" = { fg = "cyan" }
+"type.builtin" = { fg = "cyan" }
+"variable" = { fg = "fg" }
+"variable.builtin" = { fg = "purple" }
+"variable.parameter" = { fg = "orange" }
+"comment" = { fg = "comment" }
+"macro" = { fg = "cyan" }
+"label" = { fg = "pink" }
+"diff.plus" = { fg = "green" }
+"diff.minus" = { fg = "pink" }
+"number" = { fg = "purple" }
+"text.literal" = { fg = "fg" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "cyan", modifiers = ["underlined"] }
+"text.reference" = { fg = "cyan" }
+"string.escape" = { fg = "purple" }
+"text.title" = { fg = "yellow", modifiers = ["bold"] }
+"punctuation.special" = { fg = "pink" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "fg" }
+
+[palette]
+bg = "#2d2a2e"
+fg = "#fcfcfa"
+comment = "#727072"
+pink = "#ff6188"
+orange = "#fc9867"
+yellow = "#ffd866"
+green = "#a9dc76"
+cyan = "#78dce8"
+purple = "#ab9df2"
