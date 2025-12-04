@@ -183,10 +183,22 @@ jobs:
     name: Format
     runs-on: depot-ubuntu-24.04-4
     container: "ghcr.io/bearcove/arborium-plugin-builder:latest"
+    needs: 
+      - generate
+
     steps: 
       - 
         name: Checkout
         uses: actions/checkout@v4
+      - 
+        name: Download grammar sources
+        uses: actions/download-artifact@v4
+        with: 
+          name: grammar-sources
+
+      - 
+        name: Extract grammar sources
+        run: tar -xvf grammar-sources.tar
       - 
         name: Check formatting
         run: cargo fmt --all -- --check
@@ -324,7 +336,8 @@ jobs:
 
   publish-npm: 
     name: Publish npm
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04-32
+    container: "ghcr.io/bearcove/arborium-plugin-builder:latest"
     needs: 
       - generate
       - build-plugins-0
@@ -360,17 +373,8 @@ jobs:
         name: List plugins
         run: "find dist/plugins -name 'package.json' | head -20"
       - 
-        name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-      - 
-        name: Rust cache
-        uses: Swatinem/rust-cache@v2
-      - 
-        name: Build xtask
-        run: cargo build --release -p xtask
-      - 
         name: Publish to npm
-        run: ./target/release/xtask publish npm -o dist/plugins
+        run: arborium-xtask publish npm -o dist/plugins
         env: 
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

@@ -431,6 +431,7 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
                 checkout(),
                 download_grammar_sources(),
                 extract_grammar_sources_tar(),
+                rust_cache(),
                 Step::run("Build", "cargo build --locked --verbose"),
                 Step::run("Run tests", "cargo nextest run --locked --verbose"),
                 Step::run(
@@ -510,14 +511,17 @@ echo "No env imports found - WASM modules are browser-compatible""#,
             ]),
     );
 
-    // Format (no dependency on generate)
+    // Format
     jobs.insert(
         "fmt".into(),
         Job::new(runners::UBUNTU_4)
             .name("Format")
             .container(CONTAINER)
+            .needs(["generate"])
             .steps([
                 checkout(),
+                download_grammar_sources(),
+                extract_grammar_sources_tar(),
                 Step::run("Check formatting", "cargo fmt --all -- --check"),
                 Step::run(
                     "Check CI workflow is up to date",
@@ -642,20 +646,18 @@ echo "No env imports found - WASM modules are browser-compatible""#,
                 "List plugins",
                 "find dist/plugins -name 'package.json' | head -20",
             ),
-            install_rust(),
-            rust_cache(),
-            Step::run("Build xtask", "cargo build --release -p xtask"),
             Step::run(
                 "Publish to npm",
-                "./target/release/xtask publish npm -o dist/plugins",
+                "arborium-xtask publish npm -o dist/plugins",
             )
             .with_env([("NODE_AUTH_TOKEN", "${{ secrets.NPM_TOKEN }}")]),
         ]);
 
         jobs.insert(
             "publish-npm".into(),
-            Job::new("ubuntu-latest")
+            Job::new(runners::UBUNTU_32)
                 .name("Publish npm")
+                .container(CONTAINER)
                 .needs(npm_needs)
                 .when(IS_RELEASE)
                 .steps(npm_steps),
