@@ -242,19 +242,18 @@ fn build_single_plugin(
 
     // Build with cargo component from the plugin crate directory
     let cargo_start = Instant::now();
-    let status = cargo_component
+    let output = cargo_component
         .command()
         .args(["build", "--release"])
         .current_dir(&plugin_dir)
-        .stdout(std::process::Stdio::null())
-        .stderr(std::process::Stdio::piped())
-        .status()
+        .output()
         .into_diagnostic()
         .context("failed to run cargo-component")?;
     let cargo_component_ms = cargo_start.elapsed().as_millis() as u64;
 
-    if !status.success() {
-        miette::bail!("cargo-component build failed");
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        miette::bail!("cargo-component build failed:\n{}", stderr);
     }
 
     // Find the built wasm file
@@ -281,7 +280,7 @@ fn build_single_plugin(
     let mut transpile_ms = 0u64;
     if let Some(jco) = jco {
         let transpile_start = Instant::now();
-        let status = jco
+        let output = jco
             .command()
             .args([
                 "transpile",
@@ -292,15 +291,14 @@ fn build_single_plugin(
                 "-o",
                 plugin_output.as_str(),
             ])
-            .stdout(std::process::Stdio::null())
-            .stderr(std::process::Stdio::piped())
-            .status()
+            .output()
             .into_diagnostic()
             .context("failed to run jco")?;
         transpile_ms = transpile_start.elapsed().as_millis() as u64;
 
-        if !status.success() {
-            miette::bail!("jco transpile failed");
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            miette::bail!("jco transpile failed:\n{}", stderr);
         }
 
         // Calculate total wasm bundle size
