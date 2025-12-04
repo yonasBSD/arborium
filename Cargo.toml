@@ -121,6 +121,38 @@ exclude = [
     "crates/arborium-ada-plugin",
     "crates/arborium-agda-plugin",
     "crates/arborium-asciidoc-plugin",
+    "crates/arborium-clojure-plugin",
+    "crates/arborium-asciidoc_inline-plugin",
+    "crates/arborium-idris-plugin",
+    "crates/arborium-dart-plugin",
+    "crates/arborium-meson-plugin",
+    "crates/arborium-bash-plugin",
+    "crates/arborium-ninja-plugin",
+    "crates/arborium-python-plugin",
+    "crates/arborium-scala-plugin",
+    "crates/arborium-c-plugin",
+    "crates/arborium-elm-plugin",
+    "crates/arborium-fish-plugin",
+    "crates/arborium-batch-plugin",
+    "crates/arborium-tlaplus-plugin",
+    "crates/arborium-fsharp-plugin",
+    "crates/arborium-ocaml-plugin",
+    "crates/arborium-erlang-plugin",
+    "crates/arborium-yuri-plugin",
+    "crates/arborium-sparql-plugin",
+    "crates/arborium-nginx-plugin",
+    "crates/arborium-toml-plugin",
+    "crates/arborium-json-plugin",
+    "crates/arborium-dot-plugin",
+    "crates/arborium-dtd-plugin",
+    "crates/arborium-matlab-plugin",
+    "crates/arborium-haskell-plugin",
+    "crates/arborium-hlsl-plugin",
+    "crates/arborium-commonlisp-plugin",
+    "crates/arborium-kotlin-plugin",
+    "crates/arborium-yaml-plugin",
+    "crates/arborium-hcl-plugin",
+    "crates/arborium-zig-plugin",
 ]
 
 [workspace.package]
@@ -129,118 +161,4 @@ edition = "2024"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/bearcove/arborium"
 
-# Optimize for size in release builds (especially important for WASM)
-[profile.release]
-opt-level = "z"
-lto = true
-codegen-units = 1
-panic = "abort"
-strip = true
-
-# Optimize dependencies in dev builds for faster xtask execution
-[profile.dev.package."*"]
-opt-level = 2
-
-# Grammar crates as workspace dependencies - single source of truth for versions
-[workspace.dependencies]
-arborium-ada = { path = "crates/arborium-ada", version = "0.1.3" }
-arborium-agda = { path = "crates/arborium-agda", version = "0.1.3" }
-arborium-asciidoc = { path = "crates/arborium-asciidoc", version = "0.1.3" }
-arborium-asciidoc_inline = { path = "crates/arborium-asciidoc_inline", version = "0.1.3" }
-arborium-asm = { path = "crates/arborium-asm", version = "0.1.3" }
-arborium-awk = { path = "crates/arborium-awk", version = "0.1.3" }
-arborium-bash = { path = "crates/arborium-bash", version = "0.1.3" }
-arborium-batch = { path = "crates/arborium-batch", version = "0.1.3" }
-arborium-c = { path = "crates/arborium-c", version = "0.1.3" }
-arborium-c-sharp = { path = "crates/arborium-c-sharp", version = "0.1.3" }
-arborium-caddy = { path = "crates/arborium-caddy", version = "0.1.3" }
-arborium-capnp = { path = "crates/arborium-capnp", version = "0.1.3" }
-arborium-clojure = { path = "crates/arborium-clojure", version = "0.1.3" }
-arborium-cmake = { path = "crates/arborium-cmake", version = "0.1.3" }
-arborium-commonlisp = { path = "crates/arborium-commonlisp", version = "0.1.3" }
-arborium-cpp = { path = "crates/arborium-cpp", version = "0.1.3" }
-arborium-css = { path = "crates/arborium-css", version = "0.1.3" }
-arborium-d = { path = "crates/arborium-d", version = "0.1.3" }
-arborium-dart = { path = "crates/arborium-dart", version = "0.1.3" }
-arborium-devicetree = { path = "crates/arborium-devicetree", version = "0.1.3" }
-arborium-diff = { path = "crates/arborium-diff", version = "0.1.3" }
-arborium-dockerfile = { path = "crates/arborium-dockerfile", version = "0.1.3" }
-arborium-dot = { path = "crates/arborium-dot", version = "0.1.3" }
-arborium-elisp = { path = "crates/arborium-elisp", version = "0.1.3" }
-arborium-elixir = { path = "crates/arborium-elixir", version = "0.1.3" }
-arborium-elm = { path = "crates/arborium-elm", version = "0.1.3" }
-arborium-erlang = { path = "crates/arborium-erlang", version = "0.1.3" }
-arborium-fish = { path = "crates/arborium-fish", version = "0.1.3" }
-arborium-fsharp = { path = "crates/arborium-fsharp", version = "0.1.3" }
-arborium-gleam = { path = "crates/arborium-gleam", version = "0.1.3" }
-arborium-glsl = { path = "crates/arborium-glsl", version = "0.1.3" }
-arborium-go = { path = "crates/arborium-go", version = "0.1.3" }
-arborium-graphql = { path = "crates/arborium-graphql", version = "0.1.3" }
-arborium-haskell = { path = "crates/arborium-haskell", version = "0.1.3" }
-arborium-hcl = { path = "crates/arborium-hcl", version = "0.1.3" }
-arborium-hlsl = { path = "crates/arborium-hlsl", version = "0.1.3" }
-arborium-html = { path = "crates/arborium-html", version = "0.1.3" }
-arborium-idris = { path = "crates/arborium-idris", version = "0.1.3" }
-arborium-ini = { path = "crates/arborium-ini", version = "0.1.3" }
-arborium-java = { path = "crates/arborium-java", version = "0.1.3" }
-arborium-javascript = { path = "crates/arborium-javascript", version = "0.1.3" }
-arborium-jinja2 = { path = "crates/arborium-jinja2", version = "0.1.3" }
-arborium-jq = { path = "crates/arborium-jq", version = "0.1.3" }
-arborium-json = { path = "crates/arborium-json", version = "0.1.3" }
-arborium-julia = { path = "crates/arborium-julia", version = "0.1.3" }
-arborium-kdl = { path = "crates/arborium-kdl", version = "0.1.3" }
-arborium-kotlin = { path = "crates/arborium-kotlin", version = "0.1.3" }
-arborium-lean = { path = "crates/arborium-lean", version = "0.1.3" }
-arborium-lua = { path = "crates/arborium-lua", version = "0.1.3" }
-arborium-markdown = { path = "crates/arborium-markdown", version = "0.1.3" }
-arborium-markdown-inline = { path = "crates/arborium-markdown-inline", version = "0.1.3" }
-arborium-matlab = { path = "crates/arborium-matlab", version = "0.1.3" }
-arborium-meson = { path = "crates/arborium-meson", version = "0.1.3" }
-arborium-nginx = { path = "crates/arborium-nginx", version = "0.1.3" }
-arborium-ninja = { path = "crates/arborium-ninja", version = "0.1.3" }
-arborium-nix = { path = "crates/arborium-nix", version = "0.1.3" }
-arborium-objc = { path = "crates/arborium-objc", version = "0.1.3" }
-arborium-ocaml = { path = "crates/arborium-ocaml", version = "0.1.3" }
-arborium-perl = { path = "crates/arborium-perl", version = "0.1.3" }
-arborium-php = { path = "crates/arborium-php", version = "0.1.3" }
-arborium-postscript = { path = "crates/arborium-postscript", version = "0.1.3" }
-arborium-powershell = { path = "crates/arborium-powershell", version = "0.1.3" }
-arborium-prolog = { path = "crates/arborium-prolog", version = "0.1.3" }
-arborium-python = { path = "crates/arborium-python", version = "0.1.3" }
-arborium-query = { path = "crates/arborium-query", version = "0.1.3" }
-arborium-r = { path = "crates/arborium-r", version = "0.1.3" }
-arborium-rescript = { path = "crates/arborium-rescript", version = "0.1.3" }
-arborium-ron = { path = "crates/arborium-ron", version = "0.1.3" }
-arborium-ruby = { path = "crates/arborium-ruby", version = "0.1.3" }
-arborium-rust = { path = "crates/arborium-rust", version = "0.1.3" }
-arborium-scala = { path = "crates/arborium-scala", version = "0.1.3" }
-arborium-scheme = { path = "crates/arborium-scheme", version = "0.1.3" }
-arborium-scss = { path = "crates/arborium-scss", version = "0.1.3" }
-arborium-sparql = { path = "crates/arborium-sparql", version = "0.1.3" }
-arborium-sql = { path = "crates/arborium-sql", version = "0.1.3" }
-arborium-ssh-config = { path = "crates/arborium-ssh-config", version = "0.1.3" }
-arborium-starlark = { path = "crates/arborium-starlark", version = "0.1.3" }
-arborium-svelte = { path = "crates/arborium-svelte", version = "0.1.3" }
-arborium-swift = { path = "crates/arborium-swift", version = "0.1.3" }
-arborium-textproto = { path = "crates/arborium-textproto", version = "0.1.3" }
-arborium-thrift = { path = "crates/arborium-thrift", version = "0.1.3" }
-arborium-tlaplus = { path = "crates/arborium-tlaplus", version = "0.1.3" }
-arborium-toml = { path = "crates/arborium-toml", version = "0.1.3" }
-arborium-tsx = { path = "crates/arborium-tsx", version = "0.1.3" }
-arborium-typescript = { path = "crates/arborium-typescript", version = "0.1.3" }
-arborium-typst = { path = "crates/arborium-typst", version = "0.1.3" }
-arborium-uiua = { path = "crates/arborium-uiua", version = "0.1.3" }
-arborium-vb = { path = "crates/arborium-vb", version = "0.1.3" }
-arborium-verilog = { path = "crates/arborium-verilog", version = "0.1.3" }
-arborium-vhdl = { path = "crates/arborium-vhdl", version = "0.1.3" }
-arborium-vim = { path = "crates/arborium-vim", version = "0.1.3" }
-arborium-vue = { path = "crates/arborium-vue", version = "0.1.3" }
-arborium-x86asm = { path = "crates/arborium-x86asm", version = "0.1.3" }
-arborium-xml = { path = "crates/arborium-xml", version = "0.1.3" }
-arborium-yaml = { path = "crates/arborium-yaml", version = "0.1.3" }
-arborium-yuri = { path = "crates/arborium-yuri", version = "0.1.3" }
-arborium-zig = { path = "crates/arborium-zig", version = "0.1.3" }
-arborium-zsh = { path = "crates/arborium-zsh", version = "0.1.3" }
-
-# Main crate (for miette-arborium dependency)
-arborium = { path = "crates/arborium", version = "0.1.3", default-features = false }
+# Optimize for size in release builds (especially important for  
