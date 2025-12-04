@@ -42,15 +42,15 @@ jobs:
         uses: actions/cache@v4
         with: 
           path: .cache/arborium
-          key: "grammar-cache-v2-${{ hashFiles('crates/*/grammar/grammar.js', 'crates/*/grammar/package.json', 'crates/*/common/**') }}"
-          restore-keys: grammar-cache-v2-
+          key: "grammar-cache-v4-${{ hashFiles('crates/*/grammar/grammar.js', 'crates/*/grammar/package.json', 'crates/*/common/**') }}"
+          restore-keys: grammar-cache-v4-
 
       - 
         name: Generate grammar sources
         run: arborium-xtask gen --version ${{ steps.version.outputs.version }}
       - 
         name: Create grammar sources tarball
-        run: "{\n  # Root workspace Cargo.toml (has workspace dependency versions)\n  echo \"Cargo.toml\"\n  # Main arborium crate Cargo.toml (has dependency versions)\n  echo \"crates/arborium/Cargo.toml\"\n  # Grammar crates (only those with a grammar/ directory)\n  for d in crates/arborium-*/; do\n    if [ -d \"$d/grammar\" ]; then\n      echo \"${d}Cargo.toml\"\n      echo \"${d}src\"\n      echo \"${d}grammar/src\"\n    fi\n  done\n} > generated_files.txt\ntar -cvf grammar-sources.tar -T generated_files.txt"
+        run: tar -cvf grammar-sources.tar Cargo.toml crates/
       - 
         name: Upload grammar sources
         uses: actions/upload-artifact@v4

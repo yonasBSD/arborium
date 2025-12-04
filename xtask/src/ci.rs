@@ -391,9 +391,9 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
                         ("path", ".cache/arborium"),
                         (
                             "key",
-                            "grammar-cache-v3-${{ hashFiles('crates/*/grammar/grammar.js', 'crates/*/grammar/package.json', 'crates/*/common/**') }}",
+                            "grammar-cache-v4-${{ hashFiles('crates/*/grammar/grammar.js', 'crates/*/grammar/package.json', 'crates/*/common/**') }}",
                         ),
-                        ("restore-keys", "grammar-cache-v3-"),
+                        ("restore-keys", "grammar-cache-v4-"),
                     ]),
                 // Generate with version
                 Step::run(
@@ -405,21 +405,7 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
                 // Also include root Cargo.toml and crates/arborium/Cargo.toml for version consistency
                 Step::run(
                     "Create grammar sources tarball",
-                    r#"{
-  # Root workspace Cargo.toml (has workspace dependency versions)
-  echo "Cargo.toml"
-  # Main arborium crate Cargo.toml (has dependency versions)
-  echo "crates/arborium/Cargo.toml"
-  # Grammar crates (only those with a grammar/ directory)
-  for d in crates/arborium-*/; do
-    if [ -d "$d/grammar" ]; then
-      echo "${d}Cargo.toml"
-      echo "${d}src"
-      echo "${d}grammar/src"
-    fi
-  done
-} > generated_files.txt
-tar -cvf grammar-sources.tar -T generated_files.txt"#,
+                    "tar -cvf grammar-sources.tar Cargo.toml crates/",
                 ),
                 Step::uses("Upload grammar sources", "actions/upload-artifact@v4")
                     .with_inputs([
