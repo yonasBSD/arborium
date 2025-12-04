@@ -238,3 +238,6 @@ arborium-yaml = { path = "crates/arborium-yaml", version = "0.0.0-dev" }
 arborium-yuri = { path = "crates/arborium-yuri", version = "0.0.0-dev" }
 arborium-zig = { path = "crates/arborium-zig", version = "0.0.0-dev" }
 arborium-zsh = { path = "crates/arborium-zsh", version = "0.0.0-dev" }
+
+# Main crate (for miette-arborium dependency)
+arborium = { path = "crates/arborium", version = "0.0.0-dev", default-features = false }

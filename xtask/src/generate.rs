@@ -37,8 +37,9 @@ fn update_root_cargo_toml(repo_root: &Utf8Path, version: &str) -> Result<(), Rep
 
     // Update all version = "X.Y.Z" in [workspace.dependencies] section
     // Match lines like: arborium-ada = { path = "...", version = "X.Y.Z" }
+    // Also matches: arborium = { path = "...", version = "X.Y.Z" }
     let dep_version_re =
-        Regex::new(r#"(?m)^(arborium-[a-z0-9_-]+\s*=\s*\{[^}]*version\s*=\s*)"[^"]*""#)
+        Regex::new(r#"(?m)^(arborium(?:-[a-z0-9_-]+)?\s*=\s*\{[^}]*version\s*=\s*)"[^"]*""#)
             .map_err(|e| std::io::Error::other(format!("Failed to compile regex: {e}")))?;
     let content = dep_version_re.replace_all(&content, format!(r#"$1"{version}""#));
 

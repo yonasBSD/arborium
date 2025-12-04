@@ -15,6 +15,7 @@ mod lint_new;
 mod pack;
 mod plan;
 mod plugins;
+mod publish;
 mod serve;
 mod tool;
 mod types;
@@ -97,6 +98,12 @@ enum Command {
     Pack {
         #[facet(args::subcommand)]
         action: PackAction,
+    },
+
+    /// Publish to crates.io and npm
+    Publish {
+        #[facet(args::subcommand)]
+        action: PublishAction,
     },
 }
 
@@ -192,6 +199,41 @@ enum PackAction {
         /// Target directory to extract into (default: current directory)
         #[facet(args::named, default)]
         target: Option<String>,
+    },
+}
+
+/// Publish subcommands
+#[derive(Debug, Facet)]
+#[repr(u8)]
+#[allow(dead_code)]
+enum PublishAction {
+    /// Publish all crates to crates.io
+    Crates {
+        /// Dry run - don't actually publish
+        #[facet(args::named, default)]
+        dry_run: bool,
+    },
+
+    /// Publish all packages to npm
+    Npm {
+        /// Directory containing built plugins (default: dist/plugins)
+        #[facet(args::named, args::short = 'o', default)]
+        output: Option<String>,
+
+        /// Dry run - don't actually publish
+        #[facet(args::named, default)]
+        dry_run: bool,
+    },
+
+    /// Publish everything (crates.io + npm)
+    All {
+        /// Directory containing built plugins (default: dist/plugins)
+        #[facet(args::named, args::short = 'o', default)]
+        output: Option<String>,
+
+        /// Dry run - don't actually publish
+        #[facet(args::named, default)]
+        dry_run: bool,
     },
 }
 
@@ -408,5 +450,38 @@ fn main() {
                 }
             }
         },
+        Command::Publish { action } => {
+            let repo_root = util::find_repo_root().expect("Could not find repo root");
+            let repo_root = camino::Utf8PathBuf::from_path_buf(repo_root).expect("non-UTF8 path");
+
+            match action {
+                PublishAction::Crates { dry_run } => {
+                    if let Err(e) = publish::publish_crates(&repo_root, dry_run) {
+                        eprintln!("{:?}", e);
+                        std::process::exit(1);
+                    }
+                }
+                PublishAction::Npm { output, dry_run } => {
+                    let output_dir = output
+                        .map(camino::Utf8PathBuf::from)
+                        .unwrap_or_else(|| camino::Utf8PathBuf::from("dist/plugins"));
+
+                    if let Err(e) = publish::publish_npm(&repo_root, &output_dir, dry_run) {
+                        eprintln!("{:?}", e);
+                        std::process::exit(1);
+                    }
+                }
+                PublishAction::All { output, dry_run } => {
+                    let output_dir = output
+                        .map(camino::Utf8PathBuf::from)
+                        .unwrap_or_else(|| camino::Utf8PathBuf::from("dist/plugins"));
+
+                    if let Err(e) = publish::publish_all(&repo_root, &output_dir, dry_run) {
+                        eprintln!("{:?}", e);
+                        std::process::exit(1);
+                    }
+                }
+            }
+        }
     }
 }

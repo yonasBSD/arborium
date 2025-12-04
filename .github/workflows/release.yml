@@ -1,4 +1,4 @@
-# Release workflow for publishing to crates.io
+# Unified release workflow for publishing to crates.io and npm
 name: Release
 
 on:
@@ -6,16 +6,44 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 0.1.0) - only for testing'
+        required: false
+        type: string
+      dry_run:
+        description: 'Dry run (do not actually publish)'
+        required: false
+        type: boolean
+        default: false
 
 env:
   CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: "0"
 
 jobs:
+  # =============================================================================
+  # STAGE 1: Generate grammar sources with correct version
+  # =============================================================================
   generate:
+    name: "Generate"
     runs-on: depot-ubuntu-24.04-32
     container: ghcr.io/bearcove/arborium-plugin-builder:latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Parse version from tag
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
 
       - name: Restore grammar generation cache
         uses: actions/cache@v4
@@ -25,8 +53,8 @@ jobs:
           restore-keys: |
             grammar-cache-
 
-      - name: Generate grammar sources
-        run: arborium-xtask gen
+      - name: Generate grammar sources with version
+        run: arborium-xtask gen --version ${{ steps.version.outputs.version }}
 
       - name: Pack grammar sources
         run: arborium-xtask pack create -o grammar-sources.tar.zst
@@ -38,7 +66,11 @@ jobs:
           path: grammar-sources.tar.zst
           retention-days: 1
 
-  publish:
+  # =============================================================================
+  # STAGE 2a: Publish to crates.io (runs in parallel with WASM builds)
+  # =============================================================================
+  publish-crates:
+    name: "Publish crates.io"
     needs: generate
     runs-on: depot-ubuntu-24.04-32
     container: ghcr.io/bearcove/arborium-plugin-builder:latest
@@ -53,7 +85,147 @@ jobs:
       - name: Extract grammar sources
         run: arborium-xtask pack extract -i grammar-sources.tar.zst
 
+      - name: Regenerate with version (for Cargo.toml files)
+        run: arborium-xtask gen --version ${{ needs.generate.outputs.version }}
+
       - name: Publish to crates.io
-        run: cargo publish --workspace
+        if: ${{ !github.event.inputs.dry_run }}
+        run: arborium-xtask publish crates
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Dry run publish
+        if: ${{ github.event.inputs.dry_run }}
+        run: arborium-xtask publish crates --dry-run
+
+  # =============================================================================
+  # STAGE 2b: Build WASM plugins (runs in parallel with crates.io publish)
+  # =============================================================================
+  build-plugins-rust:
+    name: "Build WASM (rust)"
+    needs: generate
+    runs-on: depot-ubuntu-24.04-32
+    container: ghcr.io/bearcove/arborium-plugin-builder:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download grammar sources
+        uses: actions/download-artifact@v4
+        with:
+          name: grammar-sources
+
+      - name: Extract grammar sources
+        run: arborium-xtask pack extract -i grammar-sources.tar.zst
+
+      - name: Regenerate with version
+        run: arborium-xtask gen --version ${{ needs.generate.outputs.version }}
+
+      - name: Build rust plugin
+        run: arborium-xtask plugins build rust
+
+      - name: Generate npm package.json
+        run: arborium-xtask plugins npm --version ${{ needs.generate.outputs.version }}
+
+      - name: Upload plugin artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-rust
+          path: dist/plugins/
+          retention-days: 1
+
+  build-plugins-js:
+    name: "Build WASM (js, html)"
+    needs: generate
+    runs-on: depot-ubuntu-24.04-32
+    container: ghcr.io/bearcove/arborium-plugin-builder:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download grammar sources
+        uses: actions/download-artifact@v4
+        with:
+          name: grammar-sources
+
+      - name: Extract grammar sources
+        run: arborium-xtask pack extract -i grammar-sources.tar.zst
+
+      - name: Regenerate with version
+        run: arborium-xtask gen --version ${{ needs.generate.outputs.version }}
+
+      - name: Build javascript and html plugins
+        run: arborium-xtask plugins build javascript html
+
+      - name: Generate npm package.json
+        run: arborium-xtask plugins npm --version ${{ needs.generate.outputs.version }}
+
+      - name: Upload plugin artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-js
+          path: dist/plugins/
+          retention-days: 1
+
+  # =============================================================================
+  # STAGE 3: Publish to npm (after WASM plugins are built)
+  # =============================================================================
+  publish-npm:
+    name: "Publish npm"
+    needs: [generate, build-plugins-rust, build-plugins-js]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Download rust plugin
+        uses: actions/download-artifact@v4
+        with:
+          name: plugin-rust
+          path: dist/plugins/
+
+      - name: Download js plugins
+        uses: actions/download-artifact@v4
+        with:
+          name: plugin-js
+          path: dist/plugins/
+
+      - name: List plugins
+        run: |
+          echo "=== Built plugins ==="
+          find dist/plugins -name "package.json" -exec echo "---" \; -exec cat {} \;
+
+      - name: Install Rust (for xtask)
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build xtask
+        run: cargo build --release -p xtask
+
+      - name: Publish to npm
+        if: ${{ !github.event.inputs.dry_run }}
+        run: ./target/release/xtask publish npm -o dist/plugins
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Dry run publish
+        if: ${{ github.event.inputs.dry_run }}
+        run: ./target/release/xtask publish npm -o dist/plugins --dry-run
+
+  # =============================================================================
+  # Summary job (waits for all publish jobs)
+  # =============================================================================
+  release-complete:
+    name: "Release Complete"
+    needs: [publish-crates, publish-npm]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summary
+        run: |
+          echo "Release ${{ needs.generate.outputs.version }} complete!"
+          echo ""
+          echo "Published to:"
+          echo "  - crates.io: arborium and 100+ grammar crates"
+          echo "  - npm: @arborium/lang-* packages"

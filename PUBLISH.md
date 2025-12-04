@@ -15,6 +15,81 @@ This means:
 - No chore commits for version bumps
 - Clean, simple workflow
 
+## Release Flow
+
+When you push a tag, here's what happens:
+
+```
+tag push v0.3.0
+       │
+       ▼
+parse version (v0.3.0 → 0.3.0)
+       │
+       ▼
+xtask gen --version 0.3.0
+       │
+       ├─────────────────┬─────────────────┐
+       │                 │                 │
+       ▼                 ▼                 ▼
+  publish            build WASM       build WASM
+  crates.io          plugins (rust)   plugins (js, html)
+       │                 │                 │
+       │                 └────────┬────────┘
+       │                          │
+       │                          ▼
+       │                     publish npm
+       │                          │
+       └──────────────────────────┘
+                    │
+                    ▼
+                  done
+```
+
+**Key insight**: crates.io publish and WASM plugin builds run **in parallel** - neither depends on the other. npm publish waits only for WASM builds.
+
+## Two Outputs, Two Registries
+
+### 1. Native Rust Crates → crates.io
+
+- 98 grammar crates (`arborium-rust`, `arborium-javascript`, etc.)
+- Plus core crates (`arborium`, `miette-arborium`, `tree-sitter-*`)
+- Regular `cargo publish --workspace`
+- **Retry-safe**: cargo warns and skips already-published versions
+
+### 2. WASM Plugins → npm
+
+- Only grammars with `generate-component: true` in arborium.kdl
+- Currently: rust, javascript, html
+- Built via `cargo-component` for `wasm32-wasip2`
+- Transpiled via `jco` for browser compatibility
+- Becomes `@arborium/lang-rust`, `@arborium/lang-javascript`, etc.
+
+## Publishing Strategy
+
+### crates.io (easy)
+
+Cargo handles already-published versions gracefully - it warns and continues:
+```
+warning: crate arborium-rust@0.3.0 already exists on crates.io
+```
+
+So we can just retry failed builds and it skips what's done.
+
+### npm (needs xtask)
+
+npm is **not graceful** - it hard-fails with `EPUBLISHCONFLICT`:
+```
+npm ERR! code EPUBLISHCONFLICT
+npm ERR! Cannot publish over existing version
+```
+
+**This is why we need `xtask publish`** instead of bash scripts:
+- Must check if version exists before attempting publish
+- Must distinguish `EPUBLISHCONFLICT` (skip, continue) from real errors (fail)
+- Must handle retries properly without re-publishing what succeeded
+
+The bash approach `npm publish || echo "failed"` **swallows real errors** - unacceptable.
+
 ## What's in Git vs Generated
 
 ### Committed to Git (source of truth)
@@ -55,13 +130,19 @@ These crates don't have `arborium.kdl` and are fully hand-written:
 - `arborium-plugin-runtime`
 - `miette-arborium`
 
-## Version Sources
+## What `xtask gen --version X.Y.Z` Does
 
-| What | Source |
-|------|--------|
-| All crate versions | `xtask gen --version X.Y.Z` (from git tag in CI) |
-| Grammar license | `arborium.kdl` `license` field |
-| npm package versions | `--version` flag passed to `xtask plugins npm` |
+1. **Updates root `Cargo.toml`:**
+   - `[workspace.package] version = "X.Y.Z"`
+   - All `[workspace.dependencies]` version fields
+
+2. **Generates grammar crate files:**
+   - `Cargo.toml` with version `X.Y.Z` and license from `arborium.kdl`
+   - `build.rs` with correct C compilation setup
+   - `src/lib.rs` with language exports
+   - `grammar/src/*` via tree-sitter generate
+
+When called without `--version`, uses `0.0.0-dev` (fine for local dev since path deps ignore versions).
 
 ## Workflows
 
@@ -78,81 +159,37 @@ cargo build
 cargo test
 ```
 
-### CI Build (ci.yml)
+### Release
 
 ```bash
-# Checkout
-# Regenerate everything (version doesn't matter for CI checks)
-cargo xtask gen
-
-# Build & test
-cargo build
-cargo test
-```
-
-### Release (tag push)
-
-```bash
-# 1. Create and push tag
+# That's it. Just tag and push.
 git tag v0.3.0
 git push origin v0.3.0
 
-# 2. CI (release.yml) does:
-VERSION=${GITHUB_REF#refs/tags/v}  # "0.3.0"
-cargo xtask gen --version $VERSION  # Sets all versions to 0.3.0
-cargo xtask pack create             # Tar up generated grammar/src/* files
-# ... publish job downloads artifact, extracts, publishes
-cargo publish --workspace
+# CI does the rest:
+# 1. Parse version from tag
+# 2. xtask gen --version 0.3.0
+# 3. Parallel: publish crates.io + build WASM plugins
+# 4. After WASM: publish npm
 ```
-
-### npm Publish (npm-publish.yml)
-
-```bash
-# Triggered by tag or manual with version input
-VERSION=0.3.0
-cargo xtask gen --version $VERSION
-cargo xtask plugins build
-cargo xtask plugins npm --version $VERSION
-npm publish ...
-```
-
-## What `xtask gen --version X.Y.Z` Does
-
-1. **Updates root `Cargo.toml`:**
-   - `[workspace.package] version = "X.Y.Z"`
-   - All `[workspace.dependencies]` version fields
-
-2. **Generates grammar crate files:**
-   - `Cargo.toml` with version `X.Y.Z` and license from `arborium.kdl`
-   - `build.rs` with correct C compilation setup
-   - `src/lib.rs` with language exports
-   - `grammar/src/*` via tree-sitter generate
-
-When called without `--version`, uses `0.0.0-dev` (fine for local dev since path deps ignore versions).
 
 ## Artifacts Published
 
-| Registry | Package | Workflow |
-|----------|---------|----------|
-| crates.io | `arborium` | release.yml |
-| crates.io | `arborium-test-harness` | release.yml |
-| crates.io | `arborium-sysroot` | release.yml |
-| crates.io | `arborium-{lang}` (98 crates) | release.yml |
-| crates.io | `tree-sitter-patched-arborium` | release.yml |
-| crates.io | `tree-sitter-highlight-patched-arborium` | release.yml |
-| crates.io | `miette-arborium` | release.yml |
-| npmjs.com | `@arborium/arborium` | npm-publish.yml |
-| npmjs.com | `@arborium/grammar-{lang}` | npm-publish.yml |
-| ghcr.io | `arborium-plugin-builder` | manual (`just docker-push`) |
+| Registry | Package | Count |
+|----------|---------|-------|
+| crates.io | `arborium` | 1 |
+| crates.io | `arborium-{lang}` | 98 |
+| crates.io | `arborium-test-harness` | 1 |
+| crates.io | `arborium-sysroot` | 1 |
+| crates.io | `tree-sitter-patched-arborium` | 1 |
+| crates.io | `tree-sitter-highlight-patched-arborium` | 1 |
+| crates.io | `miette-arborium` | 1 |
+| npmjs.com | `@arborium/arborium` | 1 |
+| npmjs.com | `@arborium/lang-{lang}` | 3 (rust, js, html) |
 
-## Local Publishing (testing)
+## TODO
 
-If you need to test publishing locally:
-
-```bash
-# Set version explicitly
-cargo xtask gen --version 0.3.0
-
-# Dry-run publish
-cargo publish -p arborium-rust --dry-run
-```
+- [ ] Implement `xtask publish` command with:
+  - [ ] crates.io publishing (relies on cargo's skip-existing behavior)
+  - [ ] npm publishing with proper EPUBLISHCONFLICT handling
+- [ ] Unify release.yml and npm-publish.yml into single workflow

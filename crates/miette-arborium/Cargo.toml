@@ -9,13 +9,13 @@ keywords = ["syntax-highlighting", "tree-sitter", "miette", "diagnostics", "erro
 categories = ["development-tools", "text-processing"]
 
 [dependencies]
-arborium = { path = "../arborium", default-features = false }
+arborium = { workspace = true }
 miette = { version = "7", default-features = false, features = ["fancy"] }
 owo-colors = "4"
 
 [dev-dependencies]
 miette = { version = "7", features = ["fancy"] }
-arborium = { path = "../arborium", features = ["lang-rust"] }
+arborium = { workspace = true, features = ["lang-rust"] }
 
 [features]
 default = []
