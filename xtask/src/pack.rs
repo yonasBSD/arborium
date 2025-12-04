@@ -12,11 +12,7 @@ use owo_colors::OwoColorize;
 pub fn pack_grammar_sources(repo_root: &Utf8Path, output: &Utf8Path) -> Result<()> {
     let crates_dir = repo_root.join("crates");
 
-    println!(
-        "{} Packing grammar sources from {}",
-        "→".cyan(),
-        crates_dir
-    );
+    println!("{} Packing grammar sources from {}", "→".cyan(), crates_dir);
 
     // Find all grammar/src directories
     let mut grammar_dirs: Vec<Utf8PathBuf> = Vec::new();
@@ -126,12 +122,12 @@ pub fn pack_grammar_sources(repo_root: &Utf8Path, output: &Utf8Path) -> Result<(
 }
 
 /// Unpack grammar sources from a tar.zst archive
-pub fn unpack_grammar_sources(archive: &Utf8Path, repo_root: &Utf8Path) -> Result<()> {
+pub fn unpack_grammar_sources(archive: &Utf8Path, target_dir: &Utf8Path) -> Result<()> {
     println!(
         "{} Unpacking grammar sources from {} to {}",
         "→".cyan(),
         archive,
-        repo_root
+        target_dir
     );
 
     let archive_file = fs_err::File::open(archive)
@@ -143,52 +139,14 @@ pub fn unpack_grammar_sources(archive: &Utf8Path, repo_root: &Utf8Path) -> Resul
         .into_diagnostic()
         .context("Failed to create zstd decoder")?;
 
-    // Unpack tar
+    // Unpack tar safely (handles path traversal attacks)
     let mut tar_archive = tar::Archive::new(zstd_decoder);
-
-    let mut file_count = 0;
-    for entry in tar_archive
-        .entries()
+    tar_archive
+        .unpack(target_dir)
         .into_diagnostic()
-        .context("Failed to read tar entries")?
-    {
-        let mut entry = entry
-            .into_diagnostic()
-            .context("Failed to read tar entry")?;
+        .context("Failed to unpack archive")?;
 
-        let entry_path = entry
-            .path()
-            .into_diagnostic()
-            .context("Failed to get entry path")?;
-
-        let entry_path_str = entry_path.to_string_lossy();
-        let dest_path = repo_root.join(entry_path_str.as_ref());
-
-        // Create parent directories
-        if let Some(parent) = dest_path.parent() {
-            fs_err::create_dir_all(parent)
-                .into_diagnostic()
-                .context(format!("Failed to create directory: {}", parent))?;
-        }
-
-        // Extract file
-        let mut dest_file = fs_err::File::create(&dest_path)
-            .into_diagnostic()
-            .context(format!("Failed to create file: {}", dest_path))?;
-
-        std::io::copy(&mut entry, &mut dest_file)
-            .into_diagnostic()
-            .context(format!("Failed to write file: {}", dest_path))?;
-
-        file_count += 1;
-        println!("    {} {}", "→".green(), dest_path);
-    }
-
-    println!(
-        "{} Unpacked {} files",
-        "✓".green().bold(),
-        file_count
-    );
+    println!("{} Unpacked archive", "✓".green().bold());
 
     // Verify some key files exist
     let crates_dir = target_dir.join("crates");

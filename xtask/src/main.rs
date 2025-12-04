@@ -359,46 +359,42 @@ fn main() {
                 }
             }
         }
-        Command::Pack { action } => {
-            match action {
-                PackAction::Create { output, repo } => {
-                    let repo_root = repo
-                        .map(camino::Utf8PathBuf::from)
-                        .or_else(|| {
-                            util::find_repo_root()
-                                .map(|p| camino::Utf8PathBuf::from_path_buf(p).expect("non-UTF8 path"))
-                        })
-                        .expect("Could not find repo root (use --repo to specify)");
+        Command::Pack { action } => match action {
+            PackAction::Create { output, repo } => {
+                let repo_root = repo
+                    .map(camino::Utf8PathBuf::from)
+                    .or_else(|| {
+                        util::find_repo_root()
+                            .map(|p| camino::Utf8PathBuf::from_path_buf(p).expect("non-UTF8 path"))
+                    })
+                    .expect("Could not find repo root (use --repo to specify)");
 
-                    let output = output
-                        .map(camino::Utf8PathBuf::from)
-                        .unwrap_or_else(|| repo_root.join("grammar-sources.tar.zst"));
+                let output = output
+                    .map(camino::Utf8PathBuf::from)
+                    .unwrap_or_else(|| repo_root.join("grammar-sources.tar.zst"));
 
-                    if let Err(e) = pack::pack_grammar_sources(&repo_root, &output) {
-                        eprintln!("{:?}", e);
-                        std::process::exit(1);
-                    }
-                }
-                PackAction::Extract { input, target } => {
-                    let target_dir = target
-                        .map(camino::Utf8PathBuf::from)
-                        .unwrap_or_else(|| {
-                            camino::Utf8PathBuf::from_path_buf(
-                                std::env::current_dir().expect("Could not get current directory")
-                            )
-                            .expect("non-UTF8 path")
-                        });
-
-                    let input = input
-                        .map(camino::Utf8PathBuf::from)
-                        .unwrap_or_else(|| target_dir.join("grammar-sources.tar.zst"));
-
-                    if let Err(e) = pack::unpack_grammar_sources(&input, &target_dir) {
-                        eprintln!("{:?}", e);
-                        std::process::exit(1);
-                    }
+                if let Err(e) = pack::pack_grammar_sources(&repo_root, &output) {
+                    eprintln!("{:?}", e);
+                    std::process::exit(1);
                 }
             }
-        }
+            PackAction::Extract { input, target } => {
+                let target_dir = target.map(camino::Utf8PathBuf::from).unwrap_or_else(|| {
+                    camino::Utf8PathBuf::from_path_buf(
+                        std::env::current_dir().expect("Could not get current directory"),
+                    )
+                    .expect("non-UTF8 path")
+                });
+
+                let input = input
+                    .map(camino::Utf8PathBuf::from)
+                    .unwrap_or_else(|| target_dir.join("grammar-sources.tar.zst"));
+
+                if let Err(e) = pack::unpack_grammar_sources(&input, &target_dir) {
+                    eprintln!("{:?}", e);
+                    std::process::exit(1);
+                }
+            }
+        },
     }
 }

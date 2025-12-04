@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+HOOKS_DIR="$REPO_ROOT/.git/hooks"
+
+echo "Installing git hooks..."
+
+cat > "$HOOKS_DIR/pre-push" << 'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Running pre-push checks..."
+
+echo "  Checking formatting..."
+cargo fmt --check
+
+echo "  Running clippy..."
+cargo clippy --all-targets --all-features -- -D warnings
+
+echo "Pre-push checks passed!"
+EOF
+
+chmod +x "$HOOKS_DIR/pre-push"
+
+echo "Installed pre-push hook to $HOOKS_DIR/pre-push"
