@@ -17,10 +17,12 @@ use fs_err as fs;
 use owo_colors::OwoColorize;
 use rayon::prelude::*;
 use rootcause::Report;
-use std::io::IsTerminal;
+use std::io::{IsTerminal, Write};
 use std::process::Stdio;
-use std::sync::Mutex;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::sync::{Arc, Mutex};
+use std::thread;
+use std::time::Duration;
 
 /// Update root Cargo.toml with the specified version
 fn update_root_cargo_toml(repo_root: &Utf8Path, version: &str) -> Result<(), Report> {
@@ -187,10 +189,7 @@ pub fn plan_generate(
             // Track timing for slow operations
             let start_time = std::time::Instant::now();
 
-            // Show progress immediately in non-TTY (CI), delay for TTY
-            if needs_generation && !is_tty {
-                println!("{} Generating {}...", "●".cyan(), crate_name);
-            }
+            // Progress is shown later in cache miss/hit messages
 
             match plan_crate_generation(
                 crate_state,
@@ -371,7 +370,16 @@ fn plan_crate_generation(
     workspace_version: &str,
 ) -> Result<Plan, Report> {
     let mut plan = Plan::for_crate(&crate_state.name);
-    let crate_path = &crate_state.path;
+    let def_path = &crate_state.def_path;
+    let crate_path = &crate_state.crate_path;
+
+    // Ensure crate directory exists
+    if !crate_path.exists() {
+        plan.add(Operation::CreateDir {
+            path: crate_path.to_owned(),
+            description: "Create crate directory".to_string(),
+        });
+    }
 
     // Generate Cargo.toml
     let cargo_toml_path = crate_path.join("Cargo.toml");
@@ -419,7 +427,7 @@ fn plan_crate_generation(
 
     // Generate src/lib.rs
     let lib_rs_path = crate_path.join("src/lib.rs");
-    let new_lib_rs = generate_lib_rs(&crate_state.name, crate_path, config);
+    let new_lib_rs = generate_lib_rs(&crate_state.name, def_path, config);
 
     if lib_rs_path.exists() {
         let old_content = fs::read_to_string(&lib_rs_path)?;
@@ -447,13 +455,13 @@ fn plan_crate_generation(
         });
     }
 
-    // Generate grammar/src/ from vendored grammar sources
-    let grammar_dir = crate_path.join("grammar");
+    // Generate grammar/src/ from vendored grammar sources in def/
+    let grammar_dir = def_path.join("grammar");
 
     if grammar_dir.exists() && grammar_dir.join("grammar.js").exists() {
         plan_grammar_src_generation(
             &mut plan,
-            crate_path,
+            def_path,
             config,
             cache,
             crates_dir,
@@ -512,7 +520,7 @@ fn setup_grammar_dependencies(
 #[allow(clippy::too_many_arguments)]
 fn plan_grammar_src_generation(
     plan: &mut Plan,
-    crate_path: &Utf8Path,
+    def_path: &Utf8Path,
     config: &crate::types::CrateConfig,
     cache: &GrammarCache,
     crates_dir: &Utf8Path,
@@ -520,12 +528,15 @@ fn plan_grammar_src_generation(
     cache_misses: &AtomicUsize,
     mode: PlanMode,
 ) -> Result<(), Report> {
-    let grammar_dir = crate_path.join("grammar");
+    let grammar_dir = def_path.join("grammar");
     let dest_src_dir = grammar_dir.join("src");
-    let crate_name = crate_path.file_name().unwrap_or("unknown");
+    let crate_name = def_path
+        .parent()
+        .and_then(|p| p.file_name())
+        .unwrap_or("unknown");
 
     // Compute cache key from input files
-    let cache_key = cache.compute_cache_key(crate_path, crates_dir, config)?;
+    let cache_key = cache.compute_cache_key(def_path, crates_dir, config)?;
 
     // Check cache first
     if let Some(cached) = cache.get(crate_name, &cache_key) {
@@ -567,7 +578,7 @@ fn plan_grammar_src_generation(
     copy_dir_contents(&grammar_dir, &temp_grammar)?;
 
     // Copy common/ to temp/common/ if it exists (some grammars share code via ../common/)
-    let common_dir = crate_path.join("common");
+    let common_dir = def_path.join("common");
     if common_dir.exists() {
         let temp_common = temp_root.join("common");
         copy_dir_contents(&common_dir, &temp_common)?;
@@ -581,6 +592,25 @@ fn plan_grammar_src_generation(
 
     // Run tree-sitter generate in the temp/grammar directory
     let tree_sitter = Tool::TreeSitter.find()?;
+
+    // Start progress reporting for slow operations
+    let start_time = std::time::Instant::now();
+    let crate_name_for_progress = crate_name.to_string();
+    let should_stop = Arc::new(AtomicBool::new(false));
+    let should_stop_clone = should_stop.clone();
+
+    let progress_handle = thread::spawn(move || {
+        loop {
+            thread::sleep(Duration::from_secs(5));
+            if should_stop_clone.load(Ordering::Relaxed) {
+                break;
+            }
+            let elapsed = start_time.elapsed().as_secs();
+            print!("{} ({}s) ", crate_name_for_progress, elapsed);
+            let _ = std::io::stdout().flush();
+        }
+    });
+
     let output = tree_sitter
         .command()
         .args(["generate"])
@@ -588,6 +618,10 @@ fn plan_grammar_src_generation(
         .stdout(Stdio::null())
         .stderr(Stdio::piped())
         .output()?;
+
+    // Stop progress reporting
+    should_stop.store(true, Ordering::Relaxed);
+    let _ = progress_handle.join();
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);

@@ -5,13 +5,35 @@
 //!
 //! # File Format
 //!
-//! Each crate in `crates/arborium-*` contains an `arborium.kdl` file that
+//! Each language definition in `langs/group-*/*/def/` contains an `arborium.kdl` file that
 //! describes one or more language grammars. This is the single source of truth for:
 //!
 //! - Upstream repository and commit information (crate-level)
 //! - Language metadata (name, icon, description, etc.) per grammar
 //! - Sample files for testing and demos
 //! - Build configuration for special cases
+//!
+//! The new structure organizes languages into thematic groups:
+//!
+//! ```
+//! langs/
+//! ├── group-birch/              # Systems languages
+//! │   ├── rust/
+//! │   │   ├── def/              # Source of truth (committed)
+//! │   │   │   ├── arborium.kdl
+//! │   │   │   ├── grammar/
+//! │   │   │   ├── queries/
+//! │   │   │   └── samples/
+//! │   │   ├── crate/            # Generated Rust crate
+//! │   │   └── npm/              # Generated WASM package
+//! │   ├── c/
+//! │   └── cpp/
+//! ├── group-acorn/              # Web languages
+//! │   ├── javascript/
+//! │   ├── html/
+//! │   └── css/
+//! └── ...
+//! ```
 //!
 //! # Example `arborium.kdl` (single grammar, most common)
 //!
@@ -475,8 +497,15 @@ pub struct CrateState {
     /// The crate name (e.g., "arborium-rust").
     pub name: String,
 
-    /// Path to the crate directory.
+    /// Path to the crate directory (for backward compatibility).
+    /// In new structure, this points to def/. Use def_path and crate_path instead.
     pub path: Utf8PathBuf,
+
+    /// Path to the def/ directory containing source files (arborium.kdl, grammar/, etc.).
+    pub def_path: Utf8PathBuf,
+
+    /// Path to the crate/ directory for generated files (Cargo.toml, build.rs, src/).
+    pub crate_path: Utf8PathBuf,
 
     /// Parsed configuration from arborium.kdl (if present).
     pub config: Option<CrateConfig>,
@@ -612,13 +641,69 @@ const LEGACY_FILES: &[&str] = &["info.toml", "grammar-crate-config.toml"];
 pub const MIN_SAMPLE_LINES: usize = 25;
 
 impl CrateRegistry {
-    /// Load the registry by scanning all arborium-* crates.
+    /// Load the registry by scanning language definitions.
     ///
-    /// This scans both the configuration (arborium.kdl) and the actual
-    /// files on disk, building a complete picture of each crate's state.
+    /// This scans both the new structure (langs/group-*/*/def/) and legacy
+    /// structure (crates/arborium-*) for language definitions, building a
+    /// complete picture of each crate's state.
     pub fn load(crates_dir: &Utf8Path) -> Result<Self, Report> {
         let mut crates = BTreeMap::new();
 
+        // Try to find repo root to look for langs/ directory
+        let repo_root = crates_dir.parent().expect("crates_dir should have parent");
+        let langs_dir = repo_root.join("langs");
+
+        // Scan new structure: langs/group-*/*/def/
+        if langs_dir.exists() {
+            for group_entry in fs::read_dir(&langs_dir)? {
+                let group_entry = group_entry?;
+                let group_path = group_entry.path();
+
+                if !group_path.is_dir() {
+                    continue;
+                }
+
+                let group_name = group_path.file_name().unwrap().to_string_lossy();
+                if !group_name.starts_with("group-") {
+                    continue;
+                }
+
+                // Scan languages in this group
+                for lang_entry in fs::read_dir(&group_path)? {
+                    let lang_entry = lang_entry?;
+                    let lang_path = lang_entry.path();
+
+                    if !lang_path.is_dir() {
+                        continue;
+                    }
+
+                    let lang_name = lang_path.file_name().unwrap().to_string_lossy().to_string();
+
+                    // Skip utility crates
+                    if SKIP_CRATES.contains(&lang_name.as_str()) {
+                        continue;
+                    }
+
+                    let def_path = lang_path.join("def");
+                    if !def_path.exists() {
+                        continue;
+                    }
+
+                    let def_path = Utf8PathBuf::from_path_buf(def_path).expect("non-UTF8 path");
+                    let crate_name = format!("arborium-{}", lang_name);
+
+                    // Calculate crate path: langs/group-*/lang/crate/
+                    let crate_path = lang_path.join("crate");
+                    let crate_path = Utf8PathBuf::from_path_buf(crate_path).expect("non-UTF8 path");
+
+                    let state =
+                        Self::scan_crate_new_structure(&crate_name, &def_path, &crate_path)?;
+                    crates.insert(crate_name, state);
+                }
+            }
+        }
+
+        // Scan legacy structure: crates/arborium-* (for compatibility during migration)
         for entry in fs::read_dir(crates_dir)? {
             let entry = entry?;
             let path = entry.path();
@@ -638,10 +723,15 @@ impl CrateRegistry {
                 continue;
             }
 
+            // Skip if we already loaded this from new structure
+            if crates.contains_key(&dir_name) {
+                continue;
+            }
+
             let crate_path = Utf8PathBuf::from_path_buf(path).expect("non-UTF8 path");
             let crate_name = dir_name;
 
-            let state = Self::scan_crate(&crate_name, &crate_path)?;
+            let state = Self::scan_crate_legacy(&crate_name, &crate_path)?;
             crates.insert(crate_name, state);
         }
 
@@ -649,7 +739,99 @@ impl CrateRegistry {
     }
 
     /// Scan a single crate directory.
-    fn scan_crate(name: &str, path: &Utf8Path) -> Result<CrateState, Report> {
+    fn scan_crate_new_structure(
+        name: &str,
+        def_path: &Utf8Path,
+        crate_path: &Utf8Path,
+    ) -> Result<CrateState, Report> {
+        let mut files = CrateFiles::default();
+
+        // Check for arborium.kdl in def/
+        let kdl_path = def_path.join("arborium.kdl");
+        let (config, kdl_source) = if kdl_path.exists() {
+            let content = fs::read_to_string(&kdl_path)?;
+            let config: CrateConfig = match facet_kdl::from_str(&content) {
+                Ok(c) => c,
+                Err(e) => {
+                    // Print detailed error info
+                    eprintln!("Error parsing {}:", kdl_path);
+                    eprintln!("  Kind: {:?}", e.kind());
+
+                    // Use miette to display the error with source context
+                    let report = miette::Report::new(e)
+                        .with_source_code(NamedSource::new(kdl_path.as_str(), content.clone()));
+                    eprintln!("{:?}", report);
+                    return Err(
+                        std::io::Error::other(format!("Failed to parse {}", kdl_path)).into(),
+                    );
+                }
+            };
+            files.kdl = FileState::Present {
+                content: content.clone(),
+            };
+            (Some(config), Some(content))
+        } else {
+            (None, None)
+        };
+
+        // Check for generated files in crate/
+        files.cargo_toml = Self::read_file_state(&crate_path.join("Cargo.toml"));
+        files.build_rs = Self::read_file_state(&crate_path.join("build.rs"));
+        files.lib_rs = Self::read_file_state(&crate_path.join("src/lib.rs"));
+
+        // Check grammar/src/ for generated files in def/ (tree-sitter generate output)
+        let grammar_src_path = def_path.join("grammar/src");
+        if grammar_src_path.exists() {
+            files.grammar_src.parser_c = Self::read_file_state(&grammar_src_path.join("parser.c"));
+        }
+        // Check grammar/ for scanner.c (handwritten, not in src/) in def/
+        let grammar_path = def_path.join("grammar");
+        if grammar_path.exists() {
+            files.grammar_src.scanner_c = Self::read_file_state(&grammar_path.join("scanner.c"));
+        }
+
+        // Check queries/ in def/
+        let queries_path = def_path.join("queries");
+        if queries_path.exists() {
+            files.queries.highlights = Self::read_file_state(&queries_path.join("highlights.scm"));
+            files.queries.injections = Self::read_file_state(&queries_path.join("injections.scm"));
+            files.queries.locals = Self::read_file_state(&queries_path.join("locals.scm"));
+        }
+
+        // Check for samples declared in config (in def/)
+        if let Some(ref cfg) = config {
+            for grammar in &cfg.grammars {
+                for sample in &grammar.samples {
+                    let sample_path = def_path.join(&*sample.path);
+                    let state = Self::check_sample_file(&sample_path);
+                    files.samples.push(SampleState {
+                        path: sample.path.to_string(),
+                        state,
+                    });
+                }
+            }
+        }
+
+        // Check for legacy files in def/
+        for legacy in LEGACY_FILES {
+            let legacy_path = def_path.join(legacy);
+            if legacy_path.exists() {
+                files.legacy_files.push(legacy_path);
+            }
+        }
+
+        Ok(CrateState {
+            name: name.to_string(),
+            path: def_path.to_owned(), // For backward compatibility
+            def_path: def_path.to_owned(),
+            crate_path: crate_path.to_owned(),
+            config,
+            kdl_source,
+            files,
+        })
+    }
+
+    fn scan_crate_legacy(name: &str, path: &Utf8Path) -> Result<CrateState, Report> {
         let mut files = CrateFiles::default();
 
         // Check for arborium.kdl
@@ -729,6 +911,8 @@ impl CrateRegistry {
         Ok(CrateState {
             name: name.to_string(),
             path: path.to_owned(),
+            def_path: path.to_owned(), // In legacy structure, def and crate are the same
+            crate_path: path.to_owned(),
             config,
             kdl_source,
             files,
