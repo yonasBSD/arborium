@@ -1,5 +1,6 @@
 [workspace]
 members = ["xtask"]
+version = "3"
 
 # Minimal workspace for now; future generated workspaces
 # will live under langs/group-{animal}/.

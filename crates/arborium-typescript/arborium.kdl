@@ -11,6 +11,8 @@ grammar {
     icon "devicon-plain:typescript"
     aliases "ts" "tsx" "mts" "cts"
 
+    dependency "tree-sitter-javascript" crate="arborium-javascript"
+
     inventor "Anders Hejlsberg"
     year 2012
     description "Statically typed superset of JavaScript; official handbook at [typescriptlang.org](https://www.typescriptlang.org/docs/)."

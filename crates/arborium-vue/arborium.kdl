@@ -10,11 +10,13 @@ grammar {
     has-scanner #true
     icon "devicon-plain:vuejs"
 
+    dependency "tree-sitter-html" crate="arborium-html"
+
     inventor "Evan You"
     year 2014
     description "Progressive JavaScript framework for UIs; official docs at [vuejs.org](https://vuejs.org/guide/introduction.html)."
     link "https://en.wikipedia.org/wiki/Vue.js"
-    trivia "You released Vue in Feb 2014 after working on Angular at Google; the [release history](https://github.com/vuejs/core/releases) and guide document its evolution from 0.10 to Vue 3/4 composition API."
+    trivia "You released Vue in Feb 2014 after working on Angular at Google; [release history](https://github.com/vuejs/core/releases) and guide document its evolution from 0.10 to Vue 3/4 composition API."
 
     sample {
         path "samples/App.vue"
@@ -22,4 +24,5 @@ grammar {
         link "https://github.com/element-plus/element-plus/blob/dev/packages/components/button/src/button.vue"
         license "MIT"
     }
+}
 }

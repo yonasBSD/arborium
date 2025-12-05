@@ -10,11 +10,13 @@ grammar {
     has-scanner #true
     icon "simple-icons:react"
 
+    dependency "tree-sitter-javascript" crate="arborium-javascript"
+
     inventor "Facebook (Jordan Walke for React/JSX) + Microsoft (TypeScript)"
     year 2015
     description "TypeScript with JSX support for React component development"
     link "https://en.wikipedia.org/wiki/TypeScript"
-    trivia "TSX combines TypeScript's static type checking with JSX's declarative UI syntax. While JSX was introduced by Facebook for React in 2013, TSX emerged as TypeScript gained popularity and React developers sought better tooling. Today, TSX is the de facto standard for React development in TypeScript codebases."
+    trivia "TSX combines TypeScript's static type checking with JSX's declarative UI syntax. While JSX was introduced by Facebook for React in 2013, TSX emerged as TypeScript gained popularity and React developers sought better tooling. Today, TSX is de facto standard for React development in TypeScript codebases."
 
     sample {
         path "samples/basic-query.tsx"
@@ -22,4 +24,5 @@ grammar {
         link "https://github.com/TanStack/query/blob/main/examples/react/basic/src/index.tsx"
         license "MIT"
     }
+}
 }

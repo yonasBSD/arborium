@@ -11,6 +11,8 @@ grammar {
     icon "devicon-plain:cplusplus"
     aliases "c++" "cxx" "hpp"
 
+    dependency "tree-sitter-c" crate="arborium-c"
+
     inventor "Bjarne Stroustrup"
     year 1985
     description "General-purpose language extending C with zero-overhead abstractions; see Stroustrup's official overview at [isocpp.org](https://isocpp.org/about)."

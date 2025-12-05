@@ -10,6 +10,8 @@ grammar {
     icon "mdi:lambda"
     aliases "lisp" "cl"
 
+    dependency "tree-sitter-clojure" crate="arborium-clojure"
+
     inventor "ANSI X3J13 committee"
     year 1984
     description "A multi-paradigm dialect of Lisp standardized by ANSI with powerful macro capabilities."

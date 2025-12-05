@@ -11,6 +11,8 @@ grammar {
     icon "simple-icons:sass"
     aliases "sass"
 
+    dependency "tree-sitter-css" crate="arborium-css"
+
     inventor "Hampton Catlin, Natalie Weizenbaum, Chris Eppstein"
     year 2006
     description "Sass/SCSS is a CSS superset adding variables, nesting, and mixins; see the official [documentation](https://sass-lang.com/documentation/)."

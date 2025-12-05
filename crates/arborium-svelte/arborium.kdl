@@ -10,6 +10,8 @@ grammar {
     has-scanner #true
     icon "devicon-plain:svelte"
 
+    dependency "tree-sitter-html" crate="arborium-html"
+
     inventor "Rich Harris"
     year 2016
     description "Compiler-based UI framework that outputs minimal JS; official tutorial at [svelte.dev](https://svelte.dev/docs/introduction)."

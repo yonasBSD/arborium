@@ -384,24 +384,16 @@ fn plan_crate_generation(
 
 /// Get the cross-grammar dependencies for a grammar.
 /// Returns a list of (npm_package_name, arborium_crate_name) tuples.
-fn get_grammar_dependencies(crate_name: &str) -> Vec<(&'static str, &'static str)> {
-    match crate_name {
-        "arborium-typescript" | "arborium-tsx" => {
-            vec![("tree-sitter-javascript", "arborium-javascript")]
+fn get_grammar_dependencies(crate_name: &str, config: &crate::types::CrateConfig) -> Vec<(String, String)> {
+    let mut deps = Vec::new();
+    
+    for grammar in &config.grammars {
+        for dep in &grammar.dependencies {
+            deps.push((dep.npm_name.clone(), dep.crate_name.clone()));
         }
-        "arborium-cpp" => vec![("tree-sitter-c", "arborium-c")],
-        "arborium-objc" => vec![("tree-sitter-c", "arborium-c")],
-        "arborium-glsl" => vec![("tree-sitter-c", "arborium-c")],
-        "arborium-hlsl" => vec![
-            ("tree-sitter-cpp", "arborium-cpp"),
-            ("tree-sitter-c", "arborium-c"),
-        ],
-        "arborium-scss" => vec![("tree-sitter-css", "arborium-css")],
-        "arborium-svelte" => vec![("tree-sitter-html", "arborium-html")],
-        "arborium-vue" => vec![("tree-sitter-html", "arborium-html")],
-        "arborium-commonlisp" => vec![("tree-sitter-clojure", "arborium-clojure")],
-        _ => vec![],
     }
+    
+    deps
 }
 
 /// Set up node_modules with copies of dependency grammars for tree-sitter generate.
@@ -410,8 +402,9 @@ fn setup_grammar_dependencies(
     temp_path: &Utf8Path,
     crates_dir: &Utf8Path,
     crate_name: &str,
+    config: &crate::types::CrateConfig,
 ) -> Result<(), Report> {
-    let deps = get_grammar_dependencies(crate_name);
+    let deps = get_grammar_dependencies(crate_name, config);
     if deps.is_empty() {
         return Ok(());
     }
@@ -420,8 +413,8 @@ fn setup_grammar_dependencies(
     fs::create_dir_all(&node_modules)?;
 
     for (npm_name, arborium_name) in deps {
-        let dep_grammar_dir = crates_dir.join(arborium_name).join("grammar");
-        let target_dir = node_modules.join(npm_name);
+        let dep_grammar_dir = crates_dir.join(&arborium_name).join("grammar");
+        let target_dir = node_modules.join(&npm_name);
 
         if dep_grammar_dir.exists() {
             // Copy the dependency's grammar files to node_modules
@@ -437,7 +430,7 @@ fn setup_grammar_dependencies(
 fn plan_grammar_src_generation(
     plan: &mut Plan,
     crate_path: &Utf8Path,
-    _config: &crate::types::CrateConfig,
+    config: &crate::types::CrateConfig,
     cache: &GrammarCache,
     crates_dir: &Utf8Path,
     cache_hits: &AtomicUsize,
@@ -449,7 +442,7 @@ fn plan_grammar_src_generation(
     let crate_name = crate_path.file_name().unwrap_or("unknown");
 
     // Compute cache key from input files
-    let cache_key = cache.compute_cache_key(crate_path, crates_dir, crate_name)?;
+    let cache_key = cache.compute_cache_key(crate_path, crates_dir, crate_name, config)?;
 
     // Check cache first
     if let Some(cached) = cache.get(crate_name, &cache_key) {
@@ -488,7 +481,7 @@ fn plan_grammar_src_generation(
     }
 
     // Set up cross-grammar dependencies if needed (in temp/grammar/node_modules/)
-    setup_grammar_dependencies(&temp_grammar, crates_dir, crate_name)?;
+    setup_grammar_dependencies(&temp_grammar, crates_dir, crate_name, config)?;
 
     // Create src/ directory for grammars that generate files there (e.g., vim's keywords.h)
     fs::create_dir_all(temp_grammar.join("src"))?;

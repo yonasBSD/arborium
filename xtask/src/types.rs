@@ -327,6 +327,10 @@ pub struct GrammarConfig {
     #[facet(kdl::child, default)]
     pub queries: Option<QueriesConfig>,
 
+    /// Cross-grammar dependencies for tree-sitter generation.
+    #[facet(kdl::children, default)]
+    pub dependencies: Vec<Dependency>,
+
     // =========================================================================
     // Language Metadata (for demos and documentation)
     // =========================================================================

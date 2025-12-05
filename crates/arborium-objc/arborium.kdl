@@ -10,6 +10,8 @@ grammar {
     icon "devicon-plain:objectivec"
     aliases "objective-c" "mm"
 
+    dependency "tree-sitter-c" crate="arborium-c"
+
     inventor "Brad Cox and Tom Love"
     year 1984
     description "Object-oriented superset of C used for macOS/iOS; Apple's modern reference is the [Programming with Objective-C guide](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/ProgrammingWithObjectiveC/)."

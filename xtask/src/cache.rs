@@ -37,6 +37,7 @@ impl GrammarCache {
         crate_path: &Utf8Path,
         crates_dir: &Utf8Path,
         crate_name: &str,
+        config: &crate::types::CrateConfig,
     ) -> std::io::Result<String> {
         let mut hasher = blake3::Hasher::new();
 
@@ -61,9 +62,9 @@ impl GrammarCache {
         }
 
         // Hash dependency grammars (for cross-grammar dependencies)
-        let deps = get_grammar_dependencies(crate_name);
+        let deps = get_grammar_dependencies(crate_name, config);
         for (_npm_name, arborium_name) in deps {
-            let dep_grammar_dir = crates_dir.join(arborium_name).join("grammar");
+            let dep_grammar_dir = crates_dir.join(&arborium_name).join("grammar");
             if dep_grammar_dir.exists() {
                 self.hash_dir_except(&mut hasher, &dep_grammar_dir, &["src", "node_modules"])?;
             }
@@ -229,22 +230,14 @@ impl CachedGrammar {
 
 /// Get the cross-grammar dependencies for a grammar.
 /// Duplicated from generate.rs to avoid circular dependencies.
-fn get_grammar_dependencies(crate_name: &str) -> Vec<(&'static str, &'static str)> {
-    match crate_name {
-        "arborium-typescript" | "arborium-tsx" => {
-            vec![("tree-sitter-javascript", "arborium-javascript")]
+fn get_grammar_dependencies(crate_name: &str, config: &crate::types::CrateConfig) -> Vec<(String, String)> {
+    let mut deps = Vec::new();
+    
+    for grammar in &config.grammars {
+        for dep in &grammar.dependencies {
+            deps.push((dep.npm_name.clone(), dep.crate_name.clone()));
         }
-        "arborium-cpp" => vec![("tree-sitter-c", "arborium-c")],
-        "arborium-objc" => vec![("tree-sitter-c", "arborium-c")],
-        "arborium-glsl" => vec![("tree-sitter-c", "arborium-c")],
-        "arborium-hlsl" => vec![
-            ("tree-sitter-cpp", "arborium-cpp"),
-            ("tree-sitter-c", "arborium-c"),
-        ],
-        "arborium-scss" => vec![("tree-sitter-css", "arborium-css")],
-        "arborium-svelte" => vec![("tree-sitter-html", "arborium-html")],
-        "arborium-vue" => vec![("tree-sitter-html", "arborium-html")],
-        "arborium-commonlisp" => vec![("tree-sitter-clojure", "arborium-clojure")],
-        _ => vec![],
     }
+    
+    deps
 }

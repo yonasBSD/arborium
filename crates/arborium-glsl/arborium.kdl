@@ -10,6 +10,8 @@ grammar {
     icon "devicon-plain:opengl"
     aliases "vert" "frag"
 
+    dependency "tree-sitter-c" crate="arborium-c"
+
     inventor "OpenGL ARB"
     year 2004
     description "OpenGL Shading Language for programmable GPUs; defined in the [GLSL 4.60 specification](https://registry.khronos.org/OpenGL/specs/gl/GLSLangSpec.4.60.pdf)."
