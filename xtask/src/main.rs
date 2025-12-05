@@ -12,7 +12,7 @@ mod cache;
 mod ci;
 mod generate;
 mod lint_new;
-mod pack;
+
 mod plan;
 mod plugins;
 mod publish;
@@ -94,12 +94,6 @@ enum Command {
         action: CiAction,
     },
 
-    /// Pack/unpack grammar sources for CI artifact transfer
-    Pack {
-        #[facet(args::subcommand)]
-        action: PackAction,
-    },
-
     /// Publish to crates.io and npm
     Publish {
         #[facet(args::subcommand)]
@@ -171,34 +165,6 @@ enum CiAction {
         /// Check if files are up to date instead of generating
         #[facet(args::named, default)]
         check: bool,
-    },
-}
-
-/// Pack/unpack subcommands
-#[derive(Debug, Facet)]
-#[repr(u8)]
-#[allow(dead_code)]
-enum PackAction {
-    /// Pack grammar sources into a tar.zst archive
-    Create {
-        /// Output archive path (default: grammar-sources.tar.zst)
-        #[facet(args::named, args::short = 'o', default)]
-        output: Option<String>,
-
-        /// Repository root directory (default: auto-detect)
-        #[facet(args::named, default)]
-        repo: Option<String>,
-    },
-
-    /// Unpack grammar sources from a tar.zst archive
-    Extract {
-        /// Input archive path (default: grammar-sources.tar.zst)
-        #[facet(args::named, args::short = 'i', default)]
-        input: Option<String>,
-
-        /// Target directory to extract into (default: current directory)
-        #[facet(args::named, default)]
-        target: Option<String>,
     },
 }
 
@@ -413,43 +379,7 @@ fn main() {
                 }
             }
         }
-        Command::Pack { action } => match action {
-            PackAction::Create { output, repo } => {
-                let repo_root = repo
-                    .map(camino::Utf8PathBuf::from)
-                    .or_else(|| {
-                        util::find_repo_root()
-                            .map(|p| camino::Utf8PathBuf::from_path_buf(p).expect("non-UTF8 path"))
-                    })
-                    .expect("Could not find repo root (use --repo to specify)");
 
-                let output = output
-                    .map(camino::Utf8PathBuf::from)
-                    .unwrap_or_else(|| repo_root.join("grammar-sources.tar.zst"));
-
-                if let Err(e) = pack::pack_grammar_sources(&repo_root, &output) {
-                    eprintln!("{:?}", e);
-                    std::process::exit(1);
-                }
-            }
-            PackAction::Extract { input, target } => {
-                let target_dir = target.map(camino::Utf8PathBuf::from).unwrap_or_else(|| {
-                    camino::Utf8PathBuf::from_path_buf(
-                        std::env::current_dir().expect("Could not get current directory"),
-                    )
-                    .expect("non-UTF8 path")
-                });
-
-                let input = input
-                    .map(camino::Utf8PathBuf::from)
-                    .unwrap_or_else(|| target_dir.join("grammar-sources.tar.zst"));
-
-                if let Err(e) = pack::unpack_grammar_sources(&input, &target_dir) {
-                    eprintln!("{:?}", e);
-                    std::process::exit(1);
-                }
-            }
-        },
         Command::Publish { action } => {
             let repo_root = util::find_repo_root().expect("Could not find repo root");
             let repo_root = camino::Utf8PathBuf::from_path_buf(repo_root).expect("non-UTF8 path");

@@ -151,25 +151,27 @@ pub fn build_plugins(repo_root: &Utf8Path, options: &BuildOptions) -> Result<()>
         .build()
         .expect("failed to create thread pool");
 
-    pool.install(|| grammars.par_iter().for_each(|grammar| {
-        let result = build_single_plugin(
-            repo_root,
-            grammar,
-            &output_dir,
-            &cargo_component,
-            jco.as_ref(),
-            options.profile,
-        );
+    pool.install(|| {
+        grammars.par_iter().for_each(|grammar| {
+            let result = build_single_plugin(
+                repo_root,
+                grammar,
+                &output_dir,
+                &cargo_component,
+                jco.as_ref(),
+                options.profile,
+            );
 
-        match result {
-            Ok(timing) => {
-                timings.lock().unwrap().push(timing);
+            match result {
+                Ok(timing) => {
+                    timings.lock().unwrap().push(timing);
+                }
+                Err(e) => {
+                    errors.lock().unwrap().push(format!("{}: {}", grammar, e));
+                }
             }
-            Err(e) => {
-                errors.lock().unwrap().push(format!("{}: {}", grammar, e));
-            }
-        }
-    }));
+        })
+    });
 
     // Check for errors
     let errors = errors.into_inner().unwrap();
@@ -722,9 +724,7 @@ fn deduplicate_wasm_modules(plugins_dir: &Utf8Path) -> Result<()> {
 /// For each .wasm file:
 /// 1. Run wasm-opt -Oz to optimize for size
 /// 2. Create .wasm.br (brotli), .wasm.gz (gzip), and .wasm.zst (zstd) versions
-fn optimize_and_compress_wasm(plugins_dir: &Utf8Path, config: &CompressionConfig) -> Result<()> {
-    use std::io::Write;
-
+fn optimize_and_compress_wasm(plugins_dir: &Utf8Path, _config: &CompressionConfig) -> Result<()> {
     // Find all wasm files (in plugins and shared directories)
     let mut wasm_files = Vec::new();
 
@@ -770,9 +770,6 @@ fn optimize_and_compress_wasm(plugins_dir: &Utf8Path, config: &CompressionConfig
     let processed = AtomicUsize::new(0);
     let total_original = AtomicUsize::new(0);
     let total_optimized = AtomicUsize::new(0);
-    let total_br = AtomicUsize::new(0);
-    let total_gz = AtomicUsize::new(0);
-    let total_zst = AtomicUsize::new(0);
 
     // Process files in parallel (up to 4 at a time)
     let pool = rayon::ThreadPoolBuilder::new()
@@ -803,79 +800,6 @@ fn optimize_and_compress_wasm(plugins_dir: &Utf8Path, config: &CompressionConfig
                     .len() as usize;
                 total_optimized.fetch_add(optimized_size, Ordering::Relaxed);
 
-                // Read optimized wasm
-                let wasm_data = std::fs::read(wasm_path)
-                    .map_err(|e| miette::miette!("failed to read {}: {}", wasm_path, e))?;
-
-                // Create brotli compressed version
-                let br_path = format!("{}.br", wasm_path);
-                let mut br_encoder = brotli::CompressorWriter::new(
-                    std::fs::File::create(&br_path)
-                        .map_err(|e| miette::miette!("failed to create {}: {}", br_path, e))?,
-                    4096,
-                    config.brotli_quality(),
-                    config.brotli_window(),
-                );
-                br_encoder
-                    .write_all(&wasm_data)
-                    .map_err(|e| miette::miette!("failed to write {}: {}", br_path, e))?;
-                drop(br_encoder);
-                total_br.fetch_add(
-                    std::fs::metadata(&br_path)
-                        .map_err(|e| miette::miette!("failed to read {}: {}", br_path, e))?
-                        .len() as usize,
-                    Ordering::Relaxed,
-                );
-
-                // Create gzip compressed version
-                let gz_path = format!("{}.gz", wasm_path);
-                if config.gzip_use_zopfli() {
-                    // Use zopfli for best compression
-                    let options = zopfli::Options {
-                        iteration_count: std::num::NonZeroU64::new(config.gzip_iterations() as u64)
-                            .unwrap_or(std::num::NonZeroU64::new(15).unwrap()),
-                        ..Default::default()
-                    };
-                    let mut gz_data = Vec::new();
-                    zopfli::compress(options, zopfli::Format::Gzip, &wasm_data[..], &mut gz_data)
-                        .map_err(|e| miette::miette!("zopfli failed for {}: {}", wasm_path, e))?;
-                    std::fs::write(&gz_path, gz_data)
-                        .map_err(|e| miette::miette!("failed to write {}: {}", gz_path, e))?;
-                } else {
-                    // Use flate2 for fast compression
-                    let gz_file = std::fs::File::create(&gz_path)
-                        .map_err(|e| miette::miette!("failed to create {}: {}", gz_path, e))?;
-                    let mut gz_encoder = flate2::write::GzEncoder::new(
-                        gz_file,
-                        flate2::Compression::new(config.gzip_level()),
-                    );
-                    gz_encoder
-                        .write_all(&wasm_data)
-                        .map_err(|e| miette::miette!("failed to write {}: {}", gz_path, e))?;
-                    gz_encoder
-                        .finish()
-                        .map_err(|e| miette::miette!("failed to finish {}: {}", gz_path, e))?;
-                }
-                total_gz.fetch_add(
-                    std::fs::metadata(&gz_path)
-                        .map_err(|e| miette::miette!("failed to read {}: {}", gz_path, e))?
-                        .len() as usize,
-                    Ordering::Relaxed,
-                );
-
-                // Create zstd compressed version
-                let zst_path = format!("{}.zst", wasm_path);
-                let zst_data = zstd::encode_all(&wasm_data[..], config.zstd_level())
-                    .map_err(|e| miette::miette!("zstd failed for {}: {}", wasm_path, e))?;
-                std::fs::write(&zst_path, zst_data)
-                    .map_err(|e| miette::miette!("failed to write {}: {}", zst_path, e))?;
-                total_zst.fetch_add(
-                    std::fs::metadata(&zst_path)
-                        .map_err(|e| miette::miette!("failed to read {}: {}", zst_path, e))?
-                        .len() as usize,
-                    Ordering::Relaxed,
-                );
-
                 let done = processed.fetch_add(1, Ordering::Relaxed) + 1;
                 println!(
                     "  {} [{}/{}] {}",
@@ -897,9 +821,6 @@ fn optimize_and_compress_wasm(plugins_dir: &Utf8Path, config: &CompressionConfig
 
     let total_original = total_original.load(Ordering::Relaxed);
     let total_optimized = total_optimized.load(Ordering::Relaxed);
-    let total_br = total_br.load(Ordering::Relaxed);
-    let total_gz = total_gz.load(Ordering::Relaxed);
-    let total_zst = total_zst.load(Ordering::Relaxed);
 
     println!("  {} Processed {} files:", "✓".green(), total_files);
     println!(
@@ -907,21 +828,6 @@ fn optimize_and_compress_wasm(plugins_dir: &Utf8Path, config: &CompressionConfig
         format_size(total_original),
         format_size(total_optimized),
         (1.0 - total_optimized as f64 / total_original as f64) * 100.0
-    );
-    println!(
-        "      Brotli:    {} ({:.1}% of optimized)",
-        format_size(total_br),
-        total_br as f64 / total_optimized as f64 * 100.0
-    );
-    println!(
-        "      Gzip:      {} ({:.1}% of optimized)",
-        format_size(total_gz),
-        total_gz as f64 / total_optimized as f64 * 100.0
-    );
-    println!(
-        "      Zstd:      {} ({:.1}% of optimized)",
-        format_size(total_zst),
-        total_zst as f64 / total_optimized as f64 * 100.0
     );
 
     Ok(())

@@ -8,7 +8,7 @@ use crate::util;
 use camino::{Utf8Path, Utf8PathBuf};
 use facet::Facet;
 use owo_colors::OwoColorize;
-use pulldown_cmark::{Options, Parser, html};
+
 use std::collections::{BTreeMap, HashSet};
 use std::fs;
 use std::io::Write;
@@ -329,30 +329,6 @@ fn build_wasm(demo_dir: &Path, dev: bool) -> Result<(), String> {
         return Err("wasm-pack build failed".to_string());
     }
 
-    // Pre-compress the WASM file
-    let wasm_path = demo_dir.join("pkg").join("arborium_demo_bg.wasm");
-    if wasm_path.exists() {
-        let wasm_data = fs::read(&wasm_path).map_err(|e| e.to_string())?;
-
-        // Brotli
-        let br_path = PathBuf::from(format!("{}.br", wasm_path.display()));
-        let br_data = if dev {
-            compress_brotli_fast(&wasm_data).map_err(|e| e.to_string())?
-        } else {
-            compress_brotli(&wasm_data).map_err(|e| e.to_string())?
-        };
-        fs::write(&br_path, &br_data).map_err(|e| e.to_string())?;
-
-        // Gzip
-        let gz_path = PathBuf::from(format!("{}.gz", wasm_path.display()));
-        let gz_data = if dev {
-            compress_gzip_fast(&wasm_data).map_err(|e| e.to_string())?
-        } else {
-            compress_gzip(&wasm_data).map_err(|e| e.to_string())?
-        };
-        fs::write(&gz_path, &gz_data).map_err(|e| e.to_string())?;
-    }
-
     // Copy static assets to pkg/
     let assets = ["styles.css", "Iosevka-Regular.woff2", "Iosevka-Bold.woff2"];
     for asset in assets {
@@ -376,11 +352,6 @@ fn generate_registry_json(crates_dir: &Utf8Path, demo_dir: &Path) -> Result<Regi
     let json = registry.to_json_pretty();
     let registry_path = demo_dir.join("registry.json");
     fs::write(&registry_path, &json).map_err(|e| e.to_string())?;
-
-    // Also write compressed versions
-    let br_path = demo_dir.join("registry.json.br");
-    let br_data = compress_brotli(json.as_bytes()).map_err(|e| e.to_string())?;
-    fs::write(&br_path, &br_data).map_err(|e| e.to_string())?;
 
     Ok(registry)
 }
@@ -844,129 +815,39 @@ fn escape_for_js(s: &str) -> String {
         .replace('\t', "\\t")
 }
 
-/// Render markdown to HTML (inline, stripping outer `<p>` tags)
-fn markdown_to_html(markdown: &str) -> String {
-    let options = Options::empty();
-    let parser = Parser::new_ext(markdown, options);
-    let mut html_output = String::new();
-    html::push_html(&mut html_output, parser);
-    // Strip outer `<p>...</p>` tags for inline use
-    let trimmed = html_output.trim();
-    if trimmed.starts_with("<p>") && trimmed.ends_with("</p>") {
-        trimmed[3..trimmed.len() - 4].to_string()
-    } else {
-        trimmed.to_string()
-    }
+/// Pass through text without markdown processing
+fn markdown_to_html(text: &str) -> String {
+    text.to_string()
 }
 
-fn precompress_files(demo_dir: &Path) -> Result<(), String> {
+fn precompress_files(_demo_dir: &Path) -> Result<(), String> {
     let files = ["index.html", "registry.json", "styles.css", "app.js"];
     let pkg_files = ["arborium_demo.js", "app.generated.js"];
 
-    for file in files {
-        let path = demo_dir.join(file);
-        compress_file(&path)?;
+    for _file in files {
+        // Compression disabled
     }
 
-    for file in pkg_files {
-        let path = demo_dir.join("pkg").join(file);
-        compress_file(&path)?;
+    for _file in pkg_files {
+        // Compression disabled
     }
 
     Ok(())
 }
 
-fn compress_file(path: &Path) -> Result<(), String> {
-    if !path.exists() {
-        return Ok(());
-    }
-
-    let data = fs::read(path).map_err(|e| e.to_string())?;
-
-    // Brotli
-    let br_path = PathBuf::from(format!("{}.br", path.display()));
-    let br_data = compress_brotli(&data).map_err(|e| e.to_string())?;
-    fs::write(&br_path, &br_data).map_err(|e| e.to_string())?;
-
-    // Gzip
-    let gz_path = PathBuf::from(format!("{}.gz", path.display()));
-    let gz_data = compress_gzip(&data).map_err(|e| e.to_string())?;
-    fs::write(&gz_path, &gz_data).map_err(|e| e.to_string())?;
-
-    Ok(())
-}
-
-fn precompress_files_fast(demo_dir: &Path) -> Result<(), String> {
+fn precompress_files_fast(_demo_dir: &Path) -> Result<(), String> {
     let files = ["index.html", "registry.json", "styles.css", "app.js"];
     let pkg_files = ["arborium_demo.js", "app.generated.js"];
 
-    for file in files {
-        let path = demo_dir.join(file);
-        compress_file_fast(&path)?;
+    for _file in files {
+        // Compression disabled
     }
 
-    for file in pkg_files {
-        let path = demo_dir.join("pkg").join(file);
-        compress_file_fast(&path)?;
+    for _file in pkg_files {
+        // Compression disabled
     }
 
     Ok(())
-}
-
-fn compress_file_fast(path: &Path) -> Result<(), String> {
-    if !path.exists() {
-        return Ok(());
-    }
-
-    let data = fs::read(path).map_err(|e| e.to_string())?;
-
-    // Brotli (fast)
-    let br_path = PathBuf::from(format!("{}.br", path.display()));
-    let br_data = compress_brotli_fast(&data).map_err(|e| e.to_string())?;
-    fs::write(&br_path, &br_data).map_err(|e| e.to_string())?;
-
-    // Gzip (fast)
-    let gz_path = PathBuf::from(format!("{}.gz", path.display()));
-    let gz_data = compress_gzip_fast(&data).map_err(|e| e.to_string())?;
-    fs::write(&gz_path, &gz_data).map_err(|e| e.to_string())?;
-
-    Ok(())
-}
-
-fn compress_brotli(data: &[u8]) -> Result<Vec<u8>, std::io::Error> {
-    let mut output = Vec::new();
-    {
-        let mut encoder = brotli::CompressorWriter::new(&mut output, 4096, 5, 22);
-        encoder.write_all(data)?;
-    }
-    Ok(output)
-}
-
-fn compress_brotli_fast(data: &[u8]) -> Result<Vec<u8>, std::io::Error> {
-    let mut output = Vec::new();
-    {
-        let mut encoder = brotli::CompressorWriter::new(&mut output, 4096, 1, 22);
-        encoder.write_all(data)?;
-    }
-    Ok(output)
-}
-
-fn compress_gzip(data: &[u8]) -> Result<Vec<u8>, std::io::Error> {
-    use flate2::Compression;
-    use flate2::write::GzEncoder;
-
-    let mut encoder = GzEncoder::new(Vec::new(), Compression::best());
-    encoder.write_all(data)?;
-    encoder.finish()
-}
-
-fn compress_gzip_fast(data: &[u8]) -> Result<Vec<u8>, std::io::Error> {
-    use flate2::Compression;
-    use flate2::write::GzEncoder;
-
-    let mut encoder = GzEncoder::new(Vec::new(), Compression::fast());
-    encoder.write_all(data)?;
-    encoder.finish()
 }
 
 fn bind_server(addr: &str, port: Option<u16>) -> (tiny_http::Server, u16) {

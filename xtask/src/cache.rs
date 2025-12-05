@@ -4,10 +4,9 @@
 //! Each grammar's generated files (parser.c, etc.) are cached based on
 //! a blake3 hash of all input files (grammar.js, common/, etc.).
 
-use atomicwrites::{AtomicFile, OverwriteBehavior};
 use camino::{Utf8Path, Utf8PathBuf};
 use fs_err as fs;
-use std::io::{Read, Write};
+use std::io::Read;
 
 /// The cache directory relative to repo root.
 const CACHE_DIR: &str = ".cache/arborium";
@@ -36,7 +35,6 @@ impl GrammarCache {
         &self,
         crate_path: &Utf8Path,
         crates_dir: &Utf8Path,
-        crate_name: &str,
         config: &crate::types::CrateConfig,
     ) -> std::io::Result<String> {
         let mut hasher = blake3::Hasher::new();
@@ -62,7 +60,7 @@ impl GrammarCache {
         }
 
         // Hash dependency grammars (for cross-grammar dependencies)
-        let deps = get_grammar_dependencies(crate_name, config);
+        let deps = get_grammar_dependencies(config);
         for (_npm_name, arborium_name) in deps {
             let dep_grammar_dir = crates_dir.join(&arborium_name).join("grammar");
             if dep_grammar_dir.exists() {
@@ -92,33 +90,21 @@ impl GrammarCache {
     ) -> std::io::Result<()> {
         let cache_path = self.cache_path(crate_name, cache_key);
 
-        // Create cache directory
-        if let Some(parent) = cache_path.parent() {
-            fs::create_dir_all(parent)?;
+        // Remove existing cache if it exists
+        if cache_path.exists() {
+            fs::remove_dir_all(&cache_path)?;
         }
 
-        // Create a tarball atomically (write to temp, then rename)
-        let atomic_file = AtomicFile::new(&cache_path, OverwriteBehavior::AllowOverwrite);
-        atomic_file.write(|file| {
-            let encoder = flate2::write::GzEncoder::new(file, flate2::Compression::fast());
-            let mut tar = tar::Builder::new(encoder);
-
-            // Add all files from generated_src
-            Self::add_dir_to_tar(&mut tar, generated_src, Utf8Path::new(""))?;
-
-            tar.finish()?;
-            Ok(())
-        })?;
+        // Copy directory to cache
+        self.copy_dir_recursive(generated_src, &cache_path)?;
 
         Ok(())
     }
 
     fn cache_path(&self, crate_name: &str, cache_key: &str) -> Utf8PathBuf {
-        // Use first 16 chars of hash for shorter filenames
+        // Use first 16 chars of hash for shorter directory names
         let short_key = &cache_key[..16.min(cache_key.len())];
-        self.cache_dir
-            .join(crate_name)
-            .join(format!("{}.tar.gz", short_key))
+        self.cache_dir.join(crate_name).join(short_key)
     }
 
     fn hash_file(&self, hasher: &mut blake3::Hasher, path: &Utf8Path) -> std::io::Result<()> {
@@ -184,23 +170,20 @@ impl GrammarCache {
         Ok(())
     }
 
-    fn add_dir_to_tar<W: Write>(
-        tar: &mut tar::Builder<W>,
-        src_dir: &Utf8Path,
-        prefix: &Utf8Path,
-    ) -> std::io::Result<()> {
+    fn copy_dir_recursive(&self, src_dir: &Utf8Path, dest_dir: &Utf8Path) -> std::io::Result<()> {
+        fs::create_dir_all(dest_dir)?;
+
         for entry in fs::read_dir(src_dir)? {
             let entry = entry?;
             let path = Utf8PathBuf::from_path_buf(entry.path())
                 .map_err(|_| std::io::Error::other("Non-UTF8 path"))?;
             let name = entry.file_name().to_string_lossy().to_string();
-            let tar_path = prefix.join(&name);
+            let dest_path = dest_dir.join(&name);
 
             if path.is_dir() {
-                Self::add_dir_to_tar(tar, &path, &tar_path)?;
+                self.copy_dir_recursive(&path, &dest_path)?;
             } else if path.is_file() {
-                let mut file = std::fs::File::open(&path)?;
-                tar.append_file(tar_path.as_str(), &mut file)?;
+                fs::copy(&path, &dest_path)?;
             }
         }
         Ok(())
@@ -218,26 +201,40 @@ impl CachedGrammar {
         // Ensure destination exists
         fs::create_dir_all(dest_dir)?;
 
-        // Extract tarball
-        let file = std::fs::File::open(&self.path)?;
-        let decoder = flate2::read::GzDecoder::new(file);
-        let mut archive = tar::Archive::new(decoder);
+        // Copy cached directory to destination
+        self.copy_dir_recursive(&self.path, dest_dir)?;
+        Ok(())
+    }
 
-        archive.unpack(dest_dir)?;
+    fn copy_dir_recursive(&self, src_dir: &Utf8Path, dest_dir: &Utf8Path) -> std::io::Result<()> {
+        for entry in fs::read_dir(src_dir)? {
+            let entry = entry?;
+            let path = Utf8PathBuf::from_path_buf(entry.path())
+                .map_err(|_| std::io::Error::other("Non-UTF8 path"))?;
+            let name = entry.file_name().to_string_lossy().to_string();
+            let dest_path = dest_dir.join(&name);
+
+            if path.is_dir() {
+                fs::create_dir_all(&dest_path)?;
+                self.copy_dir_recursive(&path, &dest_path)?;
+            } else if path.is_file() {
+                fs::copy(&path, &dest_path)?;
+            }
+        }
         Ok(())
     }
 }
 
 /// Get the cross-grammar dependencies for a grammar.
 /// Duplicated from generate.rs to avoid circular dependencies.
-fn get_grammar_dependencies(crate_name: &str, config: &crate::types::CrateConfig) -> Vec<(String, String)> {
+fn get_grammar_dependencies(config: &crate::types::CrateConfig) -> Vec<(String, String)> {
     let mut deps = Vec::new();
-    
+
     for grammar in &config.grammars {
         for dep in &grammar.dependencies {
             deps.push((dep.npm_name.clone(), dep.crate_name.clone()));
         }
     }
-    
+
     deps
 }

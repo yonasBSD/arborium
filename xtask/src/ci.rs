@@ -307,15 +307,10 @@ pub mod common {
             .with_inputs([("tool", "cargo-nextest")])
     }
 
-    /// Download grammar sources artifact.
+    /// Download grammar sources from artifact.
     pub fn download_grammar_sources() -> Step {
         Step::uses("Download grammar sources", "actions/download-artifact@v4")
-            .with_inputs([("name", "grammar-sources")])
-    }
-
-    /// Extract grammar sources tarball (tar format).
-    pub fn extract_grammar_sources_tar() -> Step {
-        Step::run("Extract grammar sources", "tar -xvf grammar-sources.tar")
+            .with_inputs([("name", "grammar-sources"), ("path", ".")])
     }
 
     /// Setup Node.js for npm publishing.
@@ -430,7 +425,6 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
             .steps([
                 checkout(),
                 download_grammar_sources(),
-                extract_grammar_sources_tar(),
                 rust_cache(),
                 Step::run("Build", "cargo build --locked --verbose"),
                 Step::run("Run tests", "cargo nextest run --locked --verbose"),
@@ -450,7 +444,6 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
             .steps([
                 checkout(),
                 download_grammar_sources(),
-                extract_grammar_sources_tar(),
                 install_rust(),
                 rust_cache(),
                 install_nextest(),
@@ -469,7 +462,6 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
             .steps([
                 checkout(),
                 download_grammar_sources(),
-                extract_grammar_sources_tar(),
                 Step::run(
                     "Build arborium for WASM",
                     "cargo build --locked -p arborium --target wasm32-unknown-unknown",
@@ -503,7 +495,6 @@ echo "No env imports found - WASM modules are browser-compatible""#,
             .steps([
                 checkout(),
                 download_grammar_sources(),
-                extract_grammar_sources_tar(),
                 Step::run(
                     "Run Clippy",
                     "cargo clippy --locked --all-targets -- -D warnings",
@@ -521,7 +512,6 @@ echo "No env imports found - WASM modules are browser-compatible""#,
             .steps([
                 checkout(),
                 download_grammar_sources(),
-                extract_grammar_sources_tar(),
                 Step::run("Check formatting", "cargo fmt --all -- --check"),
                 Step::run(
                     "Check CI workflow is up to date",
@@ -540,7 +530,6 @@ echo "No env imports found - WASM modules are browser-compatible""#,
             .steps([
                 checkout(),
                 download_grammar_sources(),
-                extract_grammar_sources_tar(),
                 Step::run("Build docs", "cargo doc --locked --no-deps")
                     .with_env([("RUSTDOCFLAGS", "-D warnings")]),
             ]),
@@ -576,7 +565,6 @@ echo "No env imports found - WASM modules are browser-compatible""#,
                     .steps([
                         checkout(),
                         download_grammar_sources(),
-                        extract_grammar_sources_tar(),
                         Step::run(
                             format!("Build {}", display_grammars),
                             format!("arborium-xtask plugins build {}", grammars_list),
@@ -610,7 +598,6 @@ echo "No env imports found - WASM modules are browser-compatible""#,
             .steps([
                 checkout(),
                 download_grammar_sources(),
-                extract_grammar_sources_tar(),
                 Step::run("Publish to crates.io", "arborium-xtask publish crates").with_env([(
                     "CARGO_REGISTRY_TOKEN",
                     "${{ secrets.CARGO_REGISTRY_TOKEN }}",

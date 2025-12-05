@@ -189,17 +189,12 @@ pub fn print_tools_report() {
         }
     }
 
-    // Render with boxen
-    let content = lines.join("\n");
-    let boxed = boxen::builder()
-        .border_style(boxen::BorderStyle::Round)
-        .padding(1)
-        .title("Tools Status")
-        .border_color("cyan")
-        .render(&content)
-        .unwrap_or(content);
-
-    println!("{}", boxed);
+    // Print simple text output
+    println!("Tools Status:");
+    println!("=============");
+    for line in lines {
+        println!("{}", line);
+    }
 }
 
 /// Check specified tools and print a report. Returns true if all are available.
@@ -265,17 +260,12 @@ pub fn check_tools_or_report(tools: &[Tool]) -> bool {
         }
     }
 
-    // Render with boxen
-    let content = lines.join("\n");
-    let boxed = boxen::builder()
-        .border_style(boxen::BorderStyle::Round)
-        .padding(1)
-        .title("Missing Tools")
-        .border_color("red")
-        .render(&content)
-        .unwrap_or(content);
-
-    eprintln!("{}", boxed);
+    // Print simple text output
+    eprintln!("Missing Tools:");
+    eprintln!("==============");
+    for line in lines {
+        eprintln!("{}", line);
+    }
 
     false
 }

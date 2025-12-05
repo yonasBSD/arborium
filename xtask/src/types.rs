@@ -252,6 +252,18 @@ pub struct GenerateComponent {
     pub value: bool,
 }
 
+/// Cross-grammar dependency for tree-sitter generation.
+#[derive(Debug, Clone, Facet)]
+pub struct Dependency {
+    /// NPM package name (argument).
+    #[facet(kdl::argument)]
+    pub npm_name: String,
+
+    /// Arborium crate name (property).
+    #[facet(kdl::property)]
+    pub crate_name: String,
+}
+
 /// Aliases child node (multiple string arguments).
 #[derive(Debug, Clone, Facet)]
 pub struct Aliases {

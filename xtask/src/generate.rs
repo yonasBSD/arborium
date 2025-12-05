@@ -88,7 +88,12 @@ fn generate_workspace_dependencies(
             .map(|i| after_header + i)
             .unwrap_or(content.len());
         // Replace the section
-        format!("{}{}{}", &content[..start], deps_section, &content[section_end..])
+        format!(
+            "{}{}{}",
+            &content[..start],
+            deps_section,
+            &content[section_end..]
+        )
     } else {
         // Insert before [workspace.package]
         content.replace(
@@ -256,15 +261,7 @@ pub fn plan_generate(
     if !errors.is_empty() {
         eprintln!();
         for (crate_name, error) in &errors {
-            eprintln!(
-                "{}",
-                boxen::builder()
-                    .border_style(boxen::BorderStyle::Round)
-                    .border_color("red")
-                    .padding(1)
-                    .render(format!("{}: {}", crate_name.bold(), error))
-                    .unwrap_or_else(|_| format!("{}: {}", crate_name, error))
-            );
+            eprintln!("Error: {}: {}", crate_name.bold(), error);
         }
         Err(std::io::Error::other(format!(
             "{} grammar(s) failed to generate",
@@ -384,15 +381,15 @@ fn plan_crate_generation(
 
 /// Get the cross-grammar dependencies for a grammar.
 /// Returns a list of (npm_package_name, arborium_crate_name) tuples.
-fn get_grammar_dependencies(crate_name: &str, config: &crate::types::CrateConfig) -> Vec<(String, String)> {
+fn get_grammar_dependencies(config: &crate::types::CrateConfig) -> Vec<(String, String)> {
     let mut deps = Vec::new();
-    
+
     for grammar in &config.grammars {
         for dep in &grammar.dependencies {
             deps.push((dep.npm_name.clone(), dep.crate_name.clone()));
         }
     }
-    
+
     deps
 }
 
@@ -401,10 +398,9 @@ fn get_grammar_dependencies(crate_name: &str, config: &crate::types::CrateConfig
 fn setup_grammar_dependencies(
     temp_path: &Utf8Path,
     crates_dir: &Utf8Path,
-    crate_name: &str,
     config: &crate::types::CrateConfig,
 ) -> Result<(), Report> {
-    let deps = get_grammar_dependencies(crate_name, config);
+    let deps = get_grammar_dependencies(config);
     if deps.is_empty() {
         return Ok(());
     }
@@ -442,7 +438,7 @@ fn plan_grammar_src_generation(
     let crate_name = crate_path.file_name().unwrap_or("unknown");
 
     // Compute cache key from input files
-    let cache_key = cache.compute_cache_key(crate_path, crates_dir, crate_name, config)?;
+    let cache_key = cache.compute_cache_key(crate_path, crates_dir, config)?;
 
     // Check cache first
     if let Some(cached) = cache.get(crate_name, &cache_key) {
@@ -481,7 +477,7 @@ fn plan_grammar_src_generation(
     }
 
     // Set up cross-grammar dependencies if needed (in temp/grammar/node_modules/)
-    setup_grammar_dependencies(&temp_grammar, crates_dir, crate_name, config)?;
+    setup_grammar_dependencies(&temp_grammar, crates_dir, config)?;
 
     // Create src/ directory for grammars that generate files there (e.g., vim's keywords.h)
     fs::create_dir_all(temp_grammar.join("src"))?;

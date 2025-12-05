@@ -1,7 +1,6 @@
 //! Shared utilities for xtask commands
 
 use std::env;
-use std::fs;
 use std::path::PathBuf;
 
 /// Find repository root by looking for .git directory
