@@ -177,6 +177,20 @@ pub fn plan_generate(
         return Ok(PlanSet::new());
     }
 
+    // Pre-generation grammar validation
+    println!("{}", "Validating grammar dependencies...".cyan().bold());
+    for (_name, crate_state) in &crates_to_process {
+        if let Some(config) = &crate_state.config {
+            // Only validate grammars that have external dependencies
+            let has_dependencies = !get_grammar_dependencies(config).is_empty();
+            if has_dependencies {
+                validate_grammar_requires(crate_state, config)?;
+            }
+        }
+    }
+    println!("{} All grammar requires validated", "✓".green());
+    println!();
+
     // Store length before potentially consuming the vector
     let num_crates_to_process = crates_to_process.len();
 
@@ -190,8 +204,8 @@ pub fn plan_generate(
     let plans = Mutex::new(PlanSet::new());
     let errors: Mutex<Vec<(String, Report)>> = Mutex::new(Vec::new());
 
-    // Process crates in parallel (or sequentially with fail-fast)
-    let process_result: Result<(), Report> = if no_fail_fast {
+    // Process crates in parallel - always parallel, but handle errors differently
+    if no_fail_fast {
         // Parallel processing - collect all errors
         crates_to_process
             .par_iter()
@@ -237,7 +251,7 @@ pub fn plan_generate(
                         }
                     }
                     Err(e) => {
-                        // Failure: show error marker
+                        // Collect error - don't fail fast
                         if needs_generation {
                             println!("{} {} {}", "●".red(), "✗".red(), crate_name);
                         }
@@ -245,63 +259,77 @@ pub fn plan_generate(
                     }
                 }
             });
-        Ok(())
     } else {
-        // Sequential processing - fail fast on first error
-        for (_name, crate_state) in &crates_to_process {
-            let config = crate_state.config.as_ref().unwrap();
-            let crate_name = &crate_state.name;
+        // Parallel processing with fail-fast - stop on first error
+        use std::sync::atomic::AtomicBool;
+        let should_stop = AtomicBool::new(false);
+        let first_error = Mutex::new(None::<(String, Report)>);
 
-            // Check if this crate has a grammar to generate
-            let grammar_dir = crate_state.path.join("grammar");
-            let needs_generation = grammar_dir.exists() && grammar_dir.join("grammar.js").exists();
+        crates_to_process
+            .par_iter()
+            .try_for_each(|(_name, crate_state)| -> Result<(), ()> {
+                // Check if we should stop due to an earlier error
+                if should_stop.load(Ordering::Relaxed) {
+                    return Err(());
+                }
 
-            // Track timing for slow operations
-            let start_time = std::time::Instant::now();
+                let config = crate_state.config.as_ref().unwrap();
+                let crate_name = &crate_state.name;
 
-            // Progress is shown later in cache miss/hit messages
+                // Check if this crate has a grammar to generate
+                let grammar_dir = crate_state.path.join("grammar");
+                let needs_generation =
+                    grammar_dir.exists() && grammar_dir.join("grammar.js").exists();
 
-            let ctx = BuildContext {
-                cache: &cache,
-                crates_dir,
-                repo_root: &repo_root,
-                cache_hits: &cache_hits,
-                cache_misses: &cache_misses,
-                mode,
-                workspace_version: &workspace_version,
-            };
+                // Track timing for slow operations
+                let start_time = std::time::Instant::now();
 
-            match plan_crate_generation(crate_state, config, &ctx) {
-                Ok(plan) => {
-                    if !plan.is_empty() {
-                        plans.lock().unwrap().add(plan);
+                let ctx = BuildContext {
+                    cache: &cache,
+                    crates_dir,
+                    repo_root: &repo_root,
+                    cache_hits: &cache_hits,
+                    cache_misses: &cache_misses,
+                    mode,
+                    workspace_version: &workspace_version,
+                };
+
+                match plan_crate_generation(crate_state, config, &ctx) {
+                    Ok(plan) => {
+                        if !plan.is_empty() {
+                            plans.lock().unwrap().add(plan);
+                        }
+
+                        // Show completion message for slow operations (>1s) in TTY mode
+                        let elapsed = start_time.elapsed();
+                        if needs_generation && is_tty && elapsed.as_secs() >= 1 {
+                            println!(
+                                "{} {} completed in {:.1}s",
+                                "●".green(),
+                                crate_name,
+                                elapsed.as_secs_f64()
+                            );
+                        }
+                        Ok(())
                     }
-
-                    // Show completion message for slow operations (>1s) in TTY mode
-                    let elapsed = start_time.elapsed();
-                    if needs_generation && is_tty && elapsed.as_secs() >= 1 {
-                        println!(
-                            "{} {} completed in {:.1}s",
-                            "●".green(),
-                            crate_name,
-                            elapsed.as_secs_f64()
-                        );
+                    Err(e) => {
+                        // Fail fast - signal stop and store first error
+                        if needs_generation {
+                            println!("{} ✗ {}", "●".red(), crate_name);
+                        }
+                        should_stop.store(true, Ordering::Relaxed);
+                        *first_error.lock().unwrap() = Some((crate_name.clone(), e));
+                        Err(())
                     }
                 }
-                Err(e) => {
-                    // Fail fast - return error immediately
-                    if needs_generation {
-                        println!("{} ✗ {}", "●".red(), crate_name);
-                    }
-                    return Err(e);
-                }
-            }
+            })
+            .ok(); // Ignore the Result from try_for_each, we handle errors below
+
+        // Check if we had a fail-fast error
+        if let Some((_crate_name, error)) = first_error.into_inner().unwrap() {
+            return Err(error);
         }
-        Ok(())
-    };
-
-    // Handle the result
-    process_result?;
+    }
 
     let processing_elapsed = total_start.elapsed();
 
@@ -567,13 +595,50 @@ fn setup_grammar_dependencies(
     let node_modules = temp_path.join("node_modules");
     fs::create_dir_all(&node_modules)?;
 
+    // Try to find repo root to look for langs/ directory
+    let repo_root = crates_dir.parent().expect("crates_dir should have parent");
+    let langs_dir = repo_root.join("langs");
+
     for (npm_name, arborium_name) in deps {
-        let dep_grammar_dir = crates_dir.join(&arborium_name).join("grammar");
         let target_dir = node_modules.join(&npm_name);
 
-        if dep_grammar_dir.exists() {
+        // Extract language name from arborium crate name
+        let lang_name = arborium_name
+            .strip_prefix("arborium-")
+            .unwrap_or(&arborium_name);
+
+        // Try new structure first: langs/group-*/lang/def/grammar
+        let mut dep_grammar_dir = None;
+        if langs_dir.exists() {
+            // Search through all groups for this language
+            if let Ok(entries) = fs::read_dir(&langs_dir) {
+                for group_entry in entries.flatten() {
+                    let group_path = group_entry.path();
+                    if group_path.is_dir() {
+                        let lang_path = group_path.join(lang_name);
+                        let grammar_path = lang_path.join("def").join("grammar");
+                        if grammar_path.exists() {
+                            dep_grammar_dir = Some(
+                                Utf8PathBuf::from_path_buf(grammar_path).expect("non-UTF8 path"),
+                            );
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Fall back to old structure: crates/arborium-*/grammar
+        if dep_grammar_dir.is_none() {
+            let old_path = crates_dir.join(&arborium_name).join("grammar");
+            if old_path.exists() {
+                dep_grammar_dir = Some(old_path);
+            }
+        }
+
+        if let Some(grammar_dir) = dep_grammar_dir {
             // Copy the dependency's grammar files to node_modules
-            copy_dir_contents(&dep_grammar_dir, &target_dir)?;
+            copy_dir_contents(&grammar_dir, &target_dir)?;
         }
     }
 
@@ -851,15 +916,142 @@ fn plan_file_update(
     Ok(())
 }
 
-/// Copy directory contents (files and subdirectories) from src to dest.
-fn copy_dir_contents(src: &Utf8Path, dest: &Utf8Path) -> Result<(), Report> {
-    fs::create_dir_all(dest)?;
+/// Validate grammar.js require() statements by running Node.js with dummy globals
+fn validate_grammar_requires(
+    crate_state: &CrateState,
+    _config: &crate::types::CrateConfig,
+) -> Result<(), Report> {
+    let grammar_js = crate_state.def_path.join("grammar/grammar.js");
 
-    for entry in fs::read_dir(src)? {
+    if !grammar_js.exists() {
+        return Ok(());
+    }
+
+    // Create a temporary wrapper script with dummy tree-sitter functions
+    let temp_dir = tempfile::tempdir()?;
+    let wrapper_path = temp_dir.path().join("validate_grammar.js");
+
+    let wrapper_content = format!(
+        r#"
+// Dummy tree-sitter globals
+global.grammar = () => {{}};
+global.seq = (...args) => args;
+global.choice = (...args) => args;
+global.repeat = (rule) => rule;
+global.repeat1 = (rule) => rule;
+global.optional = (rule) => rule;
+global.prec = (n, rule) => rule;
+global.prec_left = (n, rule) => rule;
+global.prec_right = (n, rule) => rule;
+global.prec_dynamic = (n, rule) => rule;
+global.token = (rule) => rule;
+global.alias = (rule, name) => rule;
+global.field = (name, rule) => rule;
+global.$ = new Proxy({{}}, {{ get: () => "rule" }});
+
+// Pattern constants (optional - grammars may define their own)
+global.NEWLINE = 'newline';
+global.WHITESPACE = 'whitespace';
+global.IDENTIFIER = 'identifier';
+global.NUMBER = 'number';
+global.STRING = 'string';
+global.COMMENT = 'comment';
+
+// Try to require the grammar file - this will fail if requires are broken
+try {{
+    require('{}');
+    console.log('OK');
+}} catch (error) {{
+    if (error.code === 'MODULE_NOT_FOUND') {{
+        console.error('MISSING_MODULE:' + error.message);
+        process.exit(1);
+    }} else {{
+        console.error('SYNTAX_ERROR:' + error.message);
+        process.exit(2);
+    }}
+}}
+"#,
+        grammar_js.as_str().replace('\\', "\\\\")
+    );
+
+    fs::write(&wrapper_path, wrapper_content)?;
+
+    // Run Node.js on the wrapper
+    let output = std::process::Command::new("node")
+        .arg(&wrapper_path)
+        .current_dir(&crate_state.def_path)
+        .output()
+        .map_err(|e| std::io::Error::other(format!("Failed to run node: {}", e)))?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        let stdout = String::from_utf8_lossy(&output.stdout);
+
+        // Check if this is a missing dependency that should be handled by setup_grammar_dependencies
+        if stderr.contains("Cannot find module 'tree-sitter-") {
+            // This is expected - we have a cross-grammar dependency
+            // Let setup_grammar_dependencies handle it during generation
+            println!(
+                "  {} {} - has cross-grammar dependencies (will be resolved during generation)",
+                "→".blue(),
+                crate_state
+                    .name
+                    .strip_prefix("arborium-")
+                    .unwrap_or(&crate_state.name)
+            );
+            return Ok(());
+        }
+
+        if stdout.starts_with("MISSING_MODULE:") || stderr.contains("Cannot find module") {
+            let error_msg = if stdout.starts_with("MISSING_MODULE:") {
+                stdout.strip_prefix("MISSING_MODULE:").unwrap_or(&stdout)
+            } else {
+                &stderr
+            };
+            return Err(std::io::Error::other(format!(
+                "Missing file dependency in {}: {}",
+                crate_state
+                    .name
+                    .strip_prefix("arborium-")
+                    .unwrap_or(&crate_state.name),
+                error_msg.trim().lines().next().unwrap_or(error_msg.trim())
+            ))
+            .into());
+        } else if stdout.starts_with("SYNTAX_ERROR:") {
+            let error_msg = stdout.strip_prefix("SYNTAX_ERROR:").unwrap_or(&stdout);
+            return Err(std::io::Error::other(format!(
+                "Grammar syntax error in {}: {}",
+                crate_state
+                    .name
+                    .strip_prefix("arborium-")
+                    .unwrap_or(&crate_state.name),
+                error_msg.trim()
+            ))
+            .into());
+        } else {
+            return Err(std::io::Error::other(format!(
+                "Grammar validation failed for {}: {}",
+                crate_state
+                    .name
+                    .strip_prefix("arborium-")
+                    .unwrap_or(&crate_state.name),
+                stderr.trim().lines().next().unwrap_or("unknown error")
+            ))
+            .into());
+        }
+    }
+
+    Ok(())
+}
+
+fn copy_dir_contents(src_dir: &Utf8Path, dest_dir: &Utf8Path) -> Result<(), Report> {
+    fs::create_dir_all(dest_dir)?;
+
+    for entry in fs::read_dir(src_dir)? {
         let entry = entry?;
         let src_path = Utf8PathBuf::from_path_buf(entry.path())
             .map_err(|_| std::io::Error::other("Non-UTF8 path"))?;
-        let dest_path = dest.join(entry.file_name().to_string_lossy().as_ref());
+        let dest_path = dest_dir.join(entry.file_name().to_string_lossy().as_ref());
 
         if src_path.is_dir() {
             copy_dir_contents(&src_path, &dest_path)?;
