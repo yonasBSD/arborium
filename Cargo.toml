@@ -61,7 +61,6 @@ arborium-markdown = { path = "langs/group-willow/markdown/crate", version = "0.2
 arborium-markdown-inline = { path = "langs/group-willow/markdown-inline/crate", version = "0.2.0" }
 arborium-matlab = { path = "langs/group-moss/matlab/crate", version = "0.2.0" }
 arborium-meson = { path = "langs/group-maple/meson/crate", version = "0.2.0" }
-arborium-minimal = { path = "crates/arborium-minimal", version = "0.2.0" }
 arborium-nginx = { path = "langs/group-maple/nginx/crate", version = "0.2.0" }
 arborium-ninja = { path = "langs/group-maple/ninja/crate", version = "0.2.0" }
 arborium-nix = { path = "langs/group-maple/nix/crate", version = "0.2.0" }
