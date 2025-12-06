@@ -1,3 +1,11 @@
+<!--
+================================================================================
+    THIS IS THE SOURCE TEMPLATE - edit this file!
+
+    index.html is GENERATED from this file by `cargo xtask serve`
+    DO NOT EDIT index.html directly - your changes will be overwritten!
+================================================================================
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -146,6 +154,29 @@
                             assumes a standard library is tricky. We provide a sysroot that makes this work,
                             enabling Rust-on-the-frontend scenarios like this demo.
                         </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="about-card">
+                <h3>Get Started</h3>
+                <div class="get-started-options">
+                    <div class="get-started-option">
+                        <h4>Rust (native or WASM)</h4>
+                        <p>Add to your <code>Cargo.toml</code>:</p>
+                        <pre class="code-block"><code>arborium = { version = "0.2", features = ["lang-rust", "lang-javascript"] }</code></pre>
+                    </div>
+                    <div class="get-started-option">
+                        <h4>npm (ESM)</h4>
+                        <p>Install the package:</p>
+                        <pre class="code-block"><code>npm install @arborium/arborium</code></pre>
+                        <p>Then import and use:</p>
+                        <pre class="code-block"><code><a-k>import</a-k> { highlight } <a-k>from</a-k> <a-s>'@arborium/arborium'</a-s>;</code></pre>
+                    </div>
+                    <div class="get-started-option">
+                        <h4>Script tag (IIFE)</h4>
+                        <p>Drop this into your HTML to auto-highlight all code blocks:</p>
+                        <pre class="code-block"><code><a-tg>&lt;script</a-tg> <a-at>src</a-at><a-p>=</a-p><a-s>"https://unpkg.com/@arborium/arborium/dist/arborium.iife.js"</a-s><a-tg>&gt;&lt;/script&gt;</a-tg></code></pre>
                     </div>
                 </div>
             </div>
@@ -383,7 +414,8 @@
                 <div class="faq-item">
                     <h4><span class="faq-icon"><svg  width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="m12 17.56l4.07-1.13l.55-6.1H9.38L9.2 8.3h7.6l.2-1.99H7l.56 6.01h6.89l-.23 2.58l-2.22.6l-2.22-.6l-.14-1.66h-2l.29 3.19zM4.07 3h15.86L18.5 19.2L12 21l-6.5-1.8z"/></svg></span>Can I use this without Rust / just embed it on my website?</h4>
                     <div class="faq-answer">
-                        <p>We don't provide a ready-to-embed kit yet, but you can certainly make one.</p>
+                        <p>Yes! Use our npm package <code>@arborium/arborium</code>. It provides both an ESM module and an IIFE bundle that auto-highlights code blocks on your page.</p>
+                        <p>See the "Get Started" section above for details.</p>
                     </div>
                 </div>
                 <div class="faq-item">
