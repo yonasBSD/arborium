@@ -238,8 +238,7 @@ pub fn build_plugins(repo_root: &Utf8Path, options: &BuildOptions) -> Result<()>
         registry
             .all_grammars()
             .filter(|(state, _, grammar)| {
-                grammar.generate_component()
-                    && state.crate_path.as_str().contains(&group_prefix)
+                grammar.generate_component() && state.crate_path.as_str().contains(&group_prefix)
             })
             .map(|(_, _, grammar)| grammar.id().to_string())
             .collect()
@@ -313,8 +312,15 @@ pub fn build_plugins(repo_root: &Utf8Path, options: &BuildOptions) -> Result<()>
                     timings.lock().unwrap().push(timing);
                 }
                 Err(e) => {
-                    eprintln!("{} {}", format!("[{}]", grammar).red(), format!("{}", e).red());
-                    errors.lock().unwrap().push((grammar.clone(), format!("{}", e)));
+                    eprintln!(
+                        "{} {}",
+                        format!("[{}]", grammar).red(),
+                        format!("{}", e).red()
+                    );
+                    errors
+                        .lock()
+                        .unwrap()
+                        .push((grammar.clone(), format!("{}", e)));
                 }
             }
         })
@@ -415,7 +421,11 @@ pub fn clean_plugins(repo_root: &Utf8Path, _output_dir: &str) -> Result<()> {
     }
 
     if cleaned > 0 {
-        println!("{} Cleaned {} plugin target directories", "✓".green(), cleaned);
+        println!(
+            "{} Cleaned {} plugin target directories",
+            "✓".green(),
+            cleaned
+        );
     } else {
         println!("{} Nothing to clean", "○".dimmed());
     }
@@ -454,7 +464,6 @@ pub fn build_demo(repo_root: &Utf8Path, crates_dir: &Utf8Path, dev: bool) -> Res
 
     Ok(())
 }
-
 
 fn build_single_plugin(
     repo_root: &Utf8Path,
@@ -621,12 +630,8 @@ fn build_manifest(
         let local_wasm = local_root.join("grammar.core.wasm");
 
         // Make local paths relative to repo root for serving
-        let rel_js = local_js
-            .strip_prefix(repo_root)
-            .unwrap_or(&local_js);
-        let rel_wasm = local_wasm
-            .strip_prefix(repo_root)
-            .unwrap_or(&local_wasm);
+        let rel_js = local_js.strip_prefix(repo_root).unwrap_or(&local_js);
+        let rel_wasm = local_wasm.strip_prefix(repo_root).unwrap_or(&local_wasm);
 
         let package = format!("@arborium/{}", grammar);
         let cdn_base = format!(

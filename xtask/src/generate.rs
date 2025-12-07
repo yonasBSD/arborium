@@ -188,9 +188,7 @@ fn generate_workspace_dependencies(
     ));
     for (crate_name, crate_path) in &crate_entries {
         // Make path relative to repo root
-        let rel_path = crate_path
-            .strip_prefix(repo_root)
-            .unwrap_or(crate_path);
+        let rel_path = crate_path.strip_prefix(repo_root).unwrap_or(crate_path);
         deps_section.push_str(&format!(
             "{} = {{ path = \"{}\", version = \"{}\" }}\n",
             crate_name, rel_path, version
@@ -232,7 +230,10 @@ fn generate_workspace_dependencies(
 /// 3. Validate all grammars
 /// 4. Generate all grammars (tree-sitter)
 /// 5. Generate all crates (Cargo.toml, lib.rs, etc.)
-pub fn plan_generate(crates_dir: &Utf8Path, options: GenerateOptions<'_>) -> Result<PlanSet, Report> {
+pub fn plan_generate(
+    crates_dir: &Utf8Path,
+    options: GenerateOptions<'_>,
+) -> Result<PlanSet, Report> {
     use std::time::Instant;
     let total_start = Instant::now();
 
@@ -690,7 +691,10 @@ fn generate_plugin_lib_rs(grammar_id: &str, grammar_crate_name: &str, wit_path: 
 
 /// Generate plugin package.json content.
 fn generate_plugin_package_json(grammar_id: &str, version: &str) -> String {
-    let template = PluginPackageJsonTemplate { grammar_id, version };
+    let template = PluginPackageJsonTemplate {
+        grammar_id,
+        version,
+    };
     template
         .render_once()
         .expect("PluginPackageJsonTemplate render failed")
@@ -1117,7 +1121,13 @@ fn plan_crate_files_only(
 
     // Generate Cargo.toml
     let cargo_toml_path = crate_path.join("Cargo.toml");
-    let new_cargo_toml = generate_cargo_toml(&crate_state.name, config, workspace_version, shared_rel, repo_rel);
+    let new_cargo_toml = generate_cargo_toml(
+        &crate_state.name,
+        config,
+        workspace_version,
+        shared_rel,
+        repo_rel,
+    );
 
     if cargo_toml_path.exists() {
         let old_content = fs::read_to_string(&cargo_toml_path)?;
@@ -1242,7 +1252,10 @@ fn plan_plugin_crate_files(
 
     // Plugin crate lives in npm/ sibling to crate/
     // Structure: langs/group-*/lang/npm/
-    let lang_dir = crate_state.crate_path.parent().expect("crate_path should have parent");
+    let lang_dir = crate_state
+        .crate_path
+        .parent()
+        .expect("crate_path should have parent");
     let npm_path = lang_dir.join("npm");
     let wit_path = repo_root.join("wit/grammar.wit");
 
@@ -1434,14 +1447,20 @@ fn plan_plugin_crate_files(
                                     path: dest_path,
                                     old_content: Some(old_content),
                                     new_content: content,
-                                    description: format!("Update grammar/src/tree_sitter/{}", file_name),
+                                    description: format!(
+                                        "Update grammar/src/tree_sitter/{}",
+                                        file_name
+                                    ),
                                 });
                             }
                         } else {
                             plan.add(Operation::CreateFile {
                                 path: dest_path,
                                 content,
-                                description: format!("Create grammar/src/tree_sitter/{}", file_name),
+                                description: format!(
+                                    "Create grammar/src/tree_sitter/{}",
+                                    file_name
+                                ),
                             });
                         }
                     }

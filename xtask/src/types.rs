@@ -971,12 +971,7 @@ impl CrateRegistry {
         &self,
     ) -> impl Iterator<Item = (&CrateState, &CrateConfig, &GrammarConfig)> {
         self.configured_crates()
-            .flat_map(|(_, state, config)| {
-                config
-                    .grammars
-                    .iter()
-                    .map(move |g| (state, config, g))
-            })
+            .flat_map(|(_, state, config)| config.grammars.iter().map(move |g| (state, config, g)))
     }
 }
 

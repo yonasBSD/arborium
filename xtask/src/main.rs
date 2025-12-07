@@ -375,15 +375,15 @@ fn main() {
 
             match action {
                 PublishAction::Crates { dry_run, group } => {
-                    if let Err(e) = publish::publish_crates(&repo_root, group.as_deref(), dry_run)
-                    {
+                    if let Err(e) = publish::publish_crates(&repo_root, group.as_deref(), dry_run) {
                         eprintln!("{:?}", e);
                         std::process::exit(1);
                     }
                 }
                 PublishAction::Npm { dry_run, group } => {
                     let langs_dir = repo_root.join("langs");
-                    if let Err(e) = publish::publish_npm(&repo_root, &langs_dir, group.as_deref(), dry_run)
+                    if let Err(e) =
+                        publish::publish_npm(&repo_root, &langs_dir, group.as_deref(), dry_run)
                     {
                         eprintln!("{:?}", e);
                         std::process::exit(1);

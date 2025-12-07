@@ -114,11 +114,7 @@ impl Registry {
 
 impl RegistryGrammar {
     /// Build from a GrammarConfig, reading sample content from disk.
-    fn from_grammar_config(
-        crate_name: &str,
-        grammar: &GrammarConfig,
-        def_path: &Utf8Path,
-    ) -> Self {
+    fn from_grammar_config(crate_name: &str, grammar: &GrammarConfig, def_path: &Utf8Path) -> Self {
         let samples: Vec<RegistrySample> = grammar
             .samples
             .iter()
@@ -468,8 +464,7 @@ fn copy_plugins_json(crates_dir: &Utf8Path, demo_dir: &Path, dev: bool) -> Resul
 
     // Parse as serde_json Value so we can modify it
     // (facet_json can't round-trip facet_value::Value - see https://github.com/facet-rs/facet/issues/1125)
-    let mut json: serde_json::Value =
-        serde_json::from_str(&content).map_err(|e| e.to_string())?;
+    let mut json: serde_json::Value = serde_json::from_str(&content).map_err(|e| e.to_string())?;
 
     // Add dev_mode field
     if let Some(obj) = json.as_object_mut() {

@@ -118,9 +118,9 @@ impl Tool {
             Tool::TreeSitter => None, // not available via binstall
             Tool::Git => None,
             Tool::CargoComponent => Some("cargo-component"),
-            Tool::Jco => None,      // npm package, not cargo
-            Tool::WasmOpt => None,  // binary release, not cargo
-            Tool::Curl => None,     // system tool, not cargo
+            Tool::Jco => None,     // npm package, not cargo
+            Tool::WasmOpt => None, // binary release, not cargo
+            Tool::Curl => None,    // system tool, not cargo
         }
     }
 

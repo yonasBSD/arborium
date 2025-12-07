@@ -9,5 +9,5 @@
 pub mod highlights;
 pub mod theme;
 
-pub use highlights::{HighlightDef, HIGHLIGHTS, COUNT};
-pub use theme::{builtin, Color, Modifiers, Style, Theme, ThemeError};
+pub use highlights::{COUNT, HIGHLIGHTS, HighlightDef};
+pub use theme::{Color, Modifiers, Style, Theme, ThemeError, builtin};

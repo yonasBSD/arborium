@@ -18,18 +18,16 @@ use std::process::{Command, Stdio};
 /// Crates in the "pre" group - must be published before grammar crates.
 /// These are shared dependencies that grammar crates rely on.
 const PRE_CRATES: &[&str] = &[
-    "tree-sitter",               // tree-sitter-patched-arborium
-    "tree-sitter-highlight",     // tree-sitter-highlight-patched-arborium
+    "tree-sitter",           // tree-sitter-patched-arborium
+    "tree-sitter-highlight", // tree-sitter-highlight-patched-arborium
     "crates/arborium-sysroot",
     "crates/arborium-test-harness",
-    "crates/arborium-theme",     // Theme and highlight definitions
+    "crates/arborium-theme", // Theme and highlight definitions
 ];
 
 /// Crates in the "post" group - must be published after grammar crates.
 /// These are umbrella crates that optionally depend on grammar crates.
-const POST_CRATES: &[&str] = &[
-    "crates/arborium",
-];
+const POST_CRATES: &[&str] = &["crates/arborium"];
 
 /// Publish crates to crates.io.
 ///
@@ -88,11 +86,7 @@ pub fn publish_crates(repo_root: &Utf8Path, group: Option<&str>, dry_run: bool) 
             // 2. All language groups
             let groups = find_all_groups(&langs_dir)?;
             for group_name in &groups {
-                println!(
-                    "  {} Publishing {} group...",
-                    "●".cyan(),
-                    group_name.bold()
-                );
+                println!("  {} Publishing {} group...", "●".cyan(), group_name.bold());
                 let crates = find_group_crates(&langs_dir, group_name)?;
                 publish_crate_paths(&crates, dry_run)?;
                 println!();
@@ -121,9 +115,17 @@ fn print_crates_next_steps(langs_dir: &Utf8Path, current_group: Option<&str>) ->
             // After pre, suggest language groups
             println!("  {} Continue with language groups:", "→".blue());
             for group in &all_groups {
-                println!("      {} --group {}", "cargo xtask publish crates".cyan(), group);
+                println!(
+                    "      {} --group {}",
+                    "cargo xtask publish crates".cyan(),
+                    group
+                );
             }
-            println!("  {} Then finish with: {} --group post", "→".blue(), "cargo xtask publish crates".cyan());
+            println!(
+                "  {} Then finish with: {} --group post",
+                "→".blue(),
+                "cargo xtask publish crates".cyan()
+            );
         }
         Some("post") => {
             // After post, suggest npm
