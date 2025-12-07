@@ -362,7 +362,32 @@ fn plan_updates_from_generated(
         });
     }
 
-    // Copy all generated files to grammar/src/
+    // Compute npm/grammar/src/ path from def/grammar/src/
+    // Structure: langs/group-*/lang/def/grammar/src/ -> langs/group-*/lang/npm/grammar/src/
+    let npm_src_dir = dest_src_dir
+        .parent() // grammar/
+        .and_then(|p| p.parent()) // def/
+        .and_then(|p| p.parent()) // lang/
+        .map(|lang_dir| lang_dir.join("npm/grammar/src"));
+
+    // Ensure npm/grammar/src/ directory exists
+    if let Some(ref npm_src) = npm_src_dir {
+        let npm_grammar = npm_src.parent().expect("npm/grammar");
+        if !npm_grammar.exists() {
+            plan.add(Operation::CreateDir {
+                path: npm_grammar.to_owned(),
+                description: "Create npm/grammar directory".to_string(),
+            });
+        }
+        if !npm_src.exists() {
+            plan.add(Operation::CreateDir {
+                path: npm_src.to_owned(),
+                description: "Create npm/grammar/src directory".to_string(),
+            });
+        }
+    }
+
+    // Copy all generated files to grammar/src/ and npm/grammar/src/
     // This includes parser.c, scanner.c, grammar.json, node-types.json, and any .h files
     for entry in fs::read_dir(generated_src)? {
         let entry = entry?;
@@ -375,15 +400,29 @@ fn plan_updates_from_generated(
             continue;
         }
 
-        let dest_file = dest_src_dir.join(&file_name);
         let new_content = fs::read_to_string(&generated_file)?;
+
+        // Copy to def/grammar/src/
+        let dest_file = dest_src_dir.join(&file_name);
         plan_file_update(
             plan,
             &dest_file,
-            new_content,
+            new_content.clone(),
             &format!("src/{}", file_name),
             mode,
         )?;
+
+        // Also copy to npm/grammar/src/
+        if let Some(ref npm_src) = npm_src_dir {
+            let npm_dest_file = npm_src.join(&file_name);
+            plan_file_update(
+                plan,
+                &npm_dest_file,
+                new_content,
+                &format!("npm/grammar/src/{}", file_name),
+                mode,
+            )?;
+        }
     }
 
     // Copy tree_sitter/ directory
@@ -398,23 +437,48 @@ fn plan_updates_from_generated(
             });
         }
 
+        // Ensure npm/grammar/src/tree_sitter/ directory exists
+        let npm_tree_sitter = npm_src_dir.as_ref().map(|p| p.join("tree_sitter"));
+        if let Some(ref npm_ts) = npm_tree_sitter {
+            if !npm_ts.exists() {
+                plan.add(Operation::CreateDir {
+                    path: npm_ts.to_owned(),
+                    description: "Create npm/grammar/src/tree_sitter directory".to_string(),
+                });
+            }
+        }
+
         // Copy each file in tree_sitter/
         for entry in fs::read_dir(&generated_tree_sitter)? {
             let entry = entry?;
             let file_name = entry.file_name().to_string_lossy().to_string();
             let generated_file = Utf8PathBuf::from_path_buf(entry.path())
                 .map_err(|_| std::io::Error::other("Non-UTF8 path"))?;
-            let dest_file = dest_tree_sitter.join(&file_name);
 
             if generated_file.is_file() {
                 let new_content = fs::read_to_string(&generated_file)?;
+
+                // Copy to def/grammar/src/tree_sitter/
+                let dest_file = dest_tree_sitter.join(&file_name);
                 plan_file_update(
                     plan,
                     &dest_file,
-                    new_content,
+                    new_content.clone(),
                     &format!("src/tree_sitter/{}", file_name),
                     mode,
                 )?;
+
+                // Also copy to npm/grammar/src/tree_sitter/
+                if let Some(ref npm_ts) = npm_tree_sitter {
+                    let npm_dest_file = npm_ts.join(&file_name);
+                    plan_file_update(
+                        plan,
+                        &npm_dest_file,
+                        new_content,
+                        &format!("npm/grammar/src/tree_sitter/{}", file_name),
+                        mode,
+                    )?;
+                }
             }
         }
     }
@@ -1359,22 +1423,25 @@ fn plan_plugin_crate_files(
         });
     }
 
-    // Copy grammar source files to npm/grammar/src/
-    // Source is at def/grammar/src/, destination is npm/grammar/src/
-    let def_grammar_src = crate_state.def_path.join("grammar/src");
+    // Grammar source files (parser.c, grammar.json, etc.) are now copied in
+    // plan_updates_from_generated() during the grammar generation phase.
+    // Here we only handle scanner.c which is separate (at def/grammar/scanner.c, not in src/)
+
     let npm_grammar_dir = npm_path.join("grammar");
     let npm_grammar_src = npm_grammar_dir.join("src");
 
-    if def_grammar_src.exists() {
-        // Ensure npm/grammar/ directory exists
+    // Copy scanner.c if it exists (it's at def/grammar/scanner.c, not in src/)
+    let def_scanner = crate_state.def_path.join("grammar/scanner.c");
+    let npm_scanner = npm_grammar_src.join("scanner.c");
+
+    if def_scanner.exists() {
+        // Ensure npm/grammar/src/ directory exists for scanner.c
         if !npm_grammar_dir.exists() {
             plan.add(Operation::CreateDir {
                 path: npm_grammar_dir.clone(),
                 description: "Create plugin grammar directory".to_string(),
             });
         }
-
-        // Ensure npm/grammar/src/ directory exists
         if !npm_grammar_src.exists() {
             plan.add(Operation::CreateDir {
                 path: npm_grammar_src.clone(),
@@ -1382,94 +1449,6 @@ fn plan_plugin_crate_files(
             });
         }
 
-        // Copy all files from def/grammar/src/ to npm/grammar/src/
-        if let Ok(entries) = fs::read_dir(&def_grammar_src) {
-            for entry in entries.flatten() {
-                let src_path = Utf8PathBuf::from_path_buf(entry.path())
-                    .map_err(|_| std::io::Error::other("Non-UTF8 path"))?;
-                let file_name = entry.file_name().to_string_lossy().to_string();
-
-                if src_path.is_file() {
-                    let dest_path = npm_grammar_src.join(&file_name);
-                    let content = fs::read_to_string(&src_path)?;
-
-                    if dest_path.exists() {
-                        let old_content = fs::read_to_string(&dest_path)?;
-                        if old_content != content {
-                            plan.add(Operation::UpdateFile {
-                                path: dest_path,
-                                old_content: Some(old_content),
-                                new_content: content,
-                                description: format!("Update grammar/src/{}", file_name),
-                            });
-                        }
-                    } else {
-                        plan.add(Operation::CreateFile {
-                            path: dest_path,
-                            content,
-                            description: format!("Create grammar/src/{}", file_name),
-                        });
-                    }
-                }
-            }
-        }
-
-        // Copy tree_sitter/ subdirectory if it exists
-        let def_tree_sitter = def_grammar_src.join("tree_sitter");
-        let npm_tree_sitter = npm_grammar_src.join("tree_sitter");
-
-        if def_tree_sitter.exists() {
-            if !npm_tree_sitter.exists() {
-                plan.add(Operation::CreateDir {
-                    path: npm_tree_sitter.clone(),
-                    description: "Create plugin grammar/src/tree_sitter directory".to_string(),
-                });
-            }
-
-            if let Ok(entries) = fs::read_dir(&def_tree_sitter) {
-                for entry in entries.flatten() {
-                    let src_path = Utf8PathBuf::from_path_buf(entry.path())
-                        .map_err(|_| std::io::Error::other("Non-UTF8 path"))?;
-                    let file_name = entry.file_name().to_string_lossy().to_string();
-
-                    if src_path.is_file() {
-                        let dest_path = npm_tree_sitter.join(&file_name);
-                        let content = fs::read_to_string(&src_path)?;
-
-                        if dest_path.exists() {
-                            let old_content = fs::read_to_string(&dest_path)?;
-                            if old_content != content {
-                                plan.add(Operation::UpdateFile {
-                                    path: dest_path,
-                                    old_content: Some(old_content),
-                                    new_content: content,
-                                    description: format!(
-                                        "Update grammar/src/tree_sitter/{}",
-                                        file_name
-                                    ),
-                                });
-                            }
-                        } else {
-                            plan.add(Operation::CreateFile {
-                                path: dest_path,
-                                content,
-                                description: format!(
-                                    "Create grammar/src/tree_sitter/{}",
-                                    file_name
-                                ),
-                            });
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // Copy scanner.c if it exists (it's at def/grammar/scanner.c, not in src/)
-    let def_scanner = crate_state.def_path.join("grammar/scanner.c");
-    let npm_scanner = npm_grammar_src.join("scanner.c");
-
-    if def_scanner.exists() {
         let content = fs::read_to_string(&def_scanner)?;
 
         if npm_scanner.exists() {
