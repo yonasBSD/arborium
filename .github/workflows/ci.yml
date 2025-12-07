@@ -50,7 +50,7 @@ jobs:
         run: arborium-xtask gen --version ${{ steps.version.outputs.version }}
       - 
         name: Create grammar sources tarball
-        run: tar -cvf grammar-sources.tar Cargo.toml Cargo.lock crates/ langs/group-*/*/npm/
+        run: tar -cvf grammar-sources.tar Cargo.toml Cargo.lock crates/ langs/
       - 
         name: Upload grammar sources
         uses: actions/upload-artifact@v4

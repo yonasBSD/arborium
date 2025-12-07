@@ -401,10 +401,9 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
                     "arborium-xtask gen --version ${{ steps.version.outputs.version }}",
                 ),
                 // Create tarball for CI jobs (fast tar)
-                // Include root Cargo.toml (with updated versions), generated crates, and plugin npm directories
                 Step::run(
                     "Create grammar sources tarball",
-                    "tar -cvf grammar-sources.tar Cargo.toml Cargo.lock crates/ langs/group-*/*/npm/",
+                    "tar -cvf grammar-sources.tar Cargo.toml Cargo.lock crates/ langs/",
                 ),
                 Step::uses("Upload grammar sources", "actions/upload-artifact@v4")
                     .with_inputs([
