@@ -1,9 +1,9 @@
 [package]
 name = "arborium-test-harness"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
+version = "0.3.0"
+edition = "2024"
+license = "MIT"
+repository = "https://github.com/bearcove/arborium"
 description = "Test harness for arborium grammar crates"
 
 [dependencies]

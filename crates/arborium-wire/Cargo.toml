@@ -1,8 +1,8 @@
 [package]
 publish = false
 name = "arborium-wire"
-version.workspace = true
-edition.workspace = true
+version = "0.3.0"
+edition = "2024"
 description = "Wire protocol types for arborium WASM plugins"
 license = "MIT"
 repository = "https://github.com/bearcove/arborium"

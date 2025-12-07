@@ -1,8 +1,8 @@
 [package]
 publish = false
 name = "arborium-plugin-runtime"
-version.workspace = true
-edition.workspace = true
+version = "0.3.0"
+edition = "2024"
 description = "Runtime library for arborium grammar plugins"
 license = "MIT"
 repository = "https://github.com/bearcove/arborium"
