@@ -17,14 +17,26 @@ RUN apt-get update \
 RUN rustup target add wasm32-unknown-unknown wasm32-wasip1 \
     && rustup component add clippy rustfmt
 
-# Install wild linker for fast link times
-RUN cargo install --locked wild-linker
+# Install cargo-binstall for fast binary installs
+RUN curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+
+# Install wild linker (binstall)
+RUN cargo binstall -y --locked wild-linker
 
 # Configure Rust to use wild linker
 RUN mkdir -p /root/.cargo && printf '[target.x86_64-unknown-linux-gnu]\nlinker = "clang"\nrustflags = ["-C", "link-arg=--ld-path=/usr/local/cargo/bin/wild"]\n' > /root/.cargo/config.toml
 
-# Install cargo tools: cargo-component, tree-sitter-cli, cargo-nextest, cargo-workspaces
-RUN cargo install --locked cargo-component tree-sitter-cli cargo-nextest cargo-workspaces
+# Install cargo-component (binstall)
+RUN cargo binstall -y --locked cargo-component
+
+# Install tree-sitter-cli (binstall)
+RUN cargo binstall -y --locked tree-sitter-cli
+
+# Install cargo-nextest (binstall)
+RUN cargo binstall -y --locked cargo-nextest
+
+# Install cargo-workspaces (binstall)
+RUN cargo binstall -y --locked cargo-workspaces
 
 # Install jco globally
 RUN npm install -g @bytecodealliance/jco

@@ -79,6 +79,9 @@ jobs:
           path: .
 
       - 
+        name: Extract grammar sources
+        run: tar -xvf grammar-sources.tar
+      - 
         name: Rust cache
         uses: Swatinem/rust-cache@v2
       - 
@@ -108,6 +111,9 @@ jobs:
           name: grammar-sources
           path: .
 
+      - 
+        name: Extract grammar sources
+        run: tar -xvf grammar-sources.tar
       - 
         name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -146,6 +152,9 @@ jobs:
           path: .
 
       - 
+        name: Extract grammar sources
+        run: tar -xvf grammar-sources.tar
+      - 
         name: Build arborium for WASM
         run: cargo build --manifest-path crates/arborium/Cargo.toml --target wasm32-unknown-unknown --no-default-features
       - 
@@ -171,6 +180,9 @@ jobs:
           path: .
 
       - 
+        name: Extract grammar sources
+        run: tar -xvf grammar-sources.tar
+      - 
         name: Run Clippy
         run: cargo clippy --all-targets -- -D warnings
 
@@ -192,6 +204,9 @@ jobs:
           name: grammar-sources
           path: .
 
+      - 
+        name: Extract grammar sources
+        run: tar -xvf grammar-sources.tar
       - 
         name: Check formatting
         run: cargo fmt --all -- --check
@@ -218,6 +233,9 @@ jobs:
           path: .
 
       - 
+        name: Extract grammar sources
+        run: tar -xvf grammar-sources.tar
+      - 
         name: Build docs
         run: cargo doc --no-deps
         env: 
@@ -242,6 +260,9 @@ jobs:
           name: grammar-sources
           path: .
 
+      - 
+        name: Extract grammar sources
+        run: tar -xvf grammar-sources.tar
       - 
         name: Build css, html, javascript, json, scss, tsx, typescript, xml
         run: arborium-xtask build css html javascript json scss tsx typescript xml
@@ -273,6 +294,9 @@ jobs:
           path: .
 
       - 
+        name: Extract grammar sources
+        run: tar -xvf grammar-sources.tar
+      - 
         name: Build asm, c, cpp, d, go, objc, rust, x86asm, zig
         run: arborium-xtask build asm c cpp d go objc rust x86asm zig
       - 
@@ -302,6 +326,9 @@ jobs:
           name: grammar-sources
           path: .
 
+      - 
+        name: Extract grammar sources
+        run: tar -xvf grammar-sources.tar
       - 
         name: Build clojure, java, kotlin, scala
         run: arborium-xtask build clojure java kotlin scala
@@ -333,6 +360,9 @@ jobs:
           path: .
 
       - 
+        name: Extract grammar sources
+        run: tar -xvf grammar-sources.tar
+      - 
         name: Build agda, commonlisp, elixir, elm, erlang, gleam, haskell, idris, lean, ocaml, scheme
         run: arborium-xtask build agda commonlisp elixir elm erlang gleam haskell idris lean ocaml scheme
       - 
@@ -362,6 +392,9 @@ jobs:
           name: grammar-sources
           path: .
 
+      - 
+        name: Extract grammar sources
+        run: tar -xvf grammar-sources.tar
       - 
         name: Build awk, bash, batch, fish, lua, perl, php, powershell, python, ruby, zsh
         run: arborium-xtask build awk bash batch fish lua perl php powershell python ruby zsh
@@ -393,6 +426,9 @@ jobs:
           path: .
 
       - 
+        name: Extract grammar sources
+        run: tar -xvf grammar-sources.tar
+      - 
         name: Build caddy, cmake, dockerfile, dot, graphql, hcl, ini, jq, kdl, meson, nginx, ninja, nix, query, ron, sql, ssh-config, toml, yaml
         run: arborium-xtask build caddy cmake dockerfile dot graphql hcl ini jq kdl meson nginx ninja nix query ron sql ssh-config toml yaml
       - 
@@ -422,6 +458,9 @@ jobs:
           name: grammar-sources
           path: .
 
+      - 
+        name: Extract grammar sources
+        run: tar -xvf grammar-sources.tar
       - 
         name: Build ada, glsl, hlsl, julia, matlab, prolog, r, sparql, tlaplus, verilog, vhdl
         run: arborium-xtask build ada glsl hlsl julia matlab prolog r sparql tlaplus verilog vhdl
@@ -453,6 +492,9 @@ jobs:
           path: .
 
       - 
+        name: Extract grammar sources
+        run: tar -xvf grammar-sources.tar
+      - 
         name: Build capnp, dart, devicetree, rescript, starlark, swift, textproto, thrift, uiua, yuri
         run: arborium-xtask build capnp dart devicetree rescript starlark swift textproto thrift uiua yuri
       - 
@@ -483,6 +525,9 @@ jobs:
           path: .
 
       - 
+        name: Extract grammar sources
+        run: tar -xvf grammar-sources.tar
+      - 
         name: Build c-sharp, elisp, fsharp, postscript, vb, vim
         run: arborium-xtask build c-sharp elisp fsharp postscript vb vim
       - 
@@ -512,6 +557,9 @@ jobs:
           name: grammar-sources
           path: .
 
+      - 
+        name: Extract grammar sources
+        run: tar -xvf grammar-sources.tar
       - 
         name: Build asciidoc, asciidoc_inline, diff, jinja2, markdown, markdown-inline, svelte, typst, vue
         run: arborium-xtask build asciidoc asciidoc_inline diff jinja2 markdown markdown-inline svelte typst vue
@@ -546,6 +594,9 @@ jobs:
           name: grammar-sources
           path: .
 
+      - 
+        name: Extract grammar sources
+        run: tar -xvf grammar-sources.tar
       - 
         name: Publish to crates.io
         run: arborium-xtask publish crates
