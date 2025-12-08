@@ -49,12 +49,20 @@ pub use tree_sitter_patched_arborium as tree_sitter;
 pub mod ansi;
 pub mod highlighter;
 pub mod html;
+pub mod provider;
 
 // Re-export from arborium-theme
 pub use arborium_theme::highlights;
 pub use arborium_theme::theme;
 
 pub use highlighter::Highlighter;
+pub use provider::StaticProvider;
+
+// Re-export from arborium-highlight
+pub use arborium_highlight::{
+    Grammar, GrammarProvider, HighlightConfig, HighlightError as HighlightErrorV2, Injection,
+    ParseResult, Span, SyncHighlighter,
+};
 
 #[cfg(target_family = "wasm")]
 mod wasm;

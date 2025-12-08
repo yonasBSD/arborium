@@ -49,8 +49,14 @@
 mod render;
 mod types;
 
+#[cfg(feature = "tree-sitter")]
+pub mod tree_sitter;
+
 pub use render::{html_escape, spans_to_html, write_spans_as_html};
 pub use types::{HighlightError, Injection, ParseResult, Span};
+
+#[cfg(feature = "tree-sitter")]
+pub use tree_sitter::{TreeSitterGrammar, TreeSitterGrammarConfig, TreeSitterGrammarError};
 
 use std::future::Future;
 use std::task::{Context, Poll, RawWaker, RawWakerVTable, Waker};

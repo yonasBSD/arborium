@@ -13,5 +13,12 @@ documentation = "https://docs.rs/arborium-highlight"
 keywords = ["syntax-highlighting", "tree-sitter", "wasm"]
 categories = ["text-processing"]
 
+[features]
+default = []
+# Enable the tree-sitter based Grammar implementation for native Rust usage
+tree-sitter = ["dep:tree-sitter-patched-arborium", "dep:streaming-iterator"]
+
 [dependencies]
 arborium-theme = { path = "../arborium-theme" }
+tree-sitter-patched-arborium = { path = "../../tree-sitter", optional = true }
+streaming-iterator = { version = "0.1", optional = true }
