@@ -243,7 +243,7 @@ jobs:
         run: tar -xvf grammar-sources.tar
       - 
         name: Build css, html, javascript, json, scss, tsx, typescript, xml
-        run: arborium-xtask build css html javascript json scss tsx typescript xml
+        run: arborium-xtask build css html javascript json scss tsx typescript xml -o dist/plugins
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -276,7 +276,7 @@ jobs:
         run: tar -xvf grammar-sources.tar
       - 
         name: Build asm, c, cpp, d, go, objc, rust, x86asm, zig
-        run: arborium-xtask build asm c cpp d go objc rust x86asm zig
+        run: arborium-xtask build asm c cpp d go objc rust x86asm zig -o dist/plugins
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -309,7 +309,7 @@ jobs:
         run: tar -xvf grammar-sources.tar
       - 
         name: Build clojure, java, kotlin, scala
-        run: arborium-xtask build clojure java kotlin scala
+        run: arborium-xtask build clojure java kotlin scala -o dist/plugins
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -342,7 +342,7 @@ jobs:
         run: tar -xvf grammar-sources.tar
       - 
         name: Build agda, commonlisp, elixir, elm, erlang, gleam, haskell, idris, lean, ocaml, scheme
-        run: arborium-xtask build agda commonlisp elixir elm erlang gleam haskell idris lean ocaml scheme
+        run: arborium-xtask build agda commonlisp elixir elm erlang gleam haskell idris lean ocaml scheme -o dist/plugins
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -375,7 +375,7 @@ jobs:
         run: tar -xvf grammar-sources.tar
       - 
         name: Build awk, bash, batch, fish, lua, perl, php, powershell, python, ruby, zsh
-        run: arborium-xtask build awk bash batch fish lua perl php powershell python ruby zsh
+        run: arborium-xtask build awk bash batch fish lua perl php powershell python ruby zsh -o dist/plugins
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -408,7 +408,7 @@ jobs:
         run: tar -xvf grammar-sources.tar
       - 
         name: Build caddy, cmake, dockerfile, dot, graphql, hcl, ini, jq, kdl, meson, nginx, ninja, nix, query, ron, sql, ssh-config, toml, yaml
-        run: arborium-xtask build caddy cmake dockerfile dot graphql hcl ini jq kdl meson nginx ninja nix query ron sql ssh-config toml yaml
+        run: arborium-xtask build caddy cmake dockerfile dot graphql hcl ini jq kdl meson nginx ninja nix query ron sql ssh-config toml yaml -o dist/plugins
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -441,7 +441,7 @@ jobs:
         run: tar -xvf grammar-sources.tar
       - 
         name: Build ada, glsl, hlsl, julia, matlab, prolog, r, sparql, tlaplus, verilog, vhdl
-        run: arborium-xtask build ada glsl hlsl julia matlab prolog r sparql tlaplus verilog vhdl
+        run: arborium-xtask build ada glsl hlsl julia matlab prolog r sparql tlaplus verilog vhdl -o dist/plugins
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -474,7 +474,7 @@ jobs:
         run: tar -xvf grammar-sources.tar
       - 
         name: Build capnp, dart, devicetree, rescript, starlark, swift, textproto, thrift, uiua, yuri
-        run: arborium-xtask build capnp dart devicetree rescript starlark swift textproto thrift uiua yuri
+        run: arborium-xtask build capnp dart devicetree rescript starlark swift textproto thrift uiua yuri -o dist/plugins
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -507,7 +507,7 @@ jobs:
         run: tar -xvf grammar-sources.tar
       - 
         name: Build c-sharp, elisp, fsharp, postscript, vb, vim
-        run: arborium-xtask build c-sharp elisp fsharp postscript vb vim
+        run: arborium-xtask build c-sharp elisp fsharp postscript vb vim -o dist/plugins
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -540,7 +540,7 @@ jobs:
         run: tar -xvf grammar-sources.tar
       - 
         name: Build asciidoc, diff, jinja2, markdown, svelte, typst, vue
-        run: arborium-xtask build asciidoc diff jinja2 markdown svelte typst vue
+        run: arborium-xtask build asciidoc diff jinja2 markdown svelte typst vue -o dist/plugins
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -580,8 +580,15 @@ jobs:
         name: Extract grammar sources
         run: tar -xvf grammar-sources.tar
       - 
+        name: Authenticate with crates.io
+        uses: rust-lang/crates-io-auth-action@v1
+        id: crates-io-auth
+      - 
         name: Publish to crates.io
         run: arborium-xtask publish crates
+        env: 
+          CARGO_REGISTRY_TOKEN: ${{ steps.crates-io-auth.outputs.token }}
+
 
   publish-npm: 
     name: Publish npm

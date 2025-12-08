@@ -576,7 +576,7 @@ echo "No env imports found - WASM modules are browser-compatible""#,
                         extract_grammar_sources(),
                         Step::run(
                             format!("Build {}", display_grammars),
-                            format!("arborium-xtask build {}", grammars_list),
+                            format!("arborium-xtask build {} -o dist/plugins", grammars_list),
                         ),
                         Step::uses("Upload plugins artifact", "actions/upload-artifact@v4")
                             .with_inputs([
@@ -604,7 +604,11 @@ echo "No env imports found - WASM modules are browser-compatible""#,
                 checkout(),
                 download_grammar_sources(),
                 extract_grammar_sources(),
-                Step::run("Publish to crates.io", "arborium-xtask publish crates"),
+                // Exchange OIDC token for crates.io access token
+                Step::uses("Authenticate with crates.io", "rust-lang/crates-io-auth-action@v1")
+                    .with_id("crates-io-auth"),
+                Step::run("Publish to crates.io", "arborium-xtask publish crates")
+                    .with_env([("CARGO_REGISTRY_TOKEN", "${{ steps.crates-io-auth.outputs.token }}")]),
             ]),
     );
 
