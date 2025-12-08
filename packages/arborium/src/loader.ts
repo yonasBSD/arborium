@@ -1,443 +1,303 @@
 /**
- * Grammar and host loading for arborium.
+ * Arborium loader - loads the host WASM and grammar plugins.
  *
- * This module loads the arborium-host WASM component and grammar plugins,
- * implementing the plugin-provider interface that the host imports.
+ * Architecture:
+ * 1. Load arborium-host WASM (built with wasm-bindgen)
+ * 2. Host imports { loadGrammar, parse, isLanguageAvailable } from window.arboriumHost
+ * 3. We implement those by loading WIT grammar plugins on demand
+ * 4. Host exports highlight(language, source) -> Promise<string>
  */
 
-import { createWasiImports, grammarTypesImport } from './wasi-shims.js';
-import type { ArboriumConfig } from './types.js';
+import type { ParseResult, ArboriumConfig, Grammar, Span, Injection } from './types.js';
 
-/** CDN base URLs */
-const CDN_URLS: Record<string, string> = {
-  jsdelivr: 'https://cdn.jsdelivr.net/npm',
-  unpkg: 'https://unpkg.com',
-};
-
-/** Default configuration */
-export const defaultConfig: Required<ArboriumConfig> = {
+// Default config
+const DEFAULT_CONFIG: Required<ArboriumConfig> = {
   manual: false,
   theme: 'tokyo-night',
-  selector: 'pre code, code[data-lang]',
+  selector: 'pre code',
   cdn: 'jsdelivr',
   version: 'latest',
 };
 
-/** Get the CDN base URL */
-function getCdnUrl(cdn: string): string {
-  if (cdn in CDN_URLS) {
-    return CDN_URLS[cdn];
-  }
-  return cdn;
-}
+// Merged config
+let config: Required<ArboriumConfig> = { ...DEFAULT_CONFIG };
 
-/** Get the full URL for a grammar package file */
-function getGrammarUrl(
-  language: string,
-  file: string,
-  config: ArboriumConfig
-): string {
-  const cdn = config.cdn || defaultConfig.cdn;
-  const version = config.version || defaultConfig.version;
-  const baseUrl = getCdnUrl(cdn);
-  const versionSuffix = version === 'latest' ? '' : `@${version}`;
-  return `${baseUrl}/@arborium/${language}${versionSuffix}/${file}`;
-}
+// Host module (loaded lazily)
+let hostModule: {
+  highlight: (language: string, source: string) => Promise<string>;
+  isLanguageAvailable: (language: string) => boolean;
+} | null = null;
 
-// =============================================================================
-// Grammar Plugin Management
-// =============================================================================
+// Grammar plugins cache
+const grammarCache = new Map<string, GrammarPlugin>();
 
-/** A loaded grammar plugin instance */
+// Languages we know are available (from plugins.json)
+let availableLanguages: Set<string> = new Set();
+
+// Plugin manifest
+let pluginsManifest: Record<string, { js: string; wasm: string }> | null = null;
+
+// Grammar handle counter (simple incrementing ID)
+let nextGrammarHandle = 1;
+
+// Map from handle to plugin
+const handleToPlugin = new Map<number, GrammarPlugin>();
+
+/** A loaded grammar plugin (WIT component) */
 interface GrammarPlugin {
-  languageId(): string;
-  injectionLanguages(): string[];
-  createSession(): number;
-  freeSession(session: number): void;
-  setText(session: number, text: string): void;
-  parse(session: number): {
-    spans: Array<{ start: number; end: number; capture: string }>;
-    injections: Array<{
-      start: number;
-      end: number;
-      language: string;
-      includeChildren: boolean;
-    }>;
+  languageId: string;
+  injectionLanguages: string[];
+  parse: (text: string) => ParseResult;
+}
+
+/** Get the CDN base URL */
+function getCdnUrl(): string {
+  if (config.cdn === 'jsdelivr') {
+    return `https://cdn.jsdelivr.net/npm/@anthropic-ai/arborium@${config.version}`;
+  } else if (config.cdn === 'unpkg') {
+    return `https://unpkg.com/@anthropic-ai/arborium@${config.version}`;
+  }
+  return config.cdn; // Custom URL
+}
+
+/** Load the plugins manifest */
+async function loadPluginsManifest(): Promise<void> {
+  if (pluginsManifest) return;
+
+  const url = `${getCdnUrl()}/plugins.json`;
+  const response = await fetch(url);
+  pluginsManifest = await response.json();
+
+  // Populate available languages
+  availableLanguages = new Set(Object.keys(pluginsManifest));
+}
+
+/** Load a grammar plugin */
+async function loadGrammarPlugin(language: string): Promise<GrammarPlugin | null> {
+  // Check cache
+  const cached = grammarCache.get(language);
+  if (cached) return cached;
+
+  // Ensure manifest is loaded
+  await loadPluginsManifest();
+
+  // Check if language exists
+  const pluginInfo = pluginsManifest?.[language];
+  if (!pluginInfo) return null;
+
+  const baseUrl = getCdnUrl();
+
+  try {
+    // Load the plugin JS and WASM
+    const jsUrl = `${baseUrl}/${pluginInfo.js}`;
+    const wasmUrl = `${baseUrl}/${pluginInfo.wasm}`;
+
+    // Dynamically import the JS module
+    const module = await import(/* @vite-ignore */ jsUrl);
+
+    // Fetch the WASM
+    const wasmResponse = await fetch(wasmUrl);
+    const wasmBytes = await wasmResponse.arrayBuffer();
+
+    // Instantiate
+    const instance = await module.instantiate(wasmBytes);
+
+    // Wrap as GrammarPlugin
+    const plugin: GrammarPlugin = {
+      languageId: language,
+      injectionLanguages: instance.plugin.injectionLanguages?.() ?? [],
+      parse: (text: string) => {
+        const result = instance.plugin.parse(text);
+        return {
+          spans: result.spans.map((s: any) => ({
+            start: s.start,
+            end: s.end,
+            capture: s.capture,
+          })),
+          injections: result.injections.map((i: any) => ({
+            start: i.start,
+            end: i.end,
+            language: i.language,
+            includeChildren: i.includeChildren,
+          })),
+        };
+      },
+    };
+
+    grammarCache.set(language, plugin);
+    return plugin;
+  } catch (e) {
+    console.error(`Failed to load grammar plugin for ${language}:`, e);
+    return null;
+  }
+}
+
+/** Setup window.arboriumHost for the Rust host to call into */
+function setupHostInterface(): void {
+  (window as any).arboriumHost = {
+    /** Check if a language is available (sync) */
+    isLanguageAvailable(language: string): boolean {
+      return availableLanguages.has(language) || grammarCache.has(language);
+    },
+
+    /** Load a grammar and return a handle (async) */
+    async loadGrammar(language: string): Promise<number> {
+      const plugin = await loadGrammarPlugin(language);
+      if (!plugin) {
+        return 0; // 0 means "not found"
+      }
+
+      // Check if we already have a handle for this plugin
+      for (const [handle, p] of handleToPlugin) {
+        if (p === plugin) {
+          return handle;
+        }
+      }
+
+      // Assign a new handle
+      const handle = nextGrammarHandle++;
+      handleToPlugin.set(handle, plugin);
+      return handle;
+    },
+
+    /** Parse text using a grammar handle (sync) */
+    parse(handle: number, text: string): ParseResult {
+      const plugin = handleToPlugin.get(handle);
+      if (!plugin) {
+        return { spans: [], injections: [] };
+      }
+      return plugin.parse(text);
+    },
   };
 }
 
-/** Cache of loaded grammar plugins by language */
-const grammarPlugins = new Map<string, GrammarPlugin>();
+/** Load the host WASM module */
+async function loadHost(): Promise<void> {
+  if (hostModule) return;
 
-/** Cache of in-flight grammar loads */
-const loadingGrammars = new Map<string, Promise<GrammarPlugin | null>>();
+  // Setup the interface that the host will import
+  setupHostInterface();
 
-/** Load a grammar plugin */
-async function loadGrammarPlugin(
-  language: string,
-  config: ArboriumConfig
-): Promise<GrammarPlugin | null> {
-  // Check cache
-  const cached = grammarPlugins.get(language);
-  if (cached) return cached;
-
-  // Check in-flight
-  const loading = loadingGrammars.get(language);
-  if (loading) return loading;
-
-  // Start loading
-  const loadPromise = doLoadGrammar(language, config);
-  loadingGrammars.set(language, loadPromise);
+  // Load the host WASM (built with wasm-bindgen)
+  const baseUrl = getCdnUrl();
+  const hostUrl = `${baseUrl}/arborium_host.js`;
 
   try {
-    const plugin = await loadPromise;
-    if (plugin) {
-      grammarPlugins.set(language, plugin);
-    }
-    return plugin;
-  } finally {
-    loadingGrammars.delete(language);
+    const module = await import(/* @vite-ignore */ hostUrl);
+    await module.default(); // Initialize wasm-bindgen
+
+    hostModule = {
+      highlight: module.highlight,
+      isLanguageAvailable: module.isLanguageAvailable,
+    };
+  } catch (e) {
+    console.error('Failed to load arborium host:', e);
+    throw e;
   }
 }
 
-async function doLoadGrammar(
-  language: string,
-  config: ArboriumConfig
-): Promise<GrammarPlugin | null> {
-  try {
-    const jsUrl = getGrammarUrl(language, 'grammar.js', config);
-    const wasmUrl = getGrammarUrl(language, 'grammar.core.wasm', config);
-
-    const module = await import(/* @vite-ignore */ jsUrl);
-
-    const getCoreModule = async (path: string): Promise<WebAssembly.Module> => {
-      const url = path.includes('://') ? path : wasmUrl;
-      const response = await fetch(url);
-      const bytes = await response.arrayBuffer();
-      return WebAssembly.compile(bytes);
-    };
-
-    const wasiImports = createWasiImports();
-    const imports = {
-      ...wasiImports,
-      ...grammarTypesImport,
-    };
-
-    const instance = await module.instantiate(getCoreModule, imports);
-    return instance.plugin as GrammarPlugin;
-  } catch (err) {
-    console.warn(`[arborium] Failed to load grammar for ${language}:`, err);
-    return null;
-  }
+/** Initialize arborium with config */
+export async function init(userConfig?: Partial<ArboriumConfig>): Promise<void> {
+  config = { ...DEFAULT_CONFIG, ...userConfig };
+  await loadPluginsManifest();
+  await loadHost();
 }
 
-// =============================================================================
-// Host Component
-// =============================================================================
-
-/** The host component instance */
-let hostInstance: HostInterface | null = null;
-
-/** Promise for host loading */
-let hostLoadingPromise: Promise<HostInterface | null> | null = null;
-
-/** Interface exported by the host component */
-interface HostInterface {
-  createDocument(language: string): number | null;
-  freeDocument(doc: number): void;
-  setText(doc: number, text: string): void;
-  highlight(doc: number, maxDepth: number): { html: string };
-  getRequiredLanguages(doc: number): string[];
+/** Highlight source code */
+export async function highlight(language: string, source: string): Promise<string> {
+  await loadHost();
+  if (!hostModule) throw new Error('Host not loaded');
+  return hostModule.highlight(language, source);
 }
 
-/** Plugin handle to plugin instance mapping */
-const pluginHandles = new Map<number, GrammarPlugin>();
-let nextPluginHandle = 1;
+/** Load a grammar for direct use */
+export async function loadGrammar(language: string): Promise<Grammar | null> {
+  const plugin = await loadGrammarPlugin(language);
+  if (!plugin) return null;
 
-/** Session handle to (plugin, session) mapping */
-const sessionHandles = new Map<
-  number,
-  { plugin: GrammarPlugin; session: number }
->();
-let nextSessionHandle = 1;
-
-/** Current config for loading grammars */
-let currentConfig: ArboriumConfig = defaultConfig;
-
-/** Load the host component */
-async function loadHost(config: ArboriumConfig): Promise<HostInterface | null> {
-  if (hostInstance) return hostInstance;
-  if (hostLoadingPromise) return hostLoadingPromise;
-
-  currentConfig = config;
-
-  hostLoadingPromise = doLoadHost(config);
-  try {
-    hostInstance = await hostLoadingPromise;
-    return hostInstance;
-  } finally {
-    hostLoadingPromise = null;
-  }
-}
-
-async function doLoadHost(
-  config: ArboriumConfig
-): Promise<HostInterface | null> {
-  try {
-    const cdn = config.cdn || defaultConfig.cdn;
-    const version = config.version || defaultConfig.version;
-    const baseUrl = getCdnUrl(cdn);
-    const versionSuffix = version === 'latest' ? '' : `@${version}`;
-
-    const jsUrl = `${baseUrl}/@arborium/arborium${versionSuffix}/dist/host.js`;
-    const wasmUrl = `${baseUrl}/@arborium/arborium${versionSuffix}/dist/host.core.wasm`;
-
-    const module = await import(/* @vite-ignore */ jsUrl);
-
-    const getCoreModule = async (path: string): Promise<WebAssembly.Module> => {
-      const url = path.includes('://') ? path : wasmUrl;
-      const response = await fetch(url);
-      const bytes = await response.arrayBuffer();
-      return WebAssembly.compile(bytes);
-    };
-
-    // Implement the plugin-provider interface that the host imports
-    const pluginProvider = {
-      loadPlugin(language: string): number | null {
-        // Check if we have the plugin loaded
-        const plugin = grammarPlugins.get(language);
-        if (!plugin) return null;
-
-        // Create a handle
-        const handle = nextPluginHandle++;
-        pluginHandles.set(handle, plugin);
-        return handle;
-      },
-
-      getInjectionLanguages(pluginHandle: number): string[] {
-        const plugin = pluginHandles.get(pluginHandle);
-        if (!plugin) return [];
-        return plugin.injectionLanguages();
-      },
-
-      createPluginSession(pluginHandle: number): number {
-        const plugin = pluginHandles.get(pluginHandle);
-        if (!plugin) return 0;
-
-        const session = plugin.createSession();
-        const handle = nextSessionHandle++;
-        sessionHandles.set(handle, { plugin, session });
-        return handle;
-      },
-
-      freePluginSession(pluginHandle: number, sessionHandle: number): void {
-        const sessionInfo = sessionHandles.get(sessionHandle);
-        if (sessionInfo) {
-          sessionInfo.plugin.freeSession(sessionInfo.session);
-          sessionHandles.delete(sessionHandle);
-        }
-      },
-
-      pluginSetText(
-        pluginHandle: number,
-        sessionHandle: number,
-        text: string
-      ): void {
-        const sessionInfo = sessionHandles.get(sessionHandle);
-        if (sessionInfo) {
-          sessionInfo.plugin.setText(sessionInfo.session, text);
-        }
-      },
-
-      pluginApplyEdit(
-        pluginHandle: number,
-        sessionHandle: number,
-        text: string,
-        edit: unknown
-      ): void {
-        // For now, just set the full text - incremental editing can be added later
-        const sessionInfo = sessionHandles.get(sessionHandle);
-        if (sessionInfo) {
-          sessionInfo.plugin.setText(sessionInfo.session, text);
-        }
-      },
-
-      pluginParse(
-        pluginHandle: number,
-        sessionHandle: number
-      ): { tag: 'ok'; val: unknown } | { tag: 'err'; val: unknown } {
-        const sessionInfo = sessionHandles.get(sessionHandle);
-        if (!sessionInfo) {
-          return { tag: 'err', val: { message: 'Invalid session' } };
-        }
-
-        try {
-          const result = sessionInfo.plugin.parse(sessionInfo.session);
-          return { tag: 'ok', val: result };
-        } catch (err) {
-          return {
-            tag: 'err',
-            val: { message: err instanceof Error ? err.message : String(err) },
-          };
-        }
-      },
-
-      pluginCancel(pluginHandle: number, sessionHandle: number): void {
-        // Cancellation not implemented yet
-      },
-    };
-
-    const wasiImports = createWasiImports();
-    const imports = {
-      ...wasiImports,
-      'arborium:host/plugin-provider': pluginProvider,
-    };
-
-    const instance = await module.instantiate(getCoreModule, imports);
-    return instance['arborium:host/host'] as HostInterface;
-  } catch (err) {
-    console.warn('[arborium] Failed to load host:', err);
-    return null;
-  }
-}
-
-// =============================================================================
-// Public API
-// =============================================================================
-
-/** Load a grammar plugin (preloading for the host) */
-export async function loadGrammar(
-  language: string,
-  config: ArboriumConfig = {}
-): Promise<boolean> {
-  const mergedConfig = { ...defaultConfig, ...config };
-  const plugin = await loadGrammarPlugin(language, mergedConfig);
-  return plugin !== null;
-}
-
-/** Highlight source code, returning HTML */
-export async function highlight(
-  language: string,
-  source: string,
-  config: ArboriumConfig = {}
-): Promise<string> {
-  const mergedConfig = { ...defaultConfig, ...config };
-
-  // Load the grammar plugin first
-  const plugin = await loadGrammarPlugin(language, mergedConfig);
-  if (!plugin) {
-    throw new Error(`Failed to load grammar for ${language}`);
-  }
-
-  // Load the host
-  const host = await loadHost(mergedConfig);
-  if (!host) {
-    // Fall back to direct plugin call without injection support
-    const session = plugin.createSession();
-    try {
-      plugin.setText(session, source);
-      const result = plugin.parse(session);
+  return {
+    languageId: () => plugin.languageId,
+    injectionLanguages: () => plugin.injectionLanguages,
+    highlight: (source: string) => {
+      // For direct grammar use, we just parse and render
+      // This doesn't handle injections - use highlight() for that
+      const result = plugin.parse(source);
       return spansToHtml(source, result.spans);
-    } finally {
-      plugin.freeSession(session);
-    }
-  }
-
-  // Preload injection languages
-  const injectionLangs = plugin.injectionLanguages();
-  await Promise.all(
-    injectionLangs.map((lang) => loadGrammarPlugin(lang, mergedConfig))
-  );
-
-  // Use the host for full injection support
-  const doc = host.createDocument(language);
-  if (doc === null) {
-    throw new Error(`Failed to create document for ${language}`);
-  }
-
-  try {
-    host.setText(doc, source);
-    const result = host.highlight(doc, 3); // max depth 3
-    return result.html;
-  } finally {
-    host.freeDocument(doc);
-  }
+    },
+    parse: (source: string) => plugin.parse(source),
+    dispose: () => {
+      // No-op for now, plugins are cached
+    },
+  };
 }
 
-/** Convert spans to HTML (fallback when host isn't available) */
-export function spansToHtml(
-  source: string,
-  spans: Array<{ start: number; end: number; capture: string }>
-): string {
-  if (spans.length === 0) {
-    return escapeHtml(source);
-  }
-
+/** Convert spans to HTML (simple version without injection handling) */
+export function spansToHtml(source: string, spans: Span[]): string {
+  // This is a simplified version - the real one is in Rust
   // Sort spans by start position
   const sorted = [...spans].sort((a, b) => a.start - b.start);
 
-  const parts: string[] = [];
+  let html = '';
   let pos = 0;
 
   for (const span of sorted) {
+    // Add text before span
     if (span.start > pos) {
-      parts.push(escapeHtml(source.slice(pos, span.start)));
+      html += escapeHtml(source.slice(pos, span.start));
     }
 
-    const text = source.slice(span.start, span.end);
-    const tag = captureToTag(span.capture);
-    parts.push(`<${tag}>${escapeHtml(text)}</${tag}>`);
+    // Get tag for capture
+    const tag = getTagForCapture(span.capture);
+    const text = escapeHtml(source.slice(span.start, span.end));
+
+    if (tag) {
+      html += `<a-${tag}>${text}</a-${tag}>`;
+    } else {
+      html += text;
+    }
 
     pos = span.end;
   }
 
+  // Add remaining text
   if (pos < source.length) {
-    parts.push(escapeHtml(source.slice(pos)));
+    html += escapeHtml(source.slice(pos));
   }
 
-  return parts.join('');
+  return html;
 }
 
-/** Map capture names to custom element tags */
-function captureToTag(capture: string): string {
-  const shortNames: Record<string, string> = {
-    keyword: 'a-k',
-    string: 'a-s',
-    comment: 'a-c',
-    function: 'a-f',
-    'function.call': 'a-f',
-    'function.method': 'a-f',
-    type: 'a-t',
-    variable: 'a-v',
-    'variable.parameter': 'a-v',
-    'variable.builtin': 'a-vb',
-    number: 'a-n',
-    operator: 'a-o',
-    punctuation: 'a-p',
-    'punctuation.bracket': 'a-p',
-    'punctuation.delimiter': 'a-p',
-    constant: 'a-ct',
-    'constant.builtin': 'a-cb',
-    property: 'a-pr',
-    attribute: 'a-at',
-    tag: 'a-tg',
-    namespace: 'a-ns',
-    label: 'a-lb',
-    escape: 'a-e',
-    embedded: 'a-em',
-  };
-
-  if (capture in shortNames) {
-    return shortNames[capture];
+/** Get the short tag for a capture name */
+function getTagForCapture(capture: string): string | null {
+  // Map captures to short tags (from arborium-theme)
+  if (capture.startsWith('keyword') || capture === 'include' || capture === 'conditional') {
+    return 'k';
   }
-
-  for (const [prefix, tag] of Object.entries(shortNames)) {
-    if (capture.startsWith(prefix + '.')) {
-      return tag;
-    }
+  if (capture.startsWith('function') || capture.startsWith('method')) {
+    return 'f';
   }
-
-  return 'a-x';
+  if (capture.startsWith('string') || capture === 'character') {
+    return 's';
+  }
+  if (capture.startsWith('comment')) {
+    return 'c';
+  }
+  if (capture.startsWith('type')) {
+    return 't';
+  }
+  if (capture.startsWith('variable')) {
+    return 'v';
+  }
+  if (capture.startsWith('number') || capture === 'float') {
+    return 'n';
+  }
+  if (capture.startsWith('operator')) {
+    return 'o';
+  }
+  if (capture.startsWith('punctuation')) {
+    return 'p';
+  }
+  return null;
 }
 
 /** Escape HTML special characters */
@@ -449,9 +309,7 @@ function escapeHtml(text: string): string {
     .replace(/"/g, '&quot;');
 }
 
-/** Get the default config merged with user config */
-export function getConfig(
-  userConfig?: ArboriumConfig
-): Required<ArboriumConfig> {
-  return { ...defaultConfig, ...userConfig };
+/** Get current config */
+export function getConfig(): Required<ArboriumConfig> {
+  return { ...config };
 }

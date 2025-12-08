@@ -1,22 +1,23 @@
 [package]
-publish = false
 name = "arborium-host"
-version = "0.2.2"
+version = "0.2.0"
 edition = "2024"
-description = "Arborium host component - orchestrates grammar plugins"
-license = "MIT"
-repository = "https://github.com/bearcove/arborium"
+description = "WASM host for arborium syntax highlighting (browser)"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/nicholasbishop/arborium"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
 
 [dependencies]
-wit-bindgen = "0.36"
 arborium-highlight = { path = "../arborium-highlight" }
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
 
-[package.metadata.component]
-package = "arborium:host"
-
-[package.metadata.component.target]
-path = "../../wit/host.wit"
-world = "arborium-host"
+[dependencies.web-sys]
+version = "0.3"
+features = ["console"]

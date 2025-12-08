@@ -1,338 +1,274 @@
-//! Arborium Host Component
+//! Arborium WASM host for browser.
 //!
-//! This WASM component orchestrates grammar plugins for syntax highlighting.
-//! It manages documents, coordinates parsing across multiple languages,
-//! and resolves language injections recursively.
+//! Uses wasm-bindgen for JS interop and wasm-bindgen-futures for async.
+//! Grammar plugins (WIT components) are loaded on demand via JS.
 //!
-//! The host imports a `plugin-provider` interface from JS that allows it
-//! to load and interact with grammar plugins. This design allows the host
-//! to remain a pure WASM component while JS handles the actual plugin
-//! instantiation.
+//! This crate implements `GrammarProvider` to use the shared highlighting
+//! engine from `arborium_highlight`, ensuring Rust and browser use the
+//! same injection handling logic.
+//!
+//! ## JS Interface
+//!
+//! The host expects these functions to be available on `window.arboriumHost`:
+//!
+//! ```javascript
+//! window.arboriumHost = {
+//!     // Check if a language is available (sync, for fast rejection).
+//!     isLanguageAvailable(language) { ... },
+//!
+//!     // Load a grammar plugin, returns a handle (async).
+//!     async loadGrammar(language) { ... },
+//!
+//!     // Parse text using a grammar handle (sync).
+//!     parse(handle, text) { ... },
+//! };
+//! ```
 
-use std::cell::RefCell;
-use std::collections::BTreeMap;
+use std::collections::HashMap;
 
-wit_bindgen::generate!({
-    world: "arborium-host",
-    path: "../../wit/host.wit",
-});
+use wasm_bindgen::prelude::*;
 
-use arborium_highlight::{spans_to_html, Span};
-use crate::arborium::host::plugin_provider::{self, PluginHandle, PluginSession};
-use crate::arborium::host::types::Edit;
-use crate::exports::arborium::host::host::{Document, Guest, HighlightResult};
+use arborium_highlight::{
+    AsyncHighlighter, Grammar, GrammarProvider, HighlightConfig as CoreConfig, Injection,
+    ParseResult, Span,
+};
 
-/// Global state for the host.
-struct HostState {
-    /// Next document ID to assign.
-    next_doc_id: u32,
-    /// Active documents.
-    documents: BTreeMap<u32, DocumentState>,
-    /// Cached plugin handles by language.
-    plugins: BTreeMap<String, PluginHandle>,
+/// Grammar handle type (matches JS side)
+type GrammarHandle = u32;
+
+// JS functions imported from the host environment.
+#[wasm_bindgen]
+extern "C" {
+    /// Check if a language grammar is available.
+    #[wasm_bindgen(js_namespace = arboriumHost, js_name = isLanguageAvailable)]
+    fn js_is_language_available(language: &str) -> bool;
+
+    /// Load a grammar plugin, returns a handle.
+    /// Returns a Promise resolving to a handle (u32), or 0 if not found.
+    #[wasm_bindgen(js_namespace = arboriumHost, js_name = loadGrammar, catch)]
+    async fn js_load_grammar(language: &str) -> Result<JsValue, JsValue>;
+
+    /// Parse text using a grammar handle.
+    /// Returns { spans: [...], injections: [...] }
+    #[wasm_bindgen(js_namespace = arboriumHost, js_name = parse)]
+    fn js_parse(handle: GrammarHandle, text: &str) -> JsValue;
 }
 
-/// State for a single document.
-struct DocumentState {
-    /// Primary language of this document.
-    language: String,
-    /// Plugin handle for the primary language.
-    plugin: PluginHandle,
-    /// Session on the primary plugin.
-    session: PluginSession,
-    /// Current text content.
-    text: String,
-    /// Child sessions for injected languages.
-    injection_sessions: BTreeMap<String, (PluginHandle, PluginSession)>,
+/// Parse the JS result object into our ParseResult.
+fn parse_js_result(value: JsValue) -> ParseResult {
+    use js_sys::{Array, Object, Reflect};
+
+    if value.is_undefined() || value.is_null() {
+        return ParseResult::default();
+    }
+
+    let obj = Object::from(value);
+
+    // Get spans array
+    let spans_val = match Reflect::get(&obj, &"spans".into()) {
+        Ok(v) => v,
+        Err(_) => return ParseResult::default(),
+    };
+    let spans_arr = Array::from(&spans_val);
+
+    let mut spans = Vec::with_capacity(spans_arr.length() as usize);
+    for i in 0..spans_arr.length() {
+        let span_obj = spans_arr.get(i);
+        let start = Reflect::get(&span_obj, &"start".into())
+            .ok()
+            .and_then(|v| v.as_f64())
+            .unwrap_or(0.0) as u32;
+        let end = Reflect::get(&span_obj, &"end".into())
+            .ok()
+            .and_then(|v| v.as_f64())
+            .unwrap_or(0.0) as u32;
+        let capture = Reflect::get(&span_obj, &"capture".into())
+            .ok()
+            .and_then(|v| v.as_string())
+            .unwrap_or_default();
+
+        spans.push(Span { start, end, capture });
+    }
+
+    // Get injections array
+    let injections_val = match Reflect::get(&obj, &"injections".into()) {
+        Ok(v) => v,
+        Err(_) => return ParseResult { spans, injections: vec![] },
+    };
+    let injections_arr = Array::from(&injections_val);
+
+    let mut injections = Vec::with_capacity(injections_arr.length() as usize);
+    for i in 0..injections_arr.length() {
+        let inj_obj = injections_arr.get(i);
+        let start = Reflect::get(&inj_obj, &"start".into())
+            .ok()
+            .and_then(|v| v.as_f64())
+            .unwrap_or(0.0) as u32;
+        let end = Reflect::get(&inj_obj, &"end".into())
+            .ok()
+            .and_then(|v| v.as_f64())
+            .unwrap_or(0.0) as u32;
+        let language = Reflect::get(&inj_obj, &"language".into())
+            .ok()
+            .and_then(|v| v.as_string())
+            .unwrap_or_default();
+        let include_children = Reflect::get(&inj_obj, &"includeChildren".into())
+            .ok()
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+
+        injections.push(Injection {
+            start,
+            end,
+            language,
+            include_children,
+        });
+    }
+
+    ParseResult { spans, injections }
 }
 
-impl Default for HostState {
-    fn default() -> Self {
+/// A grammar that wraps a JS grammar handle.
+///
+/// When `parse()` is called, it calls into JS synchronously.
+pub struct JsGrammar {
+    handle: GrammarHandle,
+}
+
+impl JsGrammar {
+    fn new(handle: GrammarHandle) -> Self {
+        Self { handle }
+    }
+}
+
+impl Grammar for JsGrammar {
+    fn parse(&mut self, text: &str) -> ParseResult {
+        let result = js_parse(self.handle, text);
+        parse_js_result(result)
+    }
+}
+
+/// Grammar provider that loads grammars from JS.
+///
+/// Implements `GrammarProvider` so we can use the shared `AsyncHighlighter`
+/// from `arborium_highlight`.
+pub struct JsGrammarProvider {
+    /// Cached grammars by language name
+    grammars: HashMap<String, JsGrammar>,
+}
+
+impl JsGrammarProvider {
+    pub fn new() -> Self {
         Self {
-            next_doc_id: 1,
-            documents: BTreeMap::new(),
-            plugins: BTreeMap::new(),
+            grammars: HashMap::new(),
         }
     }
 }
 
-thread_local! {
-    static STATE: RefCell<HostState> = RefCell::new(HostState::default());
-}
-
-/// Get or load a plugin for a language.
-/// This must be called outside of with_state to avoid borrow conflicts.
-fn get_or_load_plugin(language: &str) -> Option<PluginHandle> {
-    // First check if we already have it cached
-    let cached = STATE.with(|state| state.borrow().plugins.get(language).copied());
-
-    if let Some(handle) = cached {
-        return Some(handle);
-    }
-
-    // Ask JS to load the plugin (outside of borrow)
-    if let Some(handle) = plugin_provider::load_plugin(language) {
-        STATE.with(|state| {
-            state.borrow_mut().plugins.insert(language.into(), handle);
-        });
-        Some(handle)
-    } else {
-        None
+impl Default for JsGrammarProvider {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
-struct HostImpl;
+impl GrammarProvider for JsGrammarProvider {
+    type Grammar = JsGrammar;
 
-impl Guest for HostImpl {
-    fn create_document(language: String) -> Option<Document> {
-        let plugin = get_or_load_plugin(&language)?;
-        let session = plugin_provider::create_plugin_session(plugin);
-
-        STATE.with(|state| {
-            let mut state = state.borrow_mut();
-            let doc_id = state.next_doc_id;
-            state.next_doc_id += 1;
-
-            state.documents.insert(
-                doc_id,
-                DocumentState {
-                    language,
-                    plugin,
-                    session,
-                    text: String::new(),
-                    injection_sessions: BTreeMap::new(),
-                },
-            );
-
-            Some(doc_id)
-        })
-    }
-
-    fn free_document(doc: Document) {
-        let doc_state = STATE.with(|state| state.borrow_mut().documents.remove(&doc));
-
-        if let Some(doc_state) = doc_state {
-            // Free injection sessions
-            for (_, (plugin, session)) in doc_state.injection_sessions {
-                plugin_provider::free_plugin_session(plugin, session);
-            }
-            // Free main session
-            plugin_provider::free_plugin_session(doc_state.plugin, doc_state.session);
+    // This crate is only compiled for wasm32, so we use the non-Send version
+    #[cfg(target_arch = "wasm32")]
+    async fn get(&mut self, language: &str) -> Option<&mut Self::Grammar> {
+        // Check if language is available (fast sync check)
+        if !js_is_language_available(language) {
+            return None;
         }
-    }
 
-    fn set_text(doc: Document, text: String) {
-        let info = STATE.with(|state| {
-            let mut state = state.borrow_mut();
-            if let Some(doc_state) = state.documents.get_mut(&doc) {
-                doc_state.text = text.clone();
-                Some((doc_state.plugin, doc_state.session))
-            } else {
-                None
-            }
-        });
-
-        if let Some((plugin, session)) = info {
-            plugin_provider::plugin_set_text(plugin, session, &text);
+        // Check if we already have this grammar cached
+        if self.grammars.contains_key(language) {
+            return self.grammars.get_mut(language);
         }
-    }
 
-    fn apply_edit(doc: Document, text: String, edit: Edit) {
-        let info = STATE.with(|state| {
-            let mut state = state.borrow_mut();
-            if let Some(doc_state) = state.documents.get_mut(&doc) {
-                doc_state.text = text.clone();
-                Some((doc_state.plugin, doc_state.session))
-            } else {
-                None
-            }
-        });
-
-        if let Some((plugin, session)) = info {
-            plugin_provider::plugin_apply_edit(plugin, session, &text, edit);
-        }
-    }
-
-    fn highlight(doc: Document, max_depth: u32) -> HighlightResult {
-        // Get document info
-        let doc_info = STATE.with(|state| {
-            let state = state.borrow();
-            state.documents.get(&doc).map(|ds| {
-                (
-                    ds.plugin,
-                    ds.session,
-                    ds.language.clone(),
-                    ds.text.clone(),
-                )
-            })
-        });
-
-        let Some((plugin, session, _language, text)) = doc_info else {
-            return HighlightResult { html: String::new() };
+        // Load the grammar from JS (async)
+        let handle = match js_load_grammar(language).await {
+            Ok(val) => val.as_f64().unwrap_or(0.0) as GrammarHandle,
+            Err(_) => return None,
         };
 
-        let mut all_spans: Vec<Span> = Vec::new();
-
-        // Parse the main document
-        let result = plugin_provider::plugin_parse(plugin, session);
-
-        let Ok(parse_result) = result else {
-            return HighlightResult { html: spans_to_html(&text, Vec::new()) };
-        };
-
-        // Add spans from the main language
-        for span in parse_result.spans {
-            all_spans.push(Span {
-                start: span.start,
-                end: span.end,
-                capture: span.capture,
-            });
+        // 0 means not found
+        if handle == 0 {
+            return None;
         }
 
-        // Process injections recursively
-        if max_depth > 0 {
-            for injection in parse_result.injections {
-                if let Some(injection_spans) = process_injection(
-                    doc,
-                    &text,
-                    &injection.language,
-                    injection.start,
-                    injection.end,
-                    max_depth - 1,
-                ) {
-                    all_spans.extend(injection_spans);
-                }
-            }
-        }
-
-        // Convert spans to HTML (handles deduplication)
-        let html = spans_to_html(&text, all_spans);
-
-        HighlightResult { html }
+        // Cache and return
+        self.grammars
+            .insert(language.to_string(), JsGrammar::new(handle));
+        self.grammars.get_mut(language)
     }
 
-    fn cancel(doc: Document) {
-        // Collect all sessions to cancel
-        let sessions = STATE.with(|state| {
-            let state = state.borrow();
-            state.documents.get(&doc).map(|doc_state| {
-                let mut sessions = vec![(doc_state.plugin, doc_state.session)];
-                for (_, (plugin, session)) in &doc_state.injection_sessions {
-                    sessions.push((*plugin, *session));
-                }
-                sessions
-            })
-        });
-
-        if let Some(sessions) = sessions {
-            for (plugin, session) in sessions {
-                plugin_provider::plugin_cancel(plugin, session);
-            }
-        }
-    }
-
-    fn get_required_languages(doc: Document) -> Vec<String> {
-        let info = STATE.with(|state| {
-            let state = state.borrow();
-            state
-                .documents
-                .get(&doc)
-                .map(|ds| (ds.language.clone(), ds.plugin))
-        });
-
-        let Some((language, plugin)) = info else {
-            return Vec::new();
-        };
-
-        let mut languages = vec![language];
-
-        // Get injection languages from the plugin
-        let injection_langs = plugin_provider::get_injection_languages(plugin);
-        languages.extend(injection_langs);
-
-        languages
+    // Stub for non-wasm32 targets (never used, just for compilation)
+    #[cfg(not(target_arch = "wasm32"))]
+    async fn get(&mut self, _language: &str) -> Option<&mut Self::Grammar> {
+        unreachable!("arborium-host is only for wasm32")
     }
 }
 
-/// Process an injection and return highlight spans.
-fn process_injection(
-    doc: Document,
-    text: &str,
+/// Configuration for highlighting.
+#[wasm_bindgen]
+pub struct HighlightConfig {
+    max_injection_depth: u32,
+}
+
+#[wasm_bindgen]
+impl HighlightConfig {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
+        Self {
+            max_injection_depth: 3,
+        }
+    }
+
+    #[wasm_bindgen(js_name = setMaxInjectionDepth)]
+    pub fn set_max_injection_depth(&mut self, depth: u32) {
+        self.max_injection_depth = depth;
+    }
+}
+
+impl Default for HighlightConfig {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+/// Highlight source code, resolving injections recursively.
+///
+/// This uses the shared `AsyncHighlighter` from `arborium_highlight`,
+/// ensuring the same injection handling logic as Rust native.
+#[wasm_bindgen]
+pub async fn highlight(language: &str, source: &str) -> Result<String, JsValue> {
+    highlight_with_config(language, source, HighlightConfig::default()).await
+}
+
+/// Highlight with custom configuration.
+#[wasm_bindgen(js_name = highlightWithConfig)]
+pub async fn highlight_with_config(
     language: &str,
-    start: u32,
-    end: u32,
-    remaining_depth: u32,
-) -> Option<Vec<Span>> {
-    // Check if we already have a session for this injection language
-    let existing_session = STATE.with(|state| {
-        let state = state.borrow();
-        state
-            .documents
-            .get(&doc)
-            .and_then(|ds| ds.injection_sessions.get(language).copied())
-    });
-
-    let (plugin, session) = if let Some((p, s)) = existing_session {
-        (p, s)
-    } else {
-        // Load the plugin and create a session
-        let plugin = get_or_load_plugin(language)?;
-        let session = plugin_provider::create_plugin_session(plugin);
-
-        // Store the session
-        STATE.with(|state| {
-            let mut state = state.borrow_mut();
-            if let Some(ds) = state.documents.get_mut(&doc) {
-                ds.injection_sessions
-                    .insert(language.into(), (plugin, session));
-            }
-        });
-
-        (plugin, session)
+    source: &str,
+    config: HighlightConfig,
+) -> Result<String, JsValue> {
+    let core_config = CoreConfig {
+        max_injection_depth: config.max_injection_depth,
     };
 
-    // Extract the injected text
-    let start_idx = start as usize;
-    let end_idx = end as usize;
-    if end_idx > text.len() || start_idx > end_idx {
-        return None;
-    }
-    let injected_text: String = text[start_idx..end_idx].into();
+    let provider = JsGrammarProvider::new();
+    let mut highlighter = AsyncHighlighter::with_config(provider, core_config);
 
-    // Parse the injection
-    plugin_provider::plugin_set_text(plugin, session, &injected_text);
-    let result = plugin_provider::plugin_parse(plugin, session).ok()?;
-
-    let mut spans = Vec::new();
-
-    // Add spans with offset adjustment
-    for span in result.spans {
-        spans.push(Span {
-            start: span.start + start,
-            end: span.end + start,
-            capture: span.capture,
-        });
-    }
-
-    // Process nested injections if we have depth remaining
-    if remaining_depth > 0 {
-        for nested in result.injections {
-            // The nested injection offsets are relative to the injected text,
-            // so we need to add the parent injection's start offset
-            if let Some(nested_spans) = process_injection(
-                doc,
-                text,
-                &nested.language,
-                nested.start + start,
-                nested.end + start,
-                remaining_depth - 1,
-            ) {
-                spans.extend(nested_spans);
-            }
-        }
-    }
-
-    Some(spans)
+    highlighter
+        .highlight(language, source)
+        .await
+        .map_err(|e| JsValue::from_str(&format!("{}", e)))
 }
 
-export!(HostImpl);
+/// Check if a language is available for highlighting.
+#[wasm_bindgen(js_name = isLanguageAvailable)]
+pub fn is_language_available(language: &str) -> bool {
+    js_is_language_available(language)
+}

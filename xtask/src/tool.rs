@@ -25,13 +25,15 @@ pub enum Tool {
     WasmOpt,
     /// curl for HTTP requests
     Curl,
+    /// wasm-pack for building wasm-bindgen projects
+    WasmPack,
 }
 
 /// Tools needed for `cargo xtask gen` (generation).
 pub const GEN_TOOLS: &[Tool] = &[Tool::TreeSitter, Tool::Git];
 
-/// Tools needed for `cargo xtask build` (WASM component plugins).
-pub const PLUGIN_TOOLS: &[Tool] = &[Tool::CargoComponent, Tool::Jco];
+/// Tools needed for `cargo xtask build` (WASM component plugins and host).
+pub const PLUGIN_TOOLS: &[Tool] = &[Tool::CargoComponent, Tool::Jco, Tool::WasmPack];
 
 /// Tools needed for `cargo xtask serve` (demo assets fetch).
 pub const SERVE_TOOLS: &[Tool] = &[Tool::Curl];
@@ -46,6 +48,7 @@ impl Tool {
             Tool::Jco => "jco",
             Tool::WasmOpt => "wasm-opt",
             Tool::Curl => "curl",
+            Tool::WasmPack => "wasm-pack",
         }
     }
 
@@ -58,6 +61,7 @@ impl Tool {
             Tool::Jco => "jco",
             Tool::WasmOpt => "wasm-opt",
             Tool::Curl => "curl",
+            Tool::WasmPack => "wasm-pack",
         }
     }
 
@@ -70,6 +74,7 @@ impl Tool {
             Tool::Jco => None,
             Tool::WasmOpt => Some("binaryen"),
             Tool::Curl => Some("curl"),
+            Tool::WasmPack => None, // cargo install
         }
     }
 
@@ -110,6 +115,7 @@ impl Tool {
                     "https://curl.se/download.html"
                 }
             }
+            Tool::WasmPack => "cargo install wasm-pack",
         }
     }
 
@@ -122,6 +128,7 @@ impl Tool {
             Tool::Jco => None,     // npm package, not cargo
             Tool::WasmOpt => None, // binary release, not cargo
             Tool::Curl => None,    // system tool, not cargo
+            Tool::WasmPack => Some("wasm-pack"),
         }
     }
 
@@ -146,6 +153,7 @@ impl Tool {
             Tool::Jco => "--version",
             Tool::WasmOpt => "--version",
             Tool::Curl => "--version",
+            Tool::WasmPack => "--version",
         };
 
         let output = tool_path.command().arg(version_arg).output()?;

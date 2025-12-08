@@ -346,85 +346,55 @@ pub fn build_plugins(repo_root: &Utf8Path, options: &BuildOptions) -> Result<()>
     Ok(())
 }
 
-/// Build the arborium-host WASM component and transpile it for the browser.
+/// Build the arborium-host WASM module using wasm-pack for the browser.
 pub fn build_host(repo_root: &Utf8Path) -> Result<()> {
     println!(
         "{} {}",
         "==>".cyan().bold(),
-        "Building arborium-host component".bold()
+        "Building arborium-host (wasm-bindgen)".bold()
     );
 
-    let cargo_component = Tool::CargoComponent
+    let wasm_pack = Tool::WasmPack
         .find()
         .into_diagnostic()
-        .context("cargo-component not found")?;
-    let jco = Tool::Jco
-        .find()
-        .into_diagnostic()
-        .context("jco not found")?;
+        .context("wasm-pack not found")?;
 
     let host_crate = repo_root.join("crates/arborium-host");
     let demo_pkg = repo_root.join("demo/pkg");
 
-    // Build the host component
-    println!("  {} Building WASM component...", "●".cyan());
-    let mut cmd = cargo_component.command();
-    cmd.args(["build", "--release", "--target", "wasm32-wasip1"])
-        .current_dir(&host_crate);
-
-    let output = cmd
-        .output()
-        .into_diagnostic()
-        .context("failed to run cargo-component")?;
-
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        miette::bail!("cargo-component build failed:\n{}", stderr);
-    }
-
-    // Find the built wasm file
-    let wasm_file = host_crate
-        .join("target/wasm32-wasip1/release")
-        .join("arborium_host.wasm");
-
-    if !wasm_file.exists() {
-        miette::bail!("Expected wasm file not found: {}", wasm_file);
-    }
-
-    // Copy to demo/pkg/
-    fs_err::create_dir_all(&demo_pkg)
-        .into_diagnostic()
-        .context("failed to create demo/pkg")?;
-
-    let dest_wasm = demo_pkg.join("host.wasm");
-    std::fs::copy(&wasm_file, &dest_wasm)
-        .into_diagnostic()
-        .context("failed to copy host wasm")?;
-
-    // Transpile with jco
-    println!("  {} Transpiling with jco...", "●".cyan());
-    let mut cmd = jco.command();
+    // Build with wasm-pack for web target
+    println!("  {} Building with wasm-pack...", "●".cyan());
+    let mut cmd = wasm_pack.command();
     cmd.args([
-        "transpile",
-        dest_wasm.as_str(),
-        "--instantiation",
-        "async",
-        "--quiet",
-        "-o",
+        "build",
+        "--release",
+        "--target",
+        "web",
+        "--out-dir",
         demo_pkg.as_str(),
-    ]);
+        "--out-name",
+        "arborium_host",
+    ])
+    .current_dir(&host_crate);
 
     let output = cmd
         .output()
         .into_diagnostic()
-        .context("failed to run jco")?;
+        .context("failed to run wasm-pack")?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        miette::bail!("jco transpile failed:\n{}", stderr);
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        miette::bail!("wasm-pack build failed:\n{}\n{}", stdout, stderr);
     }
 
-    println!("  {} Host component built and transpiled", "✓".green());
+    // wasm-pack generates files with _bg suffix for the wasm file
+    // The generated files are:
+    // - arborium_host.js (the entry point)
+    // - arborium_host_bg.wasm (the wasm binary)
+    // - arborium_host.d.ts (type declarations)
+
+    println!("  {} Host built successfully", "✓".green());
     Ok(())
 }
 

@@ -110,7 +110,17 @@ pub trait GrammarProvider {
     /// This is an async method, but for sync providers (static Rust grammars),
     /// it should return `Ready` immediately without yielding. The caller
     /// (SyncHighlighter) will poll once and panic if it gets `Pending`.
+    ///
+    /// # Send Bound
+    ///
+    /// On native targets, the future must be `Send` for compatibility with
+    /// async runtimes. On WASM, `Send` is not required (single-threaded).
+    #[cfg(not(target_arch = "wasm32"))]
     fn get(&mut self, language: &str) -> impl Future<Output = Option<&mut Self::Grammar>> + Send;
+
+    /// Get a grammar for a language (WASM version without Send bound).
+    #[cfg(target_arch = "wasm32")]
+    fn get(&mut self, language: &str) -> impl Future<Output = Option<&mut Self::Grammar>>;
 }
 
 /// Configuration for highlighting.
@@ -369,6 +379,12 @@ mod tests {
     impl GrammarProvider for MockProvider {
         type Grammar = MockGrammar;
 
+        #[cfg(not(target_arch = "wasm32"))]
+        async fn get(&mut self, language: &str) -> Option<&mut Self::Grammar> {
+            self.grammars.get_mut(language)
+        }
+
+        #[cfg(target_arch = "wasm32")]
         async fn get(&mut self, language: &str) -> Option<&mut Self::Grammar> {
             self.grammars.get_mut(language)
         }

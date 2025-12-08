@@ -225,6 +225,21 @@ impl StaticProvider {
 impl GrammarProvider for StaticProvider {
     type Grammar = TreeSitterGrammar;
 
+    #[cfg(not(target_arch = "wasm32"))]
+    async fn get(&mut self, language: &str) -> Option<&mut Self::Grammar> {
+        let normalized = Self::normalize_language(language);
+
+        // Create grammar if not cached
+        if !self.grammars.contains_key(normalized) {
+            if let Some(grammar) = Self::create_grammar(normalized) {
+                self.grammars.insert(normalized, grammar);
+            }
+        }
+
+        self.grammars.get_mut(normalized)
+    }
+
+    #[cfg(target_arch = "wasm32")]
     async fn get(&mut self, language: &str) -> Option<&mut Self::Grammar> {
         let normalized = Self::normalize_language(language);
 

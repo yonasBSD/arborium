@@ -1,14 +1,18 @@
-/// Arborium host interface - orchestrates grammar plugins.
+/// Arborium host interface - state machine highlighter for browser.
 ///
-/// The host is a WASM component that manages parsing sessions,
-/// coordinates between grammar plugins, and resolves language injections.
+/// The host is a WASM component that manages highlighting sessions using
+/// a state machine pattern. This allows JS to handle async grammar loading
+/// while all WASM execution remains synchronous.
 ///
 /// Architecture:
-/// - Browser JS loads the host component
-/// - JS provides plugin access via the `plugin-provider` import
-/// - Host exports a high-level API for creating documents and parsing
+/// 1. JS creates a session with create-session(language, source)
+/// 2. JS calls step() which returns Done(html) or NeedGrammar(language)
+/// 3. If NeedGrammar, JS loads the grammar plugin (async) then calls provide-grammar()
+/// 4. Repeat step 2-3 until Done
+///
+/// This pattern keeps WASM synchronous while JS handles async I/O.
 
-package arborium:host@0.1.0;
+package arborium:host@0.2.0;
 
 /// Core types used by the host.
 interface types {
@@ -33,105 +37,64 @@ interface types {
         injections: list<injection>,
     }
 
-    /// An edit to apply to text.
-    record edit {
-        start-byte: u32,
-        old-end-byte: u32,
-        new-end-byte: u32,
-        start-row: u32,
-        start-col: u32,
-        old-end-row: u32,
-        old-end-col: u32,
-        new-end-row: u32,
-        new-end-col: u32,
-    }
-
     /// Parse error.
     record parse-error {
         message: string,
     }
+
+    /// A handle to a grammar plugin (opaque, managed by JS).
+    type grammar-handle = u32;
+
+    /// Result of calling step() on a session.
+    variant step-result {
+        /// Highlighting complete, here's the HTML.
+        done(string),
+        /// Need a grammar before continuing. JS should load it and call provide-grammar().
+        need-grammar(string),
+    }
 }
 
-/// Interface that the host imports from JS to access grammar plugins.
-/// JS is responsible for loading/caching plugin WASM and calling into them.
-interface plugin-provider {
-    use types.{edit, parse-result, parse-error};
+/// Interface for calling into grammar plugins.
+/// JS implements this by dispatching to the appropriate loaded plugin.
+interface grammar-plugin {
+    use types.{grammar-handle, parse-result, parse-error};
 
-    /// A handle to a loaded plugin (opaque to the host, managed by JS).
-    type plugin-handle = u32;
-
-    /// A handle to a plugin session (opaque to the host, managed by JS).
-    type plugin-session = u32;
-
-    /// Request JS to load a plugin for the given language.
-    /// Returns a handle if successful, or none if the language is not available.
-    load-plugin: func(language: string) -> option<plugin-handle>;
-
-    /// Get the languages that a plugin may inject.
-    get-injection-languages: func(plugin: plugin-handle) -> list<string>;
-
-    /// Create a session on a plugin.
-    create-plugin-session: func(plugin: plugin-handle) -> plugin-session;
-
-    /// Free a plugin session.
-    free-plugin-session: func(plugin: plugin-handle, session: plugin-session);
-
-    /// Set text on a plugin session.
-    plugin-set-text: func(plugin: plugin-handle, session: plugin-session, text: string);
-
-    /// Apply edit on a plugin session.
-    plugin-apply-edit: func(plugin: plugin-handle, session: plugin-session, text: string, edit: edit);
-
-    /// Parse on a plugin session.
-    plugin-parse: func(plugin: plugin-handle, session: plugin-session) -> result<parse-result, parse-error>;
-
-    /// Cancel a plugin session's parse.
-    plugin-cancel: func(plugin: plugin-handle, session: plugin-session);
+    /// Parse text using a grammar plugin.
+    /// The grammar-handle identifies which plugin to use.
+    parse: func(handle: grammar-handle, text: string) -> result<parse-result, parse-error>;
 }
 
 /// The main host API exported to JS.
 interface host {
-    use types.{edit};
+    use types.{grammar-handle, step-result};
 
-    /// A document handle - represents a file being edited.
-    type document = u32;
+    /// A highlighting session handle.
+    type session = u32;
 
-    /// Result of highlighting a document - rendered HTML using arborium's custom elements.
-    /// Uses short tags like <a-k> for keyword, <a-s> for string, etc.
-    record highlight-result {
-        /// The rendered HTML string.
-        html: string,
-    }
+    /// Create a new highlighting session.
+    /// Returns a session handle that can be used with step() and provide-grammar().
+    create-session: func(language: string, source: string) -> session;
 
-    /// Create a new document with the given primary language.
-    create-document: func(language: string) -> option<document>;
+    /// Free a session and its resources.
+    free-session: func(session: session);
 
-    /// Destroy a document and free its resources.
-    free-document: func(doc: document);
+    /// Advance the highlighter state machine.
+    /// Returns Done(html) when complete, or NeedGrammar(language) when a grammar is needed.
+    /// If NeedGrammar is returned, call provide-grammar() then step() again.
+    step: func(session: session) -> step-result;
 
-    /// Set the full text of a document.
-    set-text: func(doc: document, text: string);
+    /// Provide a grammar that was requested by a previous step() call.
+    /// Call this after loading a grammar plugin, then call step() to continue.
+    provide-grammar: func(session: session, language: string, handle: grammar-handle);
 
-    /// Apply an incremental edit to a document.
-    apply-edit: func(doc: document, text: string, edit: edit);
-
-    /// Parse and highlight the document, resolving all injections.
-    /// max-depth controls how deep to recurse into injections (0 = no injections).
-    /// Returns rendered HTML using arborium's custom element tags.
-    highlight: func(doc: document, max-depth: u32) -> highlight-result;
-
-    /// Cancel any in-progress parse on a document.
-    cancel: func(doc: document);
-
-    /// Get list of languages that would be needed to fully highlight this document.
-    /// Useful for preloading plugins.
-    get-required-languages: func(doc: document) -> list<string>;
+    /// Set the maximum injection depth for a session (default: 3).
+    set-max-depth: func(session: session, depth: u32);
 }
 
 /// The world that the host component implements.
 world arborium-host {
-    /// Import plugin access from JS.
-    import plugin-provider;
+    /// Import grammar plugin interface (implemented by JS).
+    import grammar-plugin;
 
     /// Export the host API.
     export host;
