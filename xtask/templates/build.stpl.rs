@@ -12,21 +12,8 @@ fn main() {
     //       tree_sitter/* (generated headers)
     let manifest_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
 
-    // Prefer crate-local grammar sources (crate/grammar/src/*). For older
-    // checkouts or CI images that haven't been regenerated yet, fall back to
-    // def/grammar/src/* so builds still work from the repo checkout.
-    let crate_src_dir = manifest_dir.join("grammar/src");
-    let crate_grammar_dir = manifest_dir.join("grammar");
-
-    let def_dir = manifest_dir.join("../def");
-    let def_src_dir = def_dir.join("grammar/src");
-    let def_grammar_dir = def_dir.join("grammar");
-
-    let (src_dir, grammar_dir) = if crate_src_dir.join("parser.c").exists() {
-        (crate_src_dir, crate_grammar_dir)
-    } else {
-        (def_src_dir, def_grammar_dir)
-    };
+    let src_dir = manifest_dir.join("grammar/src");
+    let grammar_dir = manifest_dir.join("grammar");
 
     println!("cargo:rerun-if-changed={}", src_dir.join("parser.c").display());
 <% if has_scanner { %>
