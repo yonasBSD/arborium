@@ -411,7 +411,7 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
                         ("path", ".cache/arborium"),
                         (
                             "key",
-                            "grammar-cache-v123-${{ hashFiles('langs/group-*/*/def/grammar/grammar.js', 'langs/group-*/*/def/grammar/package.json') }}",
+                            "grammar-cache-v333-${{ hashFiles('langs/group-*/*/def/grammar/grammar.js', 'langs/group-*/*/def/grammar/package.json') }}",
                         ),
                         ("restore-keys", "grammar-cache-v10-"),
                     ]),
