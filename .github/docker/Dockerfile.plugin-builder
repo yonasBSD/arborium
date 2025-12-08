@@ -39,6 +39,9 @@ RUN cargo binstall -y --locked tree-sitter-cli
 # Install cargo-nextest (binstall)
 RUN cargo binstall -y --locked cargo-nextest
 
+# Install wasm-pack (binstall)
+RUN cargo binstall -y --locked wasm-pack
+
 # Install cargo-workspaces (binstall)
 RUN cargo binstall -y --locked cargo-workspaces
 
@@ -65,6 +68,7 @@ RUN cargo --version \
     && cargo-component --version \
     && cargo nextest --version \
     && cargo workspaces --version \
+    && wasm-pack --version \
     && jco --version \
     && arborium-xtask version
 
