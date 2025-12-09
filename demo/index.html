@@ -228,6 +228,22 @@
                             <a href="https://docs.rs/arborium-theme">docs.rs</a>
                         </p>
                     </div>
+                    <div class="integration-item">
+                        <h4><svg  width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm0 2h7v5h5v11H6zm2 8v2h8v-2zm0 4v2h5v-2z"/></svg> dodeca</h4>
+                        <p>A static site generator that uses arborium for syntax highlighting. Markdown to HTML with beautiful code blocks.</p>
+                        <p class="integration-links">
+                            <a href="https://dodeca.bearcove.eu/">Website</a> ·
+                            <a href="https://github.com/bearcove/dodeca">GitHub</a>
+                        </p>
+                    </div>
+                    <div class="integration-item">
+                        <h4><svg  width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="m19 2l-5 4.5v11l5-4.5zM6.5 5C4.55 5 2.45 5.4 1 6.5v14.66c0 .25.25.5.5.5c.1 0 .15-.07.25-.07c1.35-.65 3.3-1.09 4.75-1.09c1.95 0 4.05.4 5.5 1.5c1.35-.85 3.8-1.5 5.5-1.5c1.65 0 3.35.31 4.75 1.06c.1.05.15.03.25.03c.25 0 .5-.25.5-.5V6.5c-.6-.45-1.25-.75-2-1V19c-1.1-.35-2.3-.5-3.5-.5c-1.7 0-4.15.65-5.5 1.5V6.5C10.55 5.4 8.45 5 6.5 5"/></svg> docs.rs</h4>
+                        <p>Highlight TOML, shell, and other languages in your rustdoc. Create <code>arborium-header.html</code>:</p>
+                        <pre class="code-block"><code><a-tg>&lt;script</a-tg> <a-at>defer</a-at> <a-at>src</a-at><a-p>=</a-p><a-s>"https://cdn.jsdelivr.net/npm/@arborium/arborium/dist/arborium.iife.js"</a-s><a-tg>&gt;&lt;/script&gt;</a-tg></code></pre>
+                        <p>Then in <code>Cargo.toml</code>:</p>
+                        <pre class="code-block"><code><a-p>[</a-p><a-v>package.metadata.docs.rs</a-v><a-p>]</a-p>
+<a-v>rustdoc-args</a-v> <a-o>=</a-o> <a-p>[</a-p><a-s>"--html-in-header"</a-s><a-p>,</a-p> <a-s>"arborium-header.html"</a-s><a-p>]</a-p></code></pre>
+                    </div>
                 </div>
             </div>
 
