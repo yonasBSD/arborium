@@ -42,7 +42,13 @@ const PRE_CRATES: &[&str] = &[
 
 /// Crates in the "post" group - must be published after grammar crates.
 /// These are umbrella crates that optionally depend on grammar crates.
-const POST_CRATES: &[&str] = &["crates/arborium"];
+/// ORDER MATTERS - sorted by dependency order.
+const POST_CRATES: &[&str] = &[
+    // Main arborium crate first
+    "crates/arborium",
+    // Depends on arborium
+    "crates/miette-arborium",
+];
 
 /// Publish crates to crates.io.
 ///
