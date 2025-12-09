@@ -180,11 +180,19 @@ impl Step {
     }
 
     /// Create a step that runs a shell command.
+    /// All commands are automatically prefixed with `set -e` for strict error handling.
     pub fn run(name: impl Into<String>, command: impl Into<String>) -> Self {
+        let cmd = command.into();
+        // Prepend set -e if not already present
+        let cmd = if cmd.starts_with("set -e") {
+            cmd
+        } else {
+            format!("set -e\n{}", cmd)
+        };
         Self {
             name: Some(name.into()),
             uses: None,
-            run: Some(command.into()),
+            run: Some(cmd),
             with: None,
             env: None,
             id: None,
@@ -393,13 +401,17 @@ pub fn build_workflow(config: &CiConfig) -> Workflow {
                 // Parse version from tag (if this is a release)
                 Step::run(
                     "Parse version",
-                    r#"if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
-  VERSION="${GITHUB_REF#refs/tags/v}"
-  IS_RELEASE="true"
-else
-  VERSION="0.0.0-dev"
-  IS_RELEASE="false"
-fi
+                    r#"set -e
+case "$GITHUB_REF" in
+  refs/tags/v*)
+    VERSION="${GITHUB_REF#refs/tags/v}"
+    IS_RELEASE="true"
+    ;;
+  *)
+    VERSION="0.0.0-dev"
+    IS_RELEASE="false"
+    ;;
+esac
 echo "version=$VERSION" >> $GITHUB_OUTPUT
 echo "is_release=$IS_RELEASE" >> $GITHUB_OUTPUT
 echo "Version: $VERSION (release: $IS_RELEASE)""#,
@@ -411,7 +423,7 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
                         ("path", ".cache/arborium"),
                         (
                             "key",
-                            "grammar-cache-v451-${{ hashFiles('langs/group-*/*/def/grammar/grammar.js', 'langs/group-*/*/def/grammar/package.json') }}",
+                            "grammar-cache-v500-${{ hashFiles('langs/group-*/*/def/grammar/grammar.js', 'langs/group-*/*/def/grammar/package.json') }}",
                         ),
                         ("restore-keys", "grammar-cache-v10-"),
                     ]),
