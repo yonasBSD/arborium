@@ -876,9 +876,9 @@ fn publish_single_npm_package(
         return Ok(NpmPublishResult::Published);
     }
 
-    // Actually publish
+    // Actually publish with provenance for OIDC trusted publishing
     let output = Command::new("npm")
-        .args(["publish", "--access", "public"])
+        .args(["publish", "--access", "public", "--provenance"])
         .current_dir(package_dir)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
