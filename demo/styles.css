@@ -1213,17 +1213,15 @@ button:hover {
 }
 
 .theme-dropdown-empty {
-    padding: 1rem;
+    padding: 0.35rem 0.65rem;
     color: var(--muted);
-    text-align: center;
-    font-style: italic;
+    font-size: 0.8rem;
 }
 
 .lang-dropdown-empty {
-    padding: 1rem;
+    padding: 0.35rem 0.65rem;
     color: var(--muted);
-    text-align: center;
-    font-style: italic;
+    font-size: 0.8rem;
 }
 
 /* Mode toggle (dark/light) */
@@ -1374,12 +1372,66 @@ button:hover {
     position: relative;
 }
 
+/* Loading indicator when highlighting */
+.loading-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.editor-container.highlighting .loading-overlay {
+    display: flex;
+}
+
+.editor-container.highlighting > *:not(.loading-overlay) {
+    opacity: 0.2;
+}
+
+.loading-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: loading-bounce 1s ease-in-out infinite;
+}
+
+.loading-dot:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.loading-dot:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.loading-dot:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+@keyframes loading-bounce {
+    0%,
+    80%,
+    100% {
+        opacity: 0.3;
+        transform: scale(0.8);
+    }
+    40% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
 /* Scrolling container - fills entire panel behind toolbars */
 .editor-scroll {
     position: absolute;
     inset: 0;
     overflow: auto;
     overscroll-behavior: contain;
+    border-radius: 8px;
+    font-family: "Iosevka", "SF Mono", "Fira Code", "Consolas", monospace;
 }
 
 /* Grid stacks both layers */
@@ -1389,6 +1441,7 @@ button:hover {
     padding-top: 3.5rem; /* Space for toolbar */
     padding-bottom: 3rem; /* Space for sample-bar */
     box-sizing: border-box;
+    font-family: "Iosevka", "SF Mono", "Fira Code", "Consolas", monospace;
 }
 
 .editor-layers > * {
@@ -1420,7 +1473,6 @@ button:hover {
     position: relative;
     background: var(--surface);
     border-radius: 8px;
-    overflow: hidden;
     transition:
         background 0.2s,
         box-shadow 0.2s;

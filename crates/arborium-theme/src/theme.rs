@@ -516,6 +516,11 @@ pub mod builtin {
     builtin_theme!(docsrs_light, "docsrs-light.toml");
     builtin_theme!(docsrs_dark, "docsrs-dark.toml");
     builtin_theme!(docsrs_ayu, "docsrs-ayu.toml");
+    builtin_theme!(dayfox, "dayfox.toml");
+    builtin_theme!(alabaster, "alabaster.toml");
+    builtin_theme!(cobalt2, "cobalt2.toml");
+    builtin_theme!(zenburn, "zenburn.toml");
+    builtin_theme!(desert256, "desert256.toml");
 
     /// Get all built-in themes.
     pub fn all() -> Vec<&'static Theme> {
@@ -547,6 +552,11 @@ pub mod builtin {
             docsrs_light(),
             docsrs_dark(),
             docsrs_ayu(),
+            dayfox(),
+            alabaster(),
+            cobalt2(),
+            zenburn(),
+            desert256(),
         ]
     }
 }

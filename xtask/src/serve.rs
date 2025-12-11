@@ -22,6 +22,7 @@ struct AppJsTemplate<'a> {
     language_info: &'a str,
     examples: &'a str,
     icons: &'a str,
+    theme_info: &'a str,
 }
 
 // Sailfish template for index.html
@@ -819,11 +820,15 @@ fn generate_app_js(
     // Build icons object
     let icons_js = build_icons_js(icons);
 
+    // Build themeInfo object from arborium-theme
+    let theme_info_js = build_theme_info_js();
+
     // Render the template
     let template = AppJsTemplate {
         language_info: &lang_info_js,
         examples: &examples_js,
         icons: &icons_js,
+        theme_info: &theme_info_js,
     };
     let output = template.render_once().map_err(|e| e.to_string())?;
 
@@ -943,6 +948,29 @@ fn escape_for_js(s: &str) -> String {
         .replace('\n', "\\n")
         .replace('\r', "\\r")
         .replace('\t', "\\t")
+}
+
+fn build_theme_info_js() -> String {
+    use arborium_theme::builtin;
+
+    let mut js = String::from("{\n");
+    let themes = builtin::all();
+    for (i, theme) in themes.iter().enumerate() {
+        let id = theme_name_to_id(&theme.name);
+        let variant = if theme.is_dark { "dark" } else { "light" };
+        js.push_str(&format!(
+            "    \"{}\": {{ name: \"{}\", variant: \"{}\" }}",
+            id,
+            escape_for_js(&theme.name),
+            variant
+        ));
+        if i < themes.len() - 1 {
+            js.push(',');
+        }
+        js.push('\n');
+    }
+    js.push('}');
+    js
 }
 
 fn precompress_files(_demo_dir: &Path) -> Result<(), String> {

@@ -1,0 +1,54 @@
+# Cobalt2
+# https://github.com/wesbos/cobalt2-vscode
+
+name = "Cobalt2"
+variant = "dark"
+background = "#193549"
+foreground = "#ffffff"
+
+"attribute" = { fg = "yellow" }
+"constant" = { fg = "red" }
+"function.builtin" = { fg = "orange" }
+"function" = { fg = "yellow" }
+"keyword" = { fg = "orange" }
+"operator" = { fg = "white" }
+"property" = { fg = "cyan" }
+"punctuation" = { fg = "white" }
+"punctuation.bracket" = { fg = "white" }
+"punctuation.delimiter" = { fg = "white" }
+"string" = { fg = "green" }
+"string.special" = { fg = "brightgreen" }
+"tag" = { fg = "yellow" }
+"type" = { fg = "pink" }
+"type.builtin" = { fg = "pink" }
+"variable" = { fg = "lightblue" }
+"variable.builtin" = { fg = "red" }
+"variable.parameter" = { fg = "lightblue" }
+"comment" = { fg = "blue", modifiers = ["italic"] }
+"macro" = { fg = "orange" }
+"label" = { fg = "cyan" }
+"diff.plus" = { fg = "green" }
+"diff.minus" = { fg = "red" }
+"number" = { fg = "red" }
+"text.literal" = { fg = "white" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "blue", modifiers = ["underlined"] }
+"text.reference" = { fg = "cyan" }
+"string.escape" = { fg = "red" }
+"text.title" = { fg = "yellow", modifiers = ["bold"] }
+"punctuation.special" = { fg = "cyan" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "white" }
+
+[palette]
+white = "#ffffff"
+lightblue = "#e1efff"
+yellow = "#ffc600"
+orange = "#ff9d00"
+green = "#a5ff90"
+brightgreen = "#3ad900"
+blue = "#0088ff"
+cyan = "#9effff"
+pink = "#ff68b8"
+red = "#ff628c"

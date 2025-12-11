@@ -1,0 +1,50 @@
+# Alabaster
+# https://github.com/tonsky/vscode-theme-alabaster
+
+name = "Alabaster"
+variant = "light"
+background = "#f7f7f7"
+foreground = "#000000"
+
+"attribute" = { fg = "purple" }
+"constant" = { fg = "purple" }
+"function.builtin" = { fg = "blue" }
+"function" = { fg = "blue" }
+"keyword" = { fg = "foreground" }
+"operator" = { fg = "gray" }
+"property" = { fg = "foreground" }
+"punctuation" = { fg = "gray" }
+"punctuation.bracket" = { fg = "gray" }
+"punctuation.delimiter" = { fg = "gray" }
+"string" = { fg = "green" }
+"string.special" = { fg = "gray" }
+"tag" = { fg = "blue" }
+"type" = { fg = "blue" }
+"type.builtin" = { fg = "blue" }
+"variable" = { fg = "foreground" }
+"variable.builtin" = { fg = "purple" }
+"variable.parameter" = { fg = "foreground" }
+"comment" = { fg = "red" }
+"macro" = { fg = "blue" }
+"label" = { fg = "blue" }
+"diff.plus" = { fg = "green" }
+"diff.minus" = { fg = "red" }
+"number" = { fg = "purple" }
+"text.literal" = { fg = "foreground" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "blue", modifiers = ["underlined"] }
+"text.reference" = { fg = "blue" }
+"string.escape" = { fg = "gray" }
+"text.title" = { fg = "blue", modifiers = ["bold"] }
+"punctuation.special" = { fg = "gray" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "foreground" }
+
+[palette]
+foreground = "#000000"
+red = "#aa3731"
+green = "#448c27"
+blue = "#325cc0"
+purple = "#7a3e9d"
+gray = "#777777"

@@ -1,0 +1,52 @@
+# Desert256
+# https://github.com/vim-scripts/desert256.vim
+
+name = "Desert256"
+variant = "dark"
+background = "#000000"
+foreground = "#cccccc"
+
+"attribute" = { fg = "indianred" }
+"constant" = { fg = "lightred" }
+"function.builtin" = { fg = "khaki" }
+"function" = { fg = "khaki" }
+"keyword" = { fg = "khaki", modifiers = ["bold"] }
+"operator" = { fg = "foreground" }
+"property" = { fg = "palegreen" }
+"punctuation" = { fg = "foreground" }
+"punctuation.bracket" = { fg = "foreground" }
+"punctuation.delimiter" = { fg = "foreground" }
+"string" = { fg = "lightred" }
+"string.special" = { fg = "navajowhite" }
+"tag" = { fg = "khaki" }
+"type" = { fg = "darkkhaki", modifiers = ["bold"] }
+"type.builtin" = { fg = "darkkhaki" }
+"variable" = { fg = "palegreen" }
+"variable.builtin" = { fg = "lightred" }
+"variable.parameter" = { fg = "palegreen" }
+"comment" = { fg = "skyblue" }
+"macro" = { fg = "indianred" }
+"label" = { fg = "khaki" }
+"diff.plus" = { fg = "palegreen" }
+"diff.minus" = { fg = "lightred" }
+"number" = { fg = "lightred" }
+"text.literal" = { fg = "foreground" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "skyblue", modifiers = ["underlined"] }
+"text.reference" = { fg = "skyblue" }
+"string.escape" = { fg = "navajowhite" }
+"text.title" = { fg = "khaki", modifiers = ["bold"] }
+"punctuation.special" = { fg = "navajowhite" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "foreground" }
+
+[palette]
+foreground = "#cccccc"
+skyblue = "#87ceeb"
+lightred = "#ffa0a0"
+palegreen = "#98fb98"
+khaki = "#f0e68c"
+indianred = "#cd5c5c"
+darkkhaki = "#bdb76b"
+navajowhite = "#ffdead"

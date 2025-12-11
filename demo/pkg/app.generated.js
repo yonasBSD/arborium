@@ -1834,6 +1834,7 @@ function exitSearchMode() {
 async function previewLanguage(id) {
     // Load example if available and re-highlight
     const sourceEl = document.getElementById('source');
+    const editorContainer = document.getElementById('demo');
     const example = await fetchExample(id);
     if (example) {
         sourceEl.value = example;
@@ -1843,11 +1844,15 @@ async function previewLanguage(id) {
         const source = sourceEl.value;
         const output = document.getElementById('output');
         if (source) {
+            // Show loading state
+            editorContainer.classList.add('highlighting');
             try {
                 const html = await highlightCode(id, source);
                 output.innerHTML = html;
             } catch (e) {
                 console.error('Preview highlighting failed:', e);
+            } finally {
+                editorContainer.classList.remove('highlighting');
             }
         }
     }
@@ -1968,39 +1973,40 @@ langDropdown.addEventListener('mouseover', (e) => {
     }
 });
 
-// Theme metadata: id -> { name, variant }
+// Theme metadata: id -> { name, variant } - generated from arborium-theme
 const themeInfo = {
-    // Catppuccin family
-    'mocha': { name: 'Catppuccin Mocha', variant: 'dark' },
-    'macchiato': { name: 'Catppuccin Macchiato', variant: 'dark' },
-    'frappe': { name: 'Catppuccin Frappe', variant: 'dark' },
-    'latte': { name: 'Catppuccin Latte', variant: 'light' },
-    // Popular dark themes
-    'tokyo-night': { name: 'Tokyo Night', variant: 'dark' },
-    'dracula': { name: 'Dracula', variant: 'dark' },
-    'monokai': { name: 'Monokai Pro', variant: 'dark' },
-    'monokai-aqua': { name: 'Monokai Aqua', variant: 'dark' },
-    'one-dark': { name: 'One Dark', variant: 'dark' },
-    'nord': { name: 'Nord', variant: 'dark' },
-    'gruvbox-dark': { name: 'Gruvbox Dark', variant: 'dark' },
-    'rose-pine-moon': { name: 'Rosé Pine Moon', variant: 'dark' },
-    'kanagawa-dragon': { name: 'Kanagawa Dragon', variant: 'dark' },
-    'cobalt2': { name: 'Cobalt2', variant: 'dark' },
-    'zenburn': { name: 'Zenburn', variant: 'dark' },
-    'desert256': { name: 'Desert256', variant: 'dark' },
-    'melange-dark': { name: 'Melange Dark', variant: 'dark' },
-    // GitHub
-    'github-dark': { name: 'GitHub Dark', variant: 'dark' },
-    'github-light': { name: 'GitHub Light', variant: 'light' },
-    // Docs.rs
-    'docsrs-light': { name: 'Docs.rs Light', variant: 'light' },
-    'docsrs-dark': { name: 'Docs.rs Dark', variant: 'dark' },
-    'docsrs-ayu': { name: 'Docs.rs Ayu', variant: 'dark' },
-    // Light themes
-    'gruvbox-light': { name: 'Gruvbox Light', variant: 'light' },
-    'alabaster': { name: 'Alabaster', variant: 'light' },
-    'dayfox': { name: 'Dayfox', variant: 'light' },
-    'melange-light': { name: 'Melange Light', variant: 'light' },
+    "catppuccin-mocha": { name: "Catppuccin Mocha", variant: "dark" },
+    "catppuccin-latte": { name: "Catppuccin Latte", variant: "light" },
+    "catppuccin-frappe": { name: "Catppuccin Frappé", variant: "dark" },
+    "catppuccin-macchiato": { name: "Catppuccin Macchiato", variant: "dark" },
+    "dracula": { name: "Dracula", variant: "dark" },
+    "tokyo-night": { name: "Tokyo Night", variant: "dark" },
+    "nord": { name: "Nord", variant: "dark" },
+    "one-dark": { name: "One Dark", variant: "dark" },
+    "github-dark": { name: "GitHub Dark", variant: "dark" },
+    "github-light": { name: "GitHub Light", variant: "light" },
+    "gruvbox-dark": { name: "Gruvbox Dark", variant: "dark" },
+    "gruvbox-light": { name: "Gruvbox Light", variant: "light" },
+    "monokai": { name: "Monokai", variant: "dark" },
+    "kanagawa-dragon": { name: "Kanagawa Dragon", variant: "dark" },
+    "rose-pine-moon": { name: "Rosé Pine Moon", variant: "dark" },
+    "ayu-dark": { name: "Ayu Dark", variant: "dark" },
+    "ayu-light": { name: "Ayu Light", variant: "light" },
+    "solarized-dark": { name: "Solarized Dark", variant: "dark" },
+    "solarized-light": { name: "Solarized Light", variant: "light" },
+    "ef-melissa-dark": { name: "EF Melissa Dark", variant: "dark" },
+    "melange-dark": { name: "Melange Dark", variant: "dark" },
+    "melange-light": { name: "Melange Light", variant: "light" },
+    "light-owl": { name: "Light Owl", variant: "light" },
+    "lucius-light": { name: "Lucius Light", variant: "light" },
+    "docsrs-light": { name: "Docsrs Light", variant: "light" },
+    "docsrs-dark": { name: "Docsrs Dark", variant: "dark" },
+    "docsrs-ayu": { name: "Docsrs Ayu", variant: "dark" },
+    "dayfox": { name: "Dayfox", variant: "light" },
+    "alabaster": { name: "Alabaster", variant: "light" },
+    "cobalt2": { name: "Cobalt2", variant: "dark" },
+    "zenburn": { name: "Zenburn", variant: "dark" },
+    "desert256": { name: "Desert256", variant: "dark" }
 };
 
 const allThemes = Object.keys(themeInfo);
@@ -2012,41 +2018,33 @@ let currentMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'd
 const modeDarkBtn = document.getElementById('mode-dark');
 const modeLightBtn = document.getElementById('mode-light');
 
-// Theme pairs: dark <-> light counterparts
-const themePairs = {
-    // Catppuccin family - all dark variants map to latte
-    'mocha': 'latte',
-    'macchiato': 'latte',
-    'frappe': 'latte',
-    'latte': 'mocha', // latte goes to mocha (the default dark)
-    // GitHub
-    'github-dark': 'github-light',
-    'github-light': 'github-dark',
-    // Docs.rs
-    'docsrs-light': 'docsrs-dark',
-    'docsrs-dark': 'docsrs-light',
-    'docsrs-ayu': 'docsrs-light',
-    // Gruvbox
-    'gruvbox-dark': 'gruvbox-light',
-    'gruvbox-light': 'gruvbox-dark',
-    // Melange
-    'melange-dark': 'melange-light',
-    'melange-light': 'melange-dark',
-    // Light themes without dark pairs -> mocha
-    'alabaster': 'mocha',
-    'dayfox': 'mocha',
-    // Dark themes without light pairs -> latte
-    'tokyo-night': 'latte',
-    'dracula': 'latte',
-    'monokai': 'latte',
-    'monokai-aqua': 'latte',
-    'one-dark': 'latte',
-    'nord': 'latte',
-    'rose-pine-moon': 'latte',
-    'kanagawa-dragon': 'latte',
-    'cobalt2': 'latte',
-    'zenburn': 'latte',
-};
+// Build theme pairs dynamically: try to find a matching light/dark counterpart
+function findThemePair(themeId) {
+    const theme = themeInfo[themeId];
+    if (!theme) return null;
+
+    const targetVariant = theme.variant === 'dark' ? 'light' : 'dark';
+
+    // Try to find a theme with similar name but opposite variant
+    // e.g., "gruvbox-dark" -> "gruvbox-light", "github-dark" -> "github-light"
+    const baseName = themeId.replace(/-dark$/, '').replace(/-light$/, '');
+    const pairedId = baseName + '-' + targetVariant;
+    if (themeInfo[pairedId] && themeInfo[pairedId].variant === targetVariant) {
+        return pairedId;
+    }
+
+    // Special cases for catppuccin (mocha/macchiato/frappe are dark, latte is light)
+    if (themeId.startsWith('catppuccin-')) {
+        if (theme.variant === 'dark') {
+            return 'catppuccin-latte';
+        } else {
+            return 'catppuccin-mocha';
+        }
+    }
+
+    // Fallback: first theme of opposite variant
+    return allThemes.find(id => themeInfo[id].variant === targetVariant) || null;
+}
 
 function setMode(mode) {
     currentMode = mode;
@@ -2056,15 +2054,9 @@ function setMode(mode) {
 
     // If current theme doesn't match mode, switch to paired theme or fallback
     if (selectedTheme && themeInfo[selectedTheme].variant !== mode) {
-        const pairedTheme = themePairs[selectedTheme];
-        if (pairedTheme && themeInfo[pairedTheme].variant === mode) {
+        const pairedTheme = findThemePair(selectedTheme);
+        if (pairedTheme) {
             selectTheme(pairedTheme);
-        } else {
-            // Fallback to first theme of that mode
-            const firstThemeOfMode = allThemes.find(id => themeInfo[id].variant === mode);
-            if (firstThemeOfMode) {
-                selectTheme(firstThemeOfMode);
-            }
         }
     }
 
@@ -2327,7 +2319,7 @@ if (savedTheme && themeInfo[savedTheme] && themeInfo[savedTheme].variant === cur
     selectTheme(savedTheme);
 } else {
     // Pick first theme matching current mode
-    const defaultTheme = currentMode === 'dark' ? 'mocha' : 'latte';
+    const defaultTheme = currentMode === 'dark' ? 'catppuccin-mocha' : 'catppuccin-latte';
     selectTheme(defaultTheme);
 }
 
@@ -2379,11 +2371,15 @@ async function doHighlight() {
 
     const source = document.getElementById('source').value;
     const output = document.getElementById('output');
+    const editorContainer = document.getElementById('demo');
 
     if (!source) {
         output.innerHTML = '<span class="loading">Enter some code to highlight</span>';
         return;
     }
+
+    // Show loading state
+    editorContainer.classList.add('highlighting');
 
     try {
         const start = performance.now();
@@ -2396,6 +2392,8 @@ async function doHighlight() {
         console.error('Highlighting failed:', error);
         output.innerHTML = `<span class="error">${error}</span>`;
         updateStatus('Highlighting failed', false);
+    } finally {
+        editorContainer.classList.remove('highlighting');
     }
 }
 

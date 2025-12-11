@@ -1,0 +1,61 @@
+# Dayfox
+# https://github.com/EdenEast/nightfox.nvim
+
+name = "Dayfox"
+variant = "light"
+background = "#f6f2ee"
+foreground = "#3d2b5a"
+
+"attribute" = { fg = "orange" }
+"constant" = { fg = "cyan" }
+"function.builtin" = { fg = "cyan" }
+"function" = { fg = "blue" }
+"keyword" = { fg = "magenta" }
+"operator" = { fg = "fg1" }
+"property" = { fg = "cyan" }
+"punctuation" = { fg = "fg3" }
+"punctuation.bracket" = { fg = "fg3" }
+"punctuation.delimiter" = { fg = "fg3" }
+"string" = { fg = "green" }
+"string.special" = { fg = "orange" }
+"tag" = { fg = "magenta" }
+"type" = { fg = "yellow" }
+"type.builtin" = { fg = "yellow" }
+"variable" = { fg = "fg1" }
+"variable.builtin" = { fg = "red" }
+"variable.parameter" = { fg = "fg2" }
+"comment" = { fg = "comment" }
+"macro" = { fg = "cyan" }
+"label" = { fg = "pink" }
+"diff.plus" = { fg = "green" }
+"diff.minus" = { fg = "red" }
+"number" = { fg = "orange" }
+"text.literal" = { fg = "fg1" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "blue", modifiers = ["underlined"] }
+"text.reference" = { fg = "cyan" }
+"string.escape" = { fg = "pink" }
+"text.title" = { fg = "blue", modifiers = ["bold"] }
+"punctuation.special" = { fg = "pink" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "fg1" }
+
+[palette]
+black = "#352c24"
+red = "#a5222f"
+green = "#396847"
+yellow = "#AC5402"
+blue = "#2848a9"
+magenta = "#6e33ce"
+cyan = "#287980"
+white = "#f2e9e1"
+orange = "#955f61"
+pink = "#a440b5"
+bg0 = "#e4dcd4"
+bg1 = "#f6f2ee"
+fg0 = "#302b5d"
+fg1 = "#3d2b5a"
+fg2 = "#643f61"
+fg3 = "#824d5b"
+comment = "#837a72"

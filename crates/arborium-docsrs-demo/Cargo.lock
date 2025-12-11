@@ -4,4 +4,4 @@ version = 4
 
 [[package]]
 name = "arborium-docsrs-demo"
-version = "0.900.0"
+version = "1.0.1"

@@ -1,0 +1,53 @@
+# Zenburn
+# https://github.com/jnurmine/Zenburn
+
+name = "Zenburn"
+variant = "dark"
+background = "#3f3f3f"
+foreground = "#dcdccc"
+
+"attribute" = { fg = "orange" }
+"constant" = { fg = "lightred" }
+"function.builtin" = { fg = "brightyellow" }
+"function" = { fg = "brightyellow" }
+"keyword" = { fg = "yellow" }
+"operator" = { fg = "foreground" }
+"property" = { fg = "foreground" }
+"punctuation" = { fg = "foreground" }
+"punctuation.bracket" = { fg = "foreground" }
+"punctuation.delimiter" = { fg = "foreground" }
+"string" = { fg = "red" }
+"string.special" = { fg = "lightred" }
+"tag" = { fg = "brightyellow" }
+"type" = { fg = "lightyellow" }
+"type.builtin" = { fg = "lightyellow" }
+"variable" = { fg = "foreground" }
+"variable.builtin" = { fg = "lightred" }
+"variable.parameter" = { fg = "foreground" }
+"comment" = { fg = "green" }
+"macro" = { fg = "orange" }
+"label" = { fg = "cyan" }
+"diff.plus" = { fg = "green" }
+"diff.minus" = { fg = "red" }
+"number" = { fg = "cyan" }
+"text.literal" = { fg = "foreground" }
+"text.emphasis" = { modifiers = ["italic"] }
+"text.strong" = { modifiers = ["bold"] }
+"text.uri" = { fg = "cyan", modifiers = ["underlined"] }
+"text.reference" = { fg = "cyan" }
+"string.escape" = { fg = "lightred" }
+"text.title" = { fg = "brightyellow", modifiers = ["bold"] }
+"punctuation.special" = { fg = "lightred" }
+"text.strikethrough" = { modifiers = ["crossed_out"] }
+"spell" = { fg = "foreground" }
+
+[palette]
+foreground = "#dcdccc"
+yellow = "#f0dfaf"
+brightyellow = "#efef8f"
+lightyellow = "#dfdfbf"
+red = "#cc9393"
+lightred = "#dca3a3"
+green = "#7f9f7f"
+cyan = "#8cd0d3"
+orange = "#dfaf8f"
