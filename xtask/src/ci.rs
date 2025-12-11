@@ -346,14 +346,6 @@ pub mod common {
     pub fn extract_grammar_sources() -> Step {
         Step::run("Extract grammar sources", "tar -xvf grammar-sources.tar")
     }
-
-    /// Setup Node.js for npm publishing.
-    pub fn setup_node() -> Step {
-        Step::uses("Setup Node.js", "actions/setup-node@v4").with_inputs([
-            ("node-version", "20"),
-            ("registry-url", "https://registry.npmjs.org"),
-        ])
-    }
 }
 
 // =============================================================================
@@ -644,7 +636,6 @@ echo "No env imports found - WASM modules are browser-compatible""#,
             checkout(),
             download_grammar_sources(),
             extract_grammar_sources(),
-            setup_node(),
         ];
 
         // Download all plugin artifacts

@@ -621,13 +621,6 @@ jobs:
         name: Extract grammar sources
         run: "set -e\ntar -xvf grammar-sources.tar"
       - 
-        name: Setup Node.js
-        uses: actions/setup-node@v4
-        with: 
-          node-version: "20"
-          registry-url: "https://registry.npmjs.org"
-
-      - 
         name: Download plugins group acorn
         uses: actions/download-artifact@v4
         with: 
