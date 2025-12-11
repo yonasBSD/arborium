@@ -61,27 +61,58 @@ function getConfigFromScript(): Partial<ArboriumConfig> {
   return config;
 }
 
-/** Detect if we're in a light theme environment */
-function detectLightTheme(): boolean {
-  // Check docs.rs/rustdoc theme attribute
-  const docsRsTheme = document.documentElement.dataset.docsRsTheme;
-  if (docsRsTheme) {
-    return docsRsTheme === 'light';
+/** Detect if we're running on docs.rs */
+function isDocsRsEnvironment(): boolean {
+  return document.documentElement.hasAttribute('data-docs-rs-theme');
+}
+
+/** Map docs.rs theme names to Arborium theme IDs */
+function mapDocsRsTheme(value?: string): string | null {
+  if (!value) return null;
+
+  const themeMap: Record<string, string> = {
+    light: 'docsrs-light',
+    dark: 'docsrs-dark',
+    ayu: 'docsrs-ayu',
+  };
+
+  if (themeMap[value]) {
+    return themeMap[value];
   }
 
-  // Check rustdoc theme attribute (local rustdoc)
+  // Unknown theme value: return as-is or fallback to null
+  return null;
+}
+
+/** Detect the current theme from docs.rs or environment */
+function getAutoTheme(): string {
+  if (isDocsRsEnvironment()) {
+    // Prefer the new docs.rs data-theme attribute, fall back to legacy one
+    const docsRsTheme = mapDocsRsTheme(document.documentElement.dataset.theme);
+    if (docsRsTheme) {
+      return docsRsTheme;
+    }
+
+    const legacyDocsRsTheme = mapDocsRsTheme(
+      document.documentElement.dataset.docsRsTheme
+    );
+    if (legacyDocsRsTheme) {
+      return legacyDocsRsTheme;
+    }
+  }
+
+  // Local rustdoc: data-theme toggles between light/dark but lacks docs.rs marker
   const rustdocTheme = document.documentElement.dataset.theme;
-  if (rustdocTheme) {
-    return rustdocTheme === 'light';
+  if (rustdocTheme === 'light') {
+    return 'github-light';
+  }
+  if (rustdocTheme === 'dark') {
+    return 'tokyo-night';
   }
 
   // Fall back to system preference
-  return window.matchMedia('(prefers-color-scheme: light)').matches;
-}
-
-/** Get the appropriate theme based on environment */
-function getAutoTheme(): string {
-  return detectLightTheme() ? 'github-light' : 'tokyo-night';
+  const isLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+  return isLight ? 'github-light' : 'tokyo-night';
 }
 
 /** Get merged configuration from all sources and apply to loader */
@@ -164,15 +195,6 @@ function getLanguageForBlock(block: HTMLElement): string | null {
 function injectThemeCSS(theme: string): void {
   const themeId = `arborium-theme-${theme}`;
   if (document.getElementById(themeId)) return;
-
-  // Check if theme styles already loaded (e.g. via themes.generated.css)
-  for (const link of document.querySelectorAll('link[rel="stylesheet"]')) {
-    const href = (link as HTMLLinkElement).href || '';
-    if (href.includes('theme')) {
-      console.debug(`[arborium] Theme already loaded: ${href}`);
-      return;
-    }
-  }
 
   // Get the base URL for CSS
   const config = getMergedConfig();
@@ -362,9 +384,10 @@ function watchThemeChanges(): void {
   // Watch for docs.rs/rustdoc theme attribute changes
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
+      const attr = mutation.attributeName;
       if (
-        mutation.attributeName === 'data-docs-rs-theme' ||
-        mutation.attributeName === 'data-theme'
+        attr === 'data-docs-rs-theme' ||
+        (attr === 'data-theme' && isDocsRsEnvironment())
       ) {
         onThemeChange();
         break;
