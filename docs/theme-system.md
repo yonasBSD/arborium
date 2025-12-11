@@ -117,36 +117,37 @@ a-f { color: var(--arb-function-dark, var(--arb-function-light)); }
 
 If `--arb-keyword-dark` is defined, it's used. Otherwise, falls back to `--arb-keyword-light`.
 
-### docs.rs Theme Files
+### Rustdoc Theme Files
 
 Theme files are **the same as all other themes** - they define either `-light` or `-dark` variables:
 
-- `docsrs-light.css` defines `--arb-*-light` variables
-- `docsrs-dark.css` defines `--arb-*-dark` variables  
-- `docsrs-ayu.css` defines `--arb-*-dark` variables (it's a dark theme)
+- `rustdoc-light.css` defines `--arb-*-light` variables
+- `rustdoc-dark.css` defines `--arb-*-dark` variables  
+- `rustdoc-ayu.css` defines `--arb-*-dark` variables (it's a dark theme)
 
 ### JavaScript Switching
 
 The JavaScript:
-1. Detects the current docs.rs theme from `data-theme` attribute (`light`, `dark`, or `ayu`)
-2. Dynamically adds/removes `<link>` tags to load only the active theme's CSS
-3. Watches for theme changes and swaps the CSS accordingly
+1. Detects if running on a rustdoc page (checks for `<meta name="generator" content="rustdoc">`)
+2. Reads the current theme from `data-theme` attribute (`light`, `dark`, or `ayu`)
+3. Dynamically adds/removes `<link>` tags to load only the active theme's CSS
+4. Watches for theme changes and swaps the CSS accordingly
 
 Since only one theme file is loaded at a time:
-- When `docsrs-dark.css` is loaded, only `--arb-*-dark` vars exist → those are used
-- When `docsrs-light.css` is loaded, only `--arb-*-light` vars exist → fallback kicks in, those are used
+- When `rustdoc-dark.css` is loaded, only `--arb-*-dark` vars exist → those are used
+- When `rustdoc-light.css` is loaded, only `--arb-*-light` vars exist → fallback kicks in, those are used
 
 ## 4. IIFE Bundle Defaults
 
 When using the IIFE bundle (`arborium.iife.js`), the default behavior is:
 
-- **Base CSS**: `base-docsrs.css` (uses variable fallback)
+- **Base CSS**: `base-rustdoc.css` (uses variable fallback)
 - **Light theme**: `github-light.css`
 - **Dark theme**: `one-dark.css`
 
 The IIFE automatically:
-1. Detects if running on docs.rs (checks for `data-docs-rs-theme` attribute)
-2. On docs.rs: maps `light`/`dark`/`ayu` to `docsrs-light`/`docsrs-dark`/`docsrs-ayu`
+1. Detects if running on a rustdoc page (checks for `<meta name="generator" content="rustdoc">`)
+2. On rustdoc: maps `light`/`dark`/`ayu` to `rustdoc-light`/`rustdoc-dark`/`rustdoc-ayu`
 3. Elsewhere: uses system preference (`prefers-color-scheme`) or `data-theme` attribute
 4. Loads the appropriate theme CSS from CDN
 5. Watches for theme changes and swaps CSS dynamically

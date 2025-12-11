@@ -46,7 +46,7 @@ export interface ArboriumConfig {
   cdn?: string;
   /** Package version to load (default: "1" for latest 1.x.x) */
   version?: string;
-  /** URL to plugins.json manifest (for local testing) */
+  /** URL to plugins.json manifest - overrides bundled manifest (for local testing) */
   pluginsUrl?: string;
   /** Base URL for the Rust host module (for local testing) */
   hostUrl?: string;

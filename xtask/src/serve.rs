@@ -1131,7 +1131,7 @@ fn guess_content_type(path: &Path) -> &'static str {
 /// This generates:
 /// 1. Individual theme files that declare CSS variables with -light or -dark suffix
 /// 2. base.css - uses media queries and [data-theme] selectors for switching
-/// 3. base-docsrs.css - uses variable fallback for JS-based switching
+/// 3. base-rustdoc.css - uses variable fallback for JS-based switching
 pub fn generate_npm_theme_css(crates_dir: &Utf8Path) -> Result<(), String> {
     use arborium_theme::builtin;
     use arborium_theme::highlights::HIGHLIGHTS;
@@ -1320,17 +1320,17 @@ pub fn generate_npm_theme_css(crates_dir: &Utf8Path) -> Result<(), String> {
 
     fs::write(&base_path, &base_css).map_err(|e| e.to_string())?;
 
-    // Generate base-docsrs.css - uses variable fallback for JS-based switching
-    let base_docsrs_path = themes_dir.join("base-docsrs.css");
-    let mut docsrs_css = String::new();
+    // Generate base-rustdoc.css - uses variable fallback for JS-based switching
+    let base_rustdoc_path = themes_dir.join("base-rustdoc.css");
+    let mut rustdoc_css = String::new();
 
     writeln!(
-        docsrs_css,
-        "/* Arborium base CSS for docs.rs - uses variable fallback */"
+        rustdoc_css,
+        "/* Arborium base CSS for rustdoc - uses variable fallback */"
     )
     .unwrap();
     writeln!(
-        docsrs_css,
+        rustdoc_css,
         "/* JS dynamically loads one theme at a time */\n"
     )
     .unwrap();
@@ -1340,16 +1340,16 @@ pub fn generate_npm_theme_css(crates_dir: &Utf8Path) -> Result<(), String> {
             continue;
         }
         writeln!(
-            docsrs_css,
+            rustdoc_css,
             "a-{} {{ color: var(--arb-{}-dark, var(--arb-{}-light)); font-weight: var(--arb-{}-dark-weight, var(--arb-{}-light-weight, normal)); font-style: var(--arb-{}-dark-style, var(--arb-{}-light-style, normal)); text-decoration: var(--arb-{}-dark-decoration, var(--arb-{}-light-decoration, none)); }}",
             def.tag, def.tag, def.tag, def.tag, def.tag, def.tag, def.tag, def.tag, def.tag
         ).unwrap();
     }
 
-    fs::write(&base_docsrs_path, &docsrs_css).map_err(|e| e.to_string())?;
+    fs::write(&base_rustdoc_path, &rustdoc_css).map_err(|e| e.to_string())?;
 
     println!(
-        "{} Generated {} theme files + base.css + base-docsrs.css",
+        "{} Generated {} theme files + base.css + base-rustdoc.css",
         "✓".green(),
         generated.to_string().cyan()
     );

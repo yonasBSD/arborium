@@ -1,8 +1,8 @@
-# Docs.rs Ayu Theme
-# Based on the actual docs.rs/rustdoc Ayu theme colors
+# Rustdoc Ayu Theme
+# Based on the actual rustdoc Ayu theme colors
 # Extended with additional token types while preserving the palette feel
 
-name = "Docsrs Ayu"
+name = "Rustdoc Ayu"
 variant = "dark"
 background = "#191f26"
 foreground = "#c5c5c5"

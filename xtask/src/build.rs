@@ -10,6 +10,7 @@ use chrono::Utc;
 use miette::{Context, IntoDiagnostic, Result};
 use owo_colors::OwoColorize;
 use rayon::prelude::*;
+use sailfish::TemplateSimple;
 
 use crate::tool::Tool;
 use crate::types::CrateRegistry;
@@ -314,6 +315,8 @@ pub fn build_plugins(repo_root: &Utf8Path, options: &BuildOptions) -> Result<()>
         options.output_dir.as_deref(),
         &version,
     )?;
+
+    // Write JSON manifest to langs/plugins.json (for dev server)
     let manifest_path = repo_root.join("langs").join("plugins.json");
     fs_err::create_dir_all(manifest_path.parent().unwrap())
         .into_diagnostic()
@@ -325,6 +328,26 @@ pub fn build_plugins(repo_root: &Utf8Path, options: &BuildOptions) -> Result<()>
         "{} Wrote plugin manifest {}",
         "✓".green(),
         manifest_path.cyan()
+    );
+
+    // Write TypeScript manifest to packages/arborium/src/plugins-manifest.ts (bundled)
+    let ts_manifest_path = repo_root
+        .join("packages/arborium/src")
+        .join("plugins-manifest.ts");
+    let ts_template = PluginsManifestTsTemplate {
+        generated_at: &manifest.generated_at,
+        entries: &manifest.entries,
+    };
+    let ts_content = ts_template
+        .render_once()
+        .expect("PluginsManifestTsTemplate render failed");
+    fs_err::write(&ts_manifest_path, ts_content)
+        .into_diagnostic()
+        .context("failed to write TypeScript manifest")?;
+    println!(
+        "{} Wrote TypeScript manifest {}",
+        "✓".green(),
+        ts_manifest_path.cyan()
     );
 
     // Print next steps hint
@@ -607,6 +630,14 @@ pub fn locate_grammar<'a>(
             .find(|g| <String as AsRef<str>>::as_ref(&g.id.value) == grammar)
             .map(|g| (state, g))
     })
+}
+
+/// Sailfish template for TypeScript manifest.
+#[derive(sailfish::TemplateSimple)]
+#[template(path = "plugins_manifest.stpl.ts")]
+struct PluginsManifestTsTemplate<'a> {
+    generated_at: &'a str,
+    entries: &'a [PluginManifestEntry],
 }
 
 fn build_manifest(

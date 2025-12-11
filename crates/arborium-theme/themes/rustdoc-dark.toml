@@ -1,11 +1,11 @@
-# Docs.rs Light Theme
-# Based on the actual docs.rs/rustdoc light theme colors
+# Rustdoc Dark Theme
+# Based on the actual rustdoc dark theme colors
 # Extended with additional token types while preserving the palette feel
 
-name = "Docsrs Light"
-variant = "light"
-background = "#f5f5f5"
-foreground = "#24292e"
+name = "Rustdoc Dark"
+variant = "dark"
+background = "#2a2a2a"
+foreground = "#dddddd"
 
 "attribute" = { fg = "attribute" }
 "constant" = { fg = "literal" }
@@ -43,21 +43,21 @@ foreground = "#24292e"
 "spell" = { fg = "foreground" }
 
 [palette]
-# Core docs.rs light theme colors
-foreground = "#24292e"
-keyword = "#8959a8"        # --code-highlight-kw-color
-keyword2 = "#4271ae"       # --code-highlight-kw-2-color
-lifetime = "#b76514"       # --code-highlight-lifetime-color
-prelude = "#4271ae"        # --code-highlight-prelude-color
-self = "#c82829"           # --code-highlight-self-color
-number = "#718c00"         # --code-highlight-number-color
-string = "#718c00"         # --code-highlight-string-color
-literal = "#c82829"        # --code-highlight-literal-color
-attribute = "#c82829"      # --code-highlight-attribute-color
+# Core docs.rs dark theme colors
+foreground = "#dddddd"
+keyword = "#ab8ac1"        # --code-highlight-kw-color
+keyword2 = "#769acb"       # --code-highlight-kw-2-color
+lifetime = "#d97f26"       # --code-highlight-lifetime-color
+prelude = "#769acb"        # --code-highlight-prelude-color
+self = "#ee6868"           # --code-highlight-self-color
+number = "#83a300"         # --code-highlight-number-color
+string = "#83a300"         # --code-highlight-string-color
+literal = "#ee6868"        # --code-highlight-literal-color
+attribute = "#ee6868"      # --code-highlight-attribute-color
 macro = "#3e999f"          # --code-highlight-macro-color
 question = "#ff9011"       # --code-highlight-question-mark-color
-comment = "#8e908c"        # --code-highlight-comment-color
-doc_comment = "#4d4d4c"    # --code-highlight-doc-comment-color
-# Extended colors (derived from the palette)
-type = "#ad378a"           # --type-link-color
-function = "#ad7c37"       # --function-link-color
+comment = "#8d8d8b"        # --code-highlight-comment-color
+doc_comment = "#8ca375"    # --code-highlight-doc-comment-color
+# Extended colors (derived from docs.rs link colors)
+type = "#2dbfb8"           # --type-link-color
+function = "#2bab63"       # --function-link-color
