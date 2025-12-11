@@ -331,12 +331,14 @@ pub fn build_plugins(repo_root: &Utf8Path, options: &BuildOptions) -> Result<()>
     );
 
     // Write TypeScript manifest to packages/arborium/src/plugins-manifest.ts (bundled)
+    // This is a simplified manifest - just a list of language names
+    let mut sorted_grammars = grammars.clone();
+    sorted_grammars.sort();
     let ts_manifest_path = repo_root
         .join("packages/arborium/src")
         .join("plugins-manifest.ts");
     let ts_template = PluginsManifestTsTemplate {
-        generated_at: &manifest.generated_at,
-        entries: &manifest.entries,
+        languages: &sorted_grammars,
     };
     let ts_content = ts_template
         .render_once()
@@ -632,88 +634,47 @@ pub fn locate_grammar<'a>(
     })
 }
 
-/// Sailfish template for TypeScript manifest.
+/// Sailfish template for TypeScript manifest (simplified - just language names).
 #[derive(sailfish::TemplateSimple)]
 #[template(path = "plugins_manifest.stpl.ts")]
 struct PluginsManifestTsTemplate<'a> {
-    generated_at: &'a str,
-    entries: &'a [PluginManifestEntry],
+    languages: &'a [String],
 }
 
 /// Generate the plugins-manifest.ts file for the npm package.
 /// This uses ALL grammars with generate_component enabled, not just locally built ones.
-pub fn generate_plugins_manifest(
-    repo_root: &Utf8Path,
-    crates_dir: &Utf8Path,
-    version: &str,
-) -> Result<()> {
+/// The manifest is simplified: just a list of language names.
+/// CDN URLs are derived at runtime: `https://cdn.jsdelivr.net/npm/@arborium/{lang}@1/grammar.js`
+pub fn generate_plugins_manifest(repo_root: &Utf8Path, crates_dir: &Utf8Path) -> Result<()> {
     let registry = CrateRegistry::load(crates_dir)
         .map_err(|e| miette::miette!("failed to load crate registry: {}", e))?;
 
     // Get ALL grammars that have generate_component enabled
-    let grammars: Vec<String> = registry
+    let mut languages: Vec<String> = registry
         .all_grammars()
         .filter(|(_, _, grammar)| grammar.generate_component())
         .map(|(_, _, grammar)| grammar.id().to_string())
         .collect();
 
-    if grammars.is_empty() {
+    // Sort for consistent output
+    languages.sort();
+
+    if languages.is_empty() {
         miette::bail!("No grammars have generate-component enabled");
     }
 
     println!(
-        "{} Generating manifest for {} grammar(s)",
+        "{} Generating manifest for {} language(s)",
         "●".cyan(),
-        grammars.len()
+        languages.len()
     );
-
-    // Build manifest entries for all grammars
-    let mut entries = Vec::new();
-    for grammar in &grammars {
-        let package = format!("@arborium/{}", grammar);
-        let cdn_base = format!(
-            "https://cdn.jsdelivr.net/npm/@arborium/{}@{}",
-            grammar, version
-        );
-
-        // For the manifest, we only need CDN URLs (local URLs are for dev server)
-        // The local URLs will be relative to repo root
-        let (state, _) = locate_grammar(&registry, grammar)
-            .ok_or_else(|| miette::miette!("grammar `{}` not found", grammar))?;
-
-        let local_root = state
-            .crate_path
-            .parent()
-            .expect("lang directory")
-            .join("npm");
-        let local_js = local_root.join("grammar.js");
-        let local_wasm = local_root.join("grammar.core.wasm");
-        let rel_js = local_js.strip_prefix(repo_root).unwrap_or(&local_js);
-        let rel_wasm = local_wasm.strip_prefix(repo_root).unwrap_or(&local_wasm);
-
-        entries.push(PluginManifestEntry {
-            language: grammar.clone(),
-            package,
-            version: version.to_string(),
-            cdn_js: format!("{}/grammar.js", cdn_base),
-            cdn_wasm: format!("{}/grammar.core.wasm", cdn_base),
-            local_js: format!("/{}", rel_js),
-            local_wasm: format!("/{}", rel_wasm),
-        });
-    }
-
-    let manifest = PluginManifest {
-        generated_at: Utc::now().to_rfc3339(),
-        entries,
-    };
 
     // Write TypeScript manifest
     let ts_manifest_path = repo_root
         .join("packages/arborium/src")
         .join("plugins-manifest.ts");
     let ts_template = PluginsManifestTsTemplate {
-        generated_at: &manifest.generated_at,
-        entries: &manifest.entries,
+        languages: &languages,
     };
     let ts_content = ts_template
         .render_once()
@@ -723,10 +684,10 @@ pub fn generate_plugins_manifest(
         .context("failed to write TypeScript manifest")?;
 
     println!(
-        "{} Wrote {} with {} grammars",
+        "{} Wrote {} with {} languages",
         "✓".green(),
         ts_manifest_path.cyan(),
-        manifest.entries.len()
+        languages.len()
     );
 
     Ok(())

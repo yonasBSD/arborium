@@ -45,11 +45,7 @@ enum Command {
     GenThemes,
 
     /// Generate plugins-manifest.ts for the npm package (used by prepublishOnly)
-    GenManifest {
-        /// Version to use for CDN URLs
-        #[facet(args::named)]
-        version: String,
-    },
+    GenManifest,
 
     /// Validate all grammar configurations
     Lint {
@@ -270,11 +266,11 @@ fn main() {
                 std::process::exit(1);
             }
         }
-        Command::GenManifest { version } => {
+        Command::GenManifest => {
             let repo_root = util::find_repo_root().expect("Could not find repo root");
             let repo_root = camino::Utf8PathBuf::from_path_buf(repo_root).expect("non-UTF8 path");
 
-            if let Err(e) = build::generate_plugins_manifest(&repo_root, &crates_dir, &version) {
+            if let Err(e) = build::generate_plugins_manifest(&repo_root, &crates_dir) {
                 eprintln!("{:?}", e);
                 std::process::exit(1);
             }

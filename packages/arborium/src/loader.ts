@@ -10,7 +10,7 @@
 
 import { createWasiImports, grammarTypesImport } from "./wasi-shims.js";
 import type { ParseResult, ArboriumConfig, Grammar, Span, Injection } from "./types.js";
-import { pluginsManifest, type PluginsManifest, type PluginEntry } from "./plugins-manifest.js";
+import { availableLanguages } from "./plugins-manifest.js";
 
 // Default config
 export const defaultConfig: Required<ArboriumConfig> = {
@@ -37,37 +37,64 @@ let config: Required<ArboriumConfig> = { ...defaultConfig };
 // Grammar plugins cache
 const grammarCache = new Map<string, GrammarPlugin>();
 
-// Active manifest - starts with bundled, can be overridden via pluginsUrl
-let activeManifest: PluginsManifest = pluginsManifest;
-let manifestLoadPromise: Promise<void> | null = null;
+// Languages we know are available (bundled at build time)
+const knownLanguages: Set<string> = new Set(availableLanguages);
 
-// Languages we know are available
-let availableLanguages: Set<string> = new Set(pluginsManifest.entries.map((e) => e.language));
+// For local development: can override with pluginsUrl to load from dev server
+interface LocalManifest {
+  entries: Array<{
+    language: string;
+    local_js: string;
+    local_wasm: string;
+  }>;
+}
+let localManifest: LocalManifest | null = null;
+let localManifestPromise: Promise<void> | null = null;
 
-/** Ensure the manifest is loaded (fetches from pluginsUrl if configured, otherwise uses bundled) */
-async function ensureManifestLoaded(): Promise<void> {
-  // If no override URL, use bundled manifest (already loaded)
+/** Load local manifest if pluginsUrl is configured (for dev server) */
+async function ensureLocalManifest(): Promise<void> {
   if (!config.pluginsUrl) {
     return;
   }
 
-  // If we already loaded from this URL, we're done
-  if (manifestLoadPromise) {
-    return manifestLoadPromise;
+  if (localManifestPromise) {
+    return localManifestPromise;
   }
 
-  manifestLoadPromise = (async () => {
-    console.debug(`[arborium] Loading plugins manifest from: ${config.pluginsUrl}`);
+  localManifestPromise = (async () => {
+    console.debug(`[arborium] Loading local plugins manifest from: ${config.pluginsUrl}`);
     const response = await fetch(config.pluginsUrl);
     if (!response.ok) {
       throw new Error(`Failed to load plugins.json: ${response.status}`);
     }
-    activeManifest = await response.json();
-    availableLanguages = new Set(activeManifest.entries.map((e) => e.language));
-    console.debug(`[arborium] Available languages: ${Array.from(availableLanguages).join(", ")}`);
+    localManifest = await response.json();
+    console.debug(`[arborium] Loaded local manifest with ${localManifest?.entries.length} entries`);
   })();
 
-  return manifestLoadPromise;
+  return localManifestPromise;
+}
+
+/** Get the CDN URL for a grammar's JS file */
+function getGrammarJsUrl(language: string): string {
+  // If we have a local manifest (dev mode), use the local path
+  if (localManifest) {
+    const entry = localManifest.entries.find((e) => e.language === language);
+    if (entry) {
+      return entry.local_js;
+    }
+  }
+
+  // Production: derive from language name using @1 (major version)
+  const cdn = config.cdn;
+  let baseUrl: string;
+  if (cdn === "jsdelivr") {
+    baseUrl = "https://cdn.jsdelivr.net/npm";
+  } else if (cdn === "unpkg") {
+    baseUrl = "https://unpkg.com";
+  } else {
+    baseUrl = cdn;
+  }
+  return `${baseUrl}/@arborium/${language}@1/grammar.js`;
 }
 
 /** WIT Result type as returned by jco-generated code */
@@ -99,19 +126,21 @@ async function loadGrammarPlugin(language: string): Promise<GrammarPlugin | null
     return cached;
   }
 
-  // Ensure manifest is loaded (no-op if using bundled manifest)
-  await ensureManifestLoaded();
+  // Load local manifest if in dev mode
+  await ensureLocalManifest();
 
-  // Find language entry in active manifest
-  const entry = activeManifest.entries.find((e) => e.language === language);
-  if (!entry) {
-    console.debug(`[arborium] Grammar '${language}' not found in manifest`);
+  // Check if language is known
+  if (
+    !knownLanguages.has(language) &&
+    !localManifest?.entries.some((e) => e.language === language)
+  ) {
+    console.debug(`[arborium] Grammar '${language}' not available`);
     return null;
   }
 
   try {
-    // Use local URLs when pluginsUrl is set (local dev), otherwise use CDN
-    const jsUrl = config.pluginsUrl ? entry.local_js : entry.cdn_js;
+    // Get the URL for the grammar JS (CDN or local depending on config)
+    const jsUrl = getGrammarJsUrl(language);
     const baseUrl = jsUrl.substring(0, jsUrl.lastIndexOf("/"));
 
     console.debug(`[arborium] Loading grammar '${language}' from ${jsUrl}`);
@@ -202,7 +231,7 @@ function setupHostInterface(): void {
   (window as any).arboriumHost = {
     /** Check if a language is available (sync) */
     isLanguageAvailable(language: string): boolean {
-      return availableLanguages.has(language) || grammarCache.has(language);
+      return knownLanguages.has(language) || grammarCache.has(language);
     },
 
     /** Load a grammar and return a handle (async) */
@@ -431,12 +460,19 @@ export function setConfig(newConfig: Partial<ArboriumConfig>): void {
 
 /** Check if a language is available */
 export async function isLanguageAvailable(language: string): Promise<boolean> {
-  await ensureManifestLoaded();
-  return availableLanguages.has(language);
+  await ensureLocalManifest();
+  return (
+    knownLanguages.has(language) ||
+    (localManifest?.entries.some((e) => e.language === language) ?? false)
+  );
 }
 
 /** Get list of available languages */
 export async function getAvailableLanguages(): Promise<string[]> {
-  await ensureManifestLoaded();
-  return Array.from(availableLanguages);
+  await ensureLocalManifest();
+  // In dev mode, use local manifest if available
+  if (localManifest) {
+    return localManifest.entries.map((e) => e.language);
+  }
+  return Array.from(knownLanguages);
 }
