@@ -89,27 +89,27 @@ impl ThemeSlot {
             ThemeSlot::Label => Some("l"),
             ThemeSlot::Namespace => Some("ns"),
             ThemeSlot::Constructor => Some("cr"),
-            /// Markup: headings, titles
+            // Markup: headings, titles
             ThemeSlot::Title => Some("tt"),
-            /// Markup: bold text
+            // Markup: bold text
             ThemeSlot::Strong => Some("st"),
-            /// Markup: italic text
+            // Markup: italic text
             ThemeSlot::Emphasis => Some("em"),
-            /// Markup: links/URLs
+            // Markup: links/URLs
             ThemeSlot::Link => Some("tu"),
-            /// Markup: raw/literal/code blocks
+            // Markup: raw/literal/code blocks
             ThemeSlot::Literal => Some("tl"),
-            /// Markup: strikethrough
+            // Markup: strikethrough
             ThemeSlot::Strikethrough => Some("tx"),
-            /// Diff additions
+            // Diff additions
             ThemeSlot::DiffAdd => Some("da"),
-            /// Diff deletions
+            // Diff deletions
             ThemeSlot::DiffDelete => Some("dd"),
-            /// Embedded content
+            // Embedded content
             ThemeSlot::Embedded => Some("eb"),
-            /// Errors
+            // Errors
             ThemeSlot::Error => Some("er"),
-            /// No styling (invisible captures like spell, nospell)
+            // No styling (invisible captures like spell, nospell)
             ThemeSlot::None => None,
         }
     }

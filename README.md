@@ -17,14 +17,14 @@ Batteries-included [tree-sitter](https://tree-sitter.github.io/tree-sitter/) gra
 
 ```toml
 [dependencies]
-arborium = "0.1"
+arborium = "1.1"
 ```
 
 By default, all permissively-licensed grammars are included. To select specific languages:
 
 ```toml
 [dependencies]
-arborium = { version = "0.1", default-features = false, features = ["lang-rust", "lang-javascript"] }
+arborium = { version = "1.1", default-features = false, features = ["lang-rust", "lang-javascript"] }
 ```
 
 ## Browser Usage
@@ -63,7 +63,7 @@ That's it! Arborium will:
     theme: 'tokyo-night',
     selector: 'pre code, .highlight',
     cdn: 'jsdelivr',  // or 'unpkg' or a custom URL
-    version: '0.1.3', // or 'latest'
+    version: '1', // or 'latest'
   };
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@arborium/arborium/dist/arborium.iife.js"></script>
@@ -109,7 +109,7 @@ For complete control and offline-first apps, compile the Rust crate directly to 
 
 ```toml
 [dependencies]
-arborium = { version = "0.1", default-features = false, features = ["lang-rust", "lang-javascript"] }
+arborium = { version = "1.1", default-features = false, features = ["lang-rust", "lang-javascript"] }
 ```
 
 ```bash
@@ -355,7 +355,7 @@ arborium/
 cargo xtask gen
 
 # Regenerate with specific version (for releases)
-cargo xtask gen --version 0.3.0
+cargo xtask gen --version 1.1.11
 
 # Regenerate specific grammar only
 cargo xtask gen rust
