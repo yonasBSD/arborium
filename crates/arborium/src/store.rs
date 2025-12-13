@@ -11,7 +11,8 @@
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 
-use arborium_highlight::tree_sitter::CompiledGrammar;
+#[allow(unused_imports)]
+use arborium_highlight::tree_sitter::{CompiledGrammar, GrammarConfig};
 
 /// Thread-safe cache of compiled grammars.
 ///

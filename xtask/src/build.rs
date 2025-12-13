@@ -1272,11 +1272,12 @@ fn build_manifest(
             .ok_or_else(|| miette::miette!("grammar `{}` not found for manifest", grammar))?;
 
         let local_root = if let Some(base) = output_override {
-            if base.is_absolute() {
+            let base = if base.is_absolute() {
                 base.to_owned()
             } else {
                 repo_root.join(base)
-            }
+            };
+            base.join(grammar)
         } else {
             state
                 .crate_path
