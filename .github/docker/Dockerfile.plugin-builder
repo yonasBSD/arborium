@@ -9,7 +9,7 @@ FROM rust:1.91.1-trixie
 # Install build dependencies, wabt (wasm-objdump), binaryen (wasm-opt), Node.js 24.x,
 # and visual regression test deps (imagemagick for JXL support)
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends clang wabt binaryen imagemagick \
+    && apt-get install -y --no-install-recommends clang wabt binaryen imagemagick jq \
     && curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
@@ -68,6 +68,7 @@ RUN cargo --version \
     && rustc --version \
     && node --version \
     && npm --version \
+    && jq --version \
     && cargo-component --version \
     && cargo nextest --version \
     && cargo workspaces --version \
