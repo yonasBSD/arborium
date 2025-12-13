@@ -588,7 +588,7 @@ button:hover {
     border-top: none;
     border-radius: 0 0 4px 4px;
     max-height: 280px;
-    overflow-y: auto;
+    overflow-y: scroll;
     overscroll-behavior: contain;
     z-index: 100;
 }
@@ -790,7 +790,7 @@ button:hover {
     border-top: none;
     border-radius: 0 0 4px 4px;
     max-height: 400px;
-    overflow-y: auto;
+    overflow-y: scroll;
     overscroll-behavior: contain;
     z-index: 100;
 }
