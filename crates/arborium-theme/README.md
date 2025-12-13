@@ -31,38 +31,38 @@ This crate includes 32 themes from popular color schemes. We are grateful to the
 
 | Theme | Variant | Source |
 |-------|---------|--------|
-| Catppuccin Mocha | dark | [catppuccin/catppuccin](https://github.com/catppuccin/catppuccin) |
-| Catppuccin Latte | light | [catppuccin/catppuccin](https://github.com/catppuccin/catppuccin) |
+| Alabaster | light | [tonsky/vscode-theme-alabaster](https://github.com/tonsky/vscode-theme-alabaster) |
+| Ayu Dark | dark | [ayu-theme/ayu-colors](https://github.com/ayu-theme/ayu-colors) |
+| Ayu Light | light | [ayu-theme/ayu-colors](https://github.com/ayu-theme/ayu-colors) |
 | Catppuccin Frappé | dark | [catppuccin/catppuccin](https://github.com/catppuccin/catppuccin) |
+| Catppuccin Latte | light | [catppuccin/catppuccin](https://github.com/catppuccin/catppuccin) |
 | Catppuccin Macchiato | dark | [catppuccin/catppuccin](https://github.com/catppuccin/catppuccin) |
+| Catppuccin Mocha | dark | [catppuccin/catppuccin](https://github.com/catppuccin/catppuccin) |
+| Cobalt2 | dark | [wesbos/cobalt2-vscode](https://github.com/wesbos/cobalt2-vscode) |
+| Dayfox | light | [EdenEast/nightfox.nvim](https://github.com/EdenEast/nightfox.nvim) |
+| Desert256 | dark | [vim-scripts/desert256.vim](https://github.com/vim-scripts/desert256.vim) |
 | Dracula | dark | [draculatheme.com](https://draculatheme.com) |
-| Tokyo Night | dark | [enkia/tokyo-night-vscode-theme](https://github.com/enkia/tokyo-night-vscode-theme) |
-| Nord | dark | [www.nordtheme.com](https://www.nordtheme.com) |
-| One Dark | dark | [atom/one-dark-syntax](https://github.com/atom/one-dark-syntax) |
+| EF Melissa Dark | dark | [protesilaos.com/emacs/ef-themes](https://protesilaos.com/emacs/ef-themes) |
 | GitHub Dark | dark | [primer/github-vscode-theme](https://github.com/primer/github-vscode-theme) |
 | GitHub Light | light | [primer/github-vscode-theme](https://github.com/primer/github-vscode-theme) |
 | Gruvbox Dark | dark | [morhetz/gruvbox](https://github.com/morhetz/gruvbox) |
 | Gruvbox Light | light | [morhetz/gruvbox](https://github.com/morhetz/gruvbox) |
-| Monokai | dark | [monokai.pro](https://monokai.pro) |
 | Kanagawa Dragon | dark | [rebelot/kanagawa.nvim](https://github.com/rebelot/kanagawa.nvim) |
-| Rosé Pine Moon | dark | [rosepinetheme.com](https://rosepinetheme.com) |
-| Ayu Dark | dark | [ayu-theme/ayu-colors](https://github.com/ayu-theme/ayu-colors) |
-| Ayu Light | light | [ayu-theme/ayu-colors](https://github.com/ayu-theme/ayu-colors) |
-| Solarized Dark | dark | [ethanschoonover.com/solarized](https://ethanschoonover.com/solarized/) |
-| Solarized Light | light | [ethanschoonover.com/solarized](https://ethanschoonover.com/solarized/) |
-| EF Melissa Dark | dark | [protesilaos.com/emacs/ef-themes](https://protesilaos.com/emacs/ef-themes) |
-| Melange Dark | dark | [savq/melange-nvim](https://github.com/savq/melange-nvim) |
-| Melange Light | light | [savq/melange-nvim](https://github.com/savq/melange-nvim) |
 | Light Owl | light | [sdras/night-owl-vscode-theme](https://github.com/sdras/night-owl-vscode-theme) |
 | Lucius Light | light | [jonathanfilip/vim-lucius](https://github.com/jonathanfilip/vim-lucius) |
-| Rustdoc Light | light | [rust-lang/rust/blob/master/src/librustdoc/html/static/css/themes/light.css](https://github.com/rust-lang/rust/blob/master/src/librustdoc/html/static/css/themes/light.css) |
-| Rustdoc Dark | dark | [rust-lang/rust/blob/master/src/librustdoc/html/static/css/themes/dark.css](https://github.com/rust-lang/rust/blob/master/src/librustdoc/html/static/css/themes/dark.css) |
+| Melange Dark | dark | [savq/melange-nvim](https://github.com/savq/melange-nvim) |
+| Melange Light | light | [savq/melange-nvim](https://github.com/savq/melange-nvim) |
+| Monokai | dark | [monokai.pro](https://monokai.pro) |
+| Nord | dark | [www.nordtheme.com](https://www.nordtheme.com) |
+| One Dark | dark | [atom/one-dark-syntax](https://github.com/atom/one-dark-syntax) |
+| Rosé Pine Moon | dark | [rosepinetheme.com](https://rosepinetheme.com) |
 | Rustdoc Ayu | dark | [rust-lang/rust/blob/master/src/librustdoc/html/static/css/themes/ayu.css](https://github.com/rust-lang/rust/blob/master/src/librustdoc/html/static/css/themes/ayu.css) |
-| Dayfox | light | [EdenEast/nightfox.nvim](https://github.com/EdenEast/nightfox.nvim) |
-| Alabaster | light | [tonsky/vscode-theme-alabaster](https://github.com/tonsky/vscode-theme-alabaster) |
-| Cobalt2 | dark | [wesbos/cobalt2-vscode](https://github.com/wesbos/cobalt2-vscode) |
+| Rustdoc Dark | dark | [rust-lang/rust/blob/master/src/librustdoc/html/static/css/themes/dark.css](https://github.com/rust-lang/rust/blob/master/src/librustdoc/html/static/css/themes/dark.css) |
+| Rustdoc Light | light | [rust-lang/rust/blob/master/src/librustdoc/html/static/css/themes/light.css](https://github.com/rust-lang/rust/blob/master/src/librustdoc/html/static/css/themes/light.css) |
+| Solarized Dark | dark | [ethanschoonover.com/solarized](https://ethanschoonover.com/solarized/) |
+| Solarized Light | light | [ethanschoonover.com/solarized](https://ethanschoonover.com/solarized/) |
+| Tokyo Night | dark | [enkia/tokyo-night-vscode-theme](https://github.com/enkia/tokyo-night-vscode-theme) |
 | Zenburn | dark | [jnurmine/Zenburn](https://github.com/jnurmine/Zenburn) |
-| Desert256 | dark | [vim-scripts/desert256.vim](https://github.com/vim-scripts/desert256.vim) |
 
 ## License
 

@@ -14,4 +14,9 @@ keywords = ["syntax-highlighting", "themes", "tree-sitter"]
 categories = ["text-processing"]
 
 [dependencies]
-toml = "0.8"
+toml = { version = "0.8", optional = true }
+
+[features]
+default = []
+# Enable runtime TOML parsing for custom themes
+toml = ["dep:toml"]

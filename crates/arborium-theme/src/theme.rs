@@ -23,7 +23,6 @@
 //! blue1 = "#61afef"
 //! ```
 
-use std::collections::HashMap;
 use std::fmt::Write as FmtWrite;
 
 /// RGB color.
@@ -158,7 +157,7 @@ pub struct Theme {
     /// Foreground (default text) color.
     pub foreground: Option<Color>,
     /// Styles for each highlight category, indexed by HIGHLIGHT_NAMES.
-    styles: [Style; crate::highlights::COUNT],
+    pub styles: [Style; crate::highlights::COUNT],
 }
 
 impl Default for Theme {
@@ -196,6 +195,9 @@ impl Theme {
     }
 
     /// Parse a theme from Helix-style TOML.
+    ///
+    /// This method is only available when the `toml` feature is enabled.
+    #[cfg(feature = "toml")]
     pub fn from_toml(toml_str: &str) -> Result<Self, ThemeError> {
         let value: toml::Value = toml_str
             .parse()
@@ -218,7 +220,7 @@ impl Theme {
         }
 
         // Extract palette for color lookups
-        let palette: HashMap<&str, Color> = table
+        let palette: std::collections::HashMap<&str, Color> = table
             .get("palette")
             .and_then(|v| v.as_table())
             .map(|t| {
@@ -575,6 +577,7 @@ impl Theme {
 }
 
 /// Parse a style value from TOML (either string or table).
+#[cfg(feature = "toml")]
 fn parse_style_value(
     value: &toml::Value,
     resolve_color: &impl Fn(&str) -> Option<Color>,
@@ -631,96 +634,15 @@ impl std::fmt::Display for ThemeError {
 impl std::error::Error for ThemeError {}
 
 // ============================================================================
-// Built-in themes (include_str!'d from TOML files)
+// Built-in themes - generated from TOML files at build time
 // ============================================================================
 
-macro_rules! builtin_theme {
-    ($name:ident, $file:literal) => {
-        pub fn $name() -> &'static Theme {
-            use std::sync::OnceLock;
-            static THEME: OnceLock<Theme> = OnceLock::new();
-            THEME.get_or_init(|| {
-                Theme::from_toml(include_str!(concat!("../themes/", $file)))
-                    .expect(concat!("Failed to parse built-in theme: ", $file))
-            })
-        }
-    };
-}
-
 /// Built-in themes module.
+///
+/// These themes are generated from TOML files at build time by `cargo xtask gen`.
+/// No runtime TOML parsing is required.
 pub mod builtin {
-    use super::Theme;
-
-    builtin_theme!(catppuccin_mocha, "catppuccin-mocha.toml");
-    builtin_theme!(catppuccin_latte, "catppuccin-latte.toml");
-    builtin_theme!(catppuccin_frappe, "catppuccin-frappe.toml");
-    builtin_theme!(catppuccin_macchiato, "catppuccin-macchiato.toml");
-    builtin_theme!(dracula, "dracula.toml");
-    builtin_theme!(tokyo_night, "tokyo-night.toml");
-    builtin_theme!(nord, "nord.toml");
-    builtin_theme!(one_dark, "one-dark.toml");
-    builtin_theme!(github_dark, "github-dark.toml");
-    builtin_theme!(github_light, "github-light.toml");
-    builtin_theme!(gruvbox_dark, "gruvbox-dark.toml");
-    builtin_theme!(gruvbox_light, "gruvbox-light.toml");
-    builtin_theme!(monokai, "monokai.toml");
-    builtin_theme!(kanagawa_dragon, "kanagawa-dragon.toml");
-    builtin_theme!(rose_pine_moon, "rose-pine-moon.toml");
-    builtin_theme!(ayu_dark, "ayu-dark.toml");
-    builtin_theme!(ayu_light, "ayu-light.toml");
-    builtin_theme!(solarized_dark, "solarized-dark.toml");
-    builtin_theme!(solarized_light, "solarized-light.toml");
-    builtin_theme!(ef_melissa_dark, "ef-melissa-dark.toml");
-    builtin_theme!(melange_dark, "melange-dark.toml");
-    builtin_theme!(melange_light, "melange-light.toml");
-    builtin_theme!(light_owl, "light-owl.toml");
-    builtin_theme!(lucius_light, "lucius-light.toml");
-    builtin_theme!(rustdoc_light, "rustdoc-light.toml");
-    builtin_theme!(rustdoc_dark, "rustdoc-dark.toml");
-    builtin_theme!(rustdoc_ayu, "rustdoc-ayu.toml");
-    builtin_theme!(dayfox, "dayfox.toml");
-    builtin_theme!(alabaster, "alabaster.toml");
-    builtin_theme!(cobalt2, "cobalt2.toml");
-    builtin_theme!(zenburn, "zenburn.toml");
-    builtin_theme!(desert256, "desert256.toml");
-
-    /// Get all built-in themes.
-    pub fn all() -> Vec<&'static Theme> {
-        vec![
-            catppuccin_mocha(),
-            catppuccin_latte(),
-            catppuccin_frappe(),
-            catppuccin_macchiato(),
-            dracula(),
-            tokyo_night(),
-            nord(),
-            one_dark(),
-            github_dark(),
-            github_light(),
-            gruvbox_dark(),
-            gruvbox_light(),
-            monokai(),
-            kanagawa_dragon(),
-            rose_pine_moon(),
-            ayu_dark(),
-            ayu_light(),
-            solarized_dark(),
-            solarized_light(),
-            ef_melissa_dark(),
-            melange_dark(),
-            melange_light(),
-            light_owl(),
-            lucius_light(),
-            rustdoc_light(),
-            rustdoc_dark(),
-            rustdoc_ayu(),
-            dayfox(),
-            alabaster(),
-            cobalt2(),
-            zenburn(),
-            desert256(),
-        ]
-    }
+    include!("builtin_generated.rs");
 }
 
 #[cfg(test)]

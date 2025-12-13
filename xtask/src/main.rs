@@ -12,6 +12,7 @@ mod ci;
 mod deploy_website;
 mod generate;
 mod lint_new;
+mod theme_gen;
 
 mod build;
 mod plan;
@@ -332,6 +333,12 @@ fn main() {
                     registry.crates.len(),
                     lint_elapsed.as_secs_f64()
                 );
+
+                // Generate theme Rust code from TOML files
+                if let Err(e) = theme_gen::generate_theme_code(&crates_dir) {
+                    eprintln!("{:?}", e);
+                    std::process::exit(1);
+                }
 
                 // Generate theme CSS and README
                 if let Err(e) = serve::generate_npm_theme_css(&crates_dir) {
