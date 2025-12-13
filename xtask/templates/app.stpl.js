@@ -716,6 +716,17 @@ langDropdown.addEventListener('mouseover', (e) => {
     }
 });
 
+// Prevent page scroll when scrolling inside dropdown
+langDropdown.addEventListener('wheel', (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = langDropdown;
+    const atTop = scrollTop === 0;
+    const atBottom = scrollTop + clientHeight >= scrollHeight;
+
+    if ((atTop && e.deltaY < 0) || (atBottom && e.deltaY > 0)) {
+        e.preventDefault();
+    }
+}, { passive: false });
+
 // Theme metadata: id -> { name, variant } - generated from arborium-theme
 const themeInfo = <%- theme_info %>;
 
@@ -1016,6 +1027,17 @@ themeDropdown.addEventListener('mouseover', (e) => {
         // Don't preview on hover - too noisy. Only preview on keyboard nav.
     }
 });
+
+// Prevent page scroll when scrolling inside dropdown
+themeDropdown.addEventListener('wheel', (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = themeDropdown;
+    const atTop = scrollTop === 0;
+    const atBottom = scrollTop + clientHeight >= scrollHeight;
+
+    if ((atTop && e.deltaY < 0) || (atBottom && e.deltaY > 0)) {
+        e.preventDefault();
+    }
+}, { passive: false });
 
 // Initialize mode and theme
 const savedMode = localStorage.getItem('arborium-mode');
