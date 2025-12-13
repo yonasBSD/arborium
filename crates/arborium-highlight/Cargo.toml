@@ -16,7 +16,7 @@ categories = ["text-processing"]
 publish = false
 
 [features]
-default = ["unicode-width", "terminal-size"]
+default = []
 # Enable the tree-sitter based Grammar implementation for native Rust usage
 tree-sitter = ["dep:arborium-tree-sitter", "dep:streaming-iterator"]
 # Enable Unicode-aware width calculations for ANSI wrapping

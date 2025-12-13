@@ -2,7 +2,7 @@
 name = "arborium-rustdoc"
 version = "2.0.0"
 edition = "2024"
-rust-version = "1.85"
+rust-version = "1.89"
 description = "Post-process rustdoc HTML output to add syntax highlighting for non-Rust code blocks"
 authors = ["Amos Wenger <amos@bearcove.eu>"]
 license = "MIT OR Apache-2.0"
@@ -20,7 +20,6 @@ path = "src/main.rs"
 [dependencies]
 # Core arborium dependencies
 arborium = { version = "2.0.0", path = "../arborium", features = ["all-languages"] }
-arborium-highlight = { version = "2.0.0", path = "../arborium-highlight", features = ["tree-sitter"] }
 arborium-theme = { version = "2.0.0", path = "../arborium-theme" }
 
 # HTML transformation
@@ -34,7 +33,7 @@ facet-args = { git = "https://github.com/facet-rs/facet" }
 walkdir = "2"
 
 # Error handling
-color-eyre = "0.6"
+anyhow = "1"
 
 # Progress/output
 owo-colors = "4"

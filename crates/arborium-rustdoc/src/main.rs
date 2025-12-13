@@ -1,7 +1,7 @@
 //! arborium-rustdoc CLI - Post-process rustdoc output with syntax highlighting.
 
+use anyhow::{Result, bail};
 use arborium_rustdoc::{ProcessOptions, Processor};
-use color_eyre::eyre::{Result, eyre};
 use facet::Facet;
 use facet_args as args;
 use owo_colors::OwoColorize;
@@ -28,23 +28,15 @@ struct Args {
 }
 
 fn main() -> Result<()> {
-    color_eyre::install()?;
-
     let args: Args = facet_args::from_std_args()?;
 
     // Validate input directory
     if !args.input.exists() {
-        return Err(eyre!(
-            "Input directory does not exist: {}",
-            args.input.display()
-        ));
+        bail!("Input directory does not exist: {}", args.input.display());
     }
 
     if !args.input.is_dir() {
-        return Err(eyre!(
-            "Input path is not a directory: {}",
-            args.input.display()
-        ));
+        bail!("Input path is not a directory: {}", args.input.display());
     }
 
     // Create processor

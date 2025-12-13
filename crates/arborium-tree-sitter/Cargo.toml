@@ -15,9 +15,11 @@ categories = [
   "text-editors",
 ]
 publish = true
-
 build = "binding_rust/build.rs"
 links = "tree-sitter"
+
+[package.metadata.cargo-shear]
+ignored = ["arborium-sysroot"]
 
 [features]
 default = ["std"]
@@ -29,9 +31,9 @@ regex-syntax = { version = "0.8.5", default-features = false }
 tree-sitter-language = { version = "0.1", path = "language" }
 streaming-iterator = "0.1.9"
 
-[dependencies.arborium-sysroot]
-version = "2.0.0"
-path = "../arborium-sysroot"
+# WASM allocator (only needed on WASM targets)
+[target.'cfg(target_family = "wasm")'.dependencies]
+arborium-sysroot = { version = "2.0.0", path = "../arborium-sysroot" }
 
 [build-dependencies]
 cc = "1"

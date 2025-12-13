@@ -1,3 +1,5 @@
+//! <%= generated_disclaimer %>
+
 fn main() {
     // All build-time grammar sources live inside the crate so that
     // crates.io package verification can rebuild the crate in isolation.

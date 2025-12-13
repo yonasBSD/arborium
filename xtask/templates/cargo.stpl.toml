@@ -1,3 +1,5 @@
+# <%= generated_disclaimer %>
+
 [package]
 name = "<%= crate_name %>"
 version = "<%= workspace_version %>"
@@ -24,12 +26,14 @@ include = [
     ".arborium-hash",
 ]
 
+[package.metadata.cargo-shear]
+ignored = ["arborium-sysroot"]
+
 [lib]
 path = "src/lib.rs"
 
 [dependencies]
 tree-sitter-language = { version = "0.1", path = "<%= shared_rel %>/arborium-tree-sitter/language" }
-arborium-sysroot = { version = "<%= dep_version %>", path = "<%= shared_rel %>/arborium-sysroot" }
 <% for dep in highlights_prepend_deps { %>
 <%= dep.crate_name %> = { version = "<%= dep_version %>", path = "<%= dep.rel_path %>" }
 <% } %>
@@ -45,6 +49,10 @@ injections = [<%- injection_deps.iter().map(|d| format!("\"{}\"", d.crate_name))
 
 [dev-dependencies]
 arborium-test-harness = { version = "<%= dep_version %>", path = "<%= shared_rel %>/arborium-test-harness" }
+
+# WASM allocator (only needed on WASM targets)
+[target.'cfg(target_family = "wasm")'.dependencies]
+arborium-sysroot = { version = "<%= dep_version %>", path = "<%= shared_rel %>/arborium-sysroot" }
 
 [build-dependencies]
 cc = "1"

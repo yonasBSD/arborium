@@ -36,16 +36,26 @@ use std::process::Stdio;
 use std::sync::Mutex;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
+/// Create a generated file disclaimer for a given template filename
+fn generated_disclaimer(template_name: &str) -> String {
+    format!(
+        "THIS FILE IS GENERATED FROM xtask/templates/{}; DO NOT EDIT MANUALLY",
+        template_name
+    )
+}
+
 // Sailfish templates - compiled at build time
 #[derive(TemplateSimple)]
 #[template(path = "validate_grammar.stpl.js")]
 struct ValidateGrammarTemplate<'a> {
+    generated_disclaimer: &'a str,
     grammar_path: &'a str,
 }
 
 #[derive(TemplateSimple)]
 #[template(path = "cargo.stpl.toml")]
 struct CargoTomlTemplate<'a> {
+    generated_disclaimer: &'a str,
     crate_name: &'a str,
     workspace_version: &'a str,
     /// Major version for dependencies
@@ -64,6 +74,7 @@ struct CargoTomlTemplate<'a> {
 #[derive(TemplateSimple)]
 #[template(path = "build.stpl.rs")]
 struct BuildRsTemplate<'a> {
+    generated_disclaimer: &'a str,
     has_scanner: bool,
     c_symbol: &'a str,
 }
@@ -71,6 +82,7 @@ struct BuildRsTemplate<'a> {
 #[derive(TemplateSimple)]
 #[template(path = "lib.stpl.rs")]
 struct LibRsTemplate<'a> {
+    generated_disclaimer: &'a str,
     grammar_id: &'a str,
     c_symbol: &'a str,
     highlights_exists: bool,
@@ -631,6 +643,7 @@ fn generate_cargo_toml(
     let dep_version = workspace_version;
 
     let template = CargoTomlTemplate {
+        generated_disclaimer: &generated_disclaimer("cargo.stpl.toml"),
         crate_name,
         workspace_version,
         dep_version,
@@ -663,6 +676,7 @@ fn generate_build_rs(crate_name: &str, config: &crate::types::CrateConfig) -> St
         });
 
     let template = BuildRsTemplate {
+        generated_disclaimer: &generated_disclaimer("build.stpl.rs"),
         has_scanner,
         c_symbol: &c_symbol,
     };
@@ -696,6 +710,7 @@ fn generate_lib_rs(
     let locals_exists = def_path.join("queries/locals.scm").exists();
 
     let template = LibRsTemplate {
+        generated_disclaimer: &generated_disclaimer("lib.stpl.rs"),
         grammar_id,
         c_symbol: &c_symbol,
         highlights_exists,
@@ -1029,6 +1044,7 @@ fn validate_single_grammar(prepared_temp: &PreparedTemp) -> Result<(), Report> {
     let temp_grammar_js = prepared_temp.temp_grammar.join("grammar.js");
 
     let template = ValidateGrammarTemplate {
+        generated_disclaimer: &generated_disclaimer("validate_grammar.stpl.js"),
         grammar_path: &temp_grammar_js.as_str().replace('\\', "\\\\"),
     };
     let wrapper_content = template.render_once()?;

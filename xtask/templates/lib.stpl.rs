@@ -1,3 +1,5 @@
+//! <%= generated_disclaimer %>
+
 #![doc = include_str!("../README.md")]
 
 use tree_sitter_language::LanguageFn;

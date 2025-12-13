@@ -1,3 +1,5 @@
+// <%= generated_disclaimer %>
+
 // Mock Node.js module system
 global.module = { exports: {} };
 global.exports = global.module.exports;
