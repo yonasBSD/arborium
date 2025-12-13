@@ -64,9 +64,6 @@
                         <a href="https://docs.rs/arborium">docs</a>
                         <a href="https://crates.io/crates/arborium">crates.io</a>
                     </div>
-                    <div style="margin-top: 1rem;">
-                        <a href="rustdoc-comparison.html" style="display: block; padding: 0.75rem; background: #50C878; color: #1a1a1a; text-align: center; text-decoration: none; border-radius: 4px; font-weight: 500; transition: all 0.2s;">See it in action!</a>
-                    </div>
                 </aside>
 
                 <div class="editor-container" id="demo">
@@ -187,8 +184,11 @@
                         <li><svg  width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10s10-4.5 10-10S17.5 2 12 2m-2 15l-5-5l1.41-1.41L10 14.17l7.59-7.59L19 8z"/></svg> Has working highlight queries</li>
                     </ul>
                     <p>
-                        We provide any C symbols the scanner might rely on. We patched grammars and
-                        wrote highlight queries so you don't have to. Enjoy.
+                        We hand-picked grammars, added missing highlight queries, and updated them
+                        to the latest tree-sitter. Tree-sitter parsers compiled to WASM need libc
+                        symbols (especially a C allocator)—we provide
+                        <a href="https://github.com/bearcove/arborium/tree/main/crates/arborium-sysroot">arborium-sysroot</a>
+                        which re-exports dlmalloc and other essentials for wasm32-unknown-unknown.
                     </p>
                 </div>
 
@@ -294,7 +294,7 @@
                             <pre class="code-block"><code><a-k>import</a-k> <a-p>{</a-p> <a-v>loadGrammar</a-v><a-p>,</a-p> <a-v>highlight</a-v> <a-p>}</a-p> <a-k>from</a-k> <a-s>&#39;@arborium/arborium&#39;</a-s><a-p>;</a-p>
 
 <a-k>const</a-k> <a-v>html</a-v> <a-o>=</a-o> <a-k>await</a-k> <a-v>highlight</a-v><a-p>(</a-p><a-s>&#39;rust&#39;</a-s><a-p>,</a-p> <a-v>sourceCode</a-v><a-p>);</a-p></code></pre>
-                            <p>Grammars are loaded on-demand from jsdelivr (configurable).</p>
+                            <p>Grammars are loaded on-demand from <a href="https://www.jsdelivr.com/">jsDelivr</a> (configurable).</p>
                         </div>
                     </div>
                 </div>
@@ -332,7 +332,8 @@
                             </p>
                             <p class="integration-links">
                                 <a href="https://crates.io/crates/arborium-rustdoc">crates.io</a> ·
-                                <a href="https://docs.rs/arborium-rustdoc">docs.rs</a>
+                                <a href="https://docs.rs/arborium-rustdoc">docs.rs</a> ·
+                                <a href="rustdoc-comparison.html">See it in action!</a>
                             </p>
                         </div>
                         <div class="integration-item">
@@ -354,7 +355,7 @@
                             </p>
                         </div>
                         <div class="integration-item">
-                            <h4><svg viewBox="0 0 64 64" width="1.2em" height="1.2em"><path d="m42.73999 18.59998h-20.42999l-6.40003 19.40002 16.47003 11.98999 16.58002-11.98999z" fill="#7aba7a"></path><path d="m13.95001 37.56001s6.52997-19.79005 6.52997-19.79005c-.91948-1.267-5.1235-7.08827-5.95995-8.25001 0 0-9.99 13.36005-9.99 13.36005-.13.17999-.20001.38995-.20001.60999l.26996 16.59998s8.64801-2.34309 9.35003-2.52996z" fill="#5d8a5d"></path><path d="m5.20003 42.00001s9.56999 13.23998 9.56999 13.23998c.13.16998.29999.29999.5.37l15.40997 5.09003c.09111-1.37.55626-7.49243.66002-8.98005.00001.00001-16.80998-12.24999-16.80998-12.24999s-8.84918 2.3889-9.33 2.53004z" fill="#4a6a4a"></path><path d="m50.34003 39.45996-17 12.31c-.11033 1.58125-.55533 7.50644-.66004 8.99005 0 0 16.12-4.98004 16.12-4.98004.21002-.06.39001-.20001.52002-.37l9.77002-13.75c-.38045-.09106-8.75-2.20001-8.75-2.20001z" fill="#6a9a6a"></path><path d="m22.09998 16.59998h20.84003c.84413-1.28877 4.57061-6.89599 5.33003-8.08996-.00001 0-15.67005-5.45002-15.67005-5.45002-.20996-.08002-.44-.08002-.64996-.01001l-15.79999 5.31c.26188.35504 5.94995 8.23999 5.94995 8.23999z" fill="#8fbc8f"></path><path d="m44.58002 17.75 6.33997 19.79999c1.47743.36511 7.3731 1.85349 8.75 2.19001 0 0-.01001-16.22999-.01001-16.22999 0-.21002-.06995-.41003-.19-.58002l-9.57996-13.23999c-.76876 1.19512-4.47377 6.75716-5.31 8.06z" fill="#6a9a6a"></path></svg> dodeca</h4>
+                            <h4><img src="dodeca-logo.svg" alt="dodeca" style="width: 1.2em; height: 1.2em; vertical-align: middle;"> dodeca</h4>
                             <p>
                                 An incremental static site generator with zero-reload live updates via
                                 WASM DOM patching, Sass/SCSS, image processing, font subsetting, and
@@ -375,7 +376,7 @@
                 <div class="about-card" id="languages">
                     <h3>Languages</h3>
                     <p>
-                        <strong id="lang-count">90+</strong> languages included, each behind a
+                        <strong id="lang-count">96</strong> languages included, each behind a
                         feature flag. Enable only what you need, or use
                         <code>all-languages</code> for everything.
                     </p>
@@ -395,19 +396,26 @@
                         <strong>ANSI</strong> output.
                     </p>
                     <p class="theme-list-label">Bundled themes:</p>
-                    <div class="theme-swatches"><div class="theme-preview" data-variant="dark" data-theme="catppuccin-mocha">
-    <pre style="background: #1e1e2e; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+                    <div class="theme-swatches"><div class="theme-preview" data-variant="light" data-theme="alabaster">
+    <pre style="background: #f7f7f7; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
     <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
     <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
 <a-p>}</a-p></code></pre>
-    <span class="theme-name">Catppuccin Mocha</span>
+    <span class="theme-name">Alabaster</span>
 </div>
-<div class="theme-preview" data-variant="light" data-theme="catppuccin-latte">
-    <pre style="background: #eff1f5; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+<div class="theme-preview" data-variant="dark" data-theme="ayu-dark">
+    <pre style="background: #0d1017; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
     <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
     <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
 <a-p>}</a-p></code></pre>
-    <span class="theme-name">Catppuccin Latte</span>
+    <span class="theme-name">Ayu Dark</span>
+</div>
+<div class="theme-preview" data-variant="light" data-theme="ayu-light">
+    <pre style="background: #fafafa; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Ayu Light</span>
 </div>
 <div class="theme-preview" data-variant="dark" data-theme="catppuccin-frappe">
     <pre style="background: #303446; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
@@ -416,12 +424,47 @@
 <a-p>}</a-p></code></pre>
     <span class="theme-name">Catppuccin Frappé</span>
 </div>
+<div class="theme-preview" data-variant="light" data-theme="catppuccin-latte">
+    <pre style="background: #eff1f5; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Catppuccin Latte</span>
+</div>
 <div class="theme-preview" data-variant="dark" data-theme="catppuccin-macchiato">
     <pre style="background: #24273a; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
     <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
     <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
 <a-p>}</a-p></code></pre>
     <span class="theme-name">Catppuccin Macchiato</span>
+</div>
+<div class="theme-preview" data-variant="dark" data-theme="catppuccin-mocha">
+    <pre style="background: #1e1e2e; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Catppuccin Mocha</span>
+</div>
+<div class="theme-preview" data-variant="dark" data-theme="cobalt2">
+    <pre style="background: #193549; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Cobalt2</span>
+</div>
+<div class="theme-preview" data-variant="light" data-theme="dayfox">
+    <pre style="background: #f6f2ee; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Dayfox</span>
+</div>
+<div class="theme-preview" data-variant="dark" data-theme="desert256">
+    <pre style="background: #000000; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Desert256</span>
 </div>
 <div class="theme-preview" data-variant="dark" data-theme="dracula">
     <pre style="background: #282a36; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
@@ -430,26 +473,12 @@
 <a-p>}</a-p></code></pre>
     <span class="theme-name">Dracula</span>
 </div>
-<div class="theme-preview" data-variant="dark" data-theme="tokyo-night">
-    <pre style="background: #1a1b26; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+<div class="theme-preview" data-variant="dark" data-theme="ef-melissa-dark">
+    <pre style="background: #352718; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
     <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
     <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
 <a-p>}</a-p></code></pre>
-    <span class="theme-name">Tokyo Night</span>
-</div>
-<div class="theme-preview" data-variant="dark" data-theme="nord">
-    <pre style="background: #2e3440; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">Nord</span>
-</div>
-<div class="theme-preview" data-variant="dark" data-theme="one-dark">
-    <pre style="background: #282c34; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">One Dark</span>
+    <span class="theme-name">EF Melissa Dark</span>
 </div>
 <div class="theme-preview" data-variant="dark" data-theme="github-dark">
     <pre style="background: #0d1117; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
@@ -479,75 +508,12 @@
 <a-p>}</a-p></code></pre>
     <span class="theme-name">Gruvbox Light</span>
 </div>
-<div class="theme-preview" data-variant="dark" data-theme="monokai">
-    <pre style="background: #2d2a2e; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">Monokai</span>
-</div>
 <div class="theme-preview" data-variant="dark" data-theme="kanagawa-dragon">
     <pre style="background: #181616; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
     <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
     <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
 <a-p>}</a-p></code></pre>
     <span class="theme-name">Kanagawa Dragon</span>
-</div>
-<div class="theme-preview" data-variant="dark" data-theme="rose-pine-moon">
-    <pre style="background: #232136; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">Rosé Pine Moon</span>
-</div>
-<div class="theme-preview" data-variant="dark" data-theme="ayu-dark">
-    <pre style="background: #0d1017; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">Ayu Dark</span>
-</div>
-<div class="theme-preview" data-variant="light" data-theme="ayu-light">
-    <pre style="background: #fafafa; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">Ayu Light</span>
-</div>
-<div class="theme-preview" data-variant="dark" data-theme="solarized-dark">
-    <pre style="background: #002b36; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">Solarized Dark</span>
-</div>
-<div class="theme-preview" data-variant="light" data-theme="solarized-light">
-    <pre style="background: #fdf6e3; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">Solarized Light</span>
-</div>
-<div class="theme-preview" data-variant="dark" data-theme="ef-melissa-dark">
-    <pre style="background: #352718; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">EF Melissa Dark</span>
-</div>
-<div class="theme-preview" data-variant="dark" data-theme="melange-dark">
-    <pre style="background: #292522; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">Melange Dark</span>
-</div>
-<div class="theme-preview" data-variant="light" data-theme="melange-light">
-    <pre style="background: #f1f1f1; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">Melange Light</span>
 </div>
 <div class="theme-preview" data-variant="light" data-theme="light-owl">
     <pre style="background: #fbfbfb; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
@@ -563,19 +529,47 @@
 <a-p>}</a-p></code></pre>
     <span class="theme-name">Lucius Light</span>
 </div>
-<div class="theme-preview" data-variant="light" data-theme="rustdoc-light">
-    <pre style="background: #f5f5f5; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+<div class="theme-preview" data-variant="dark" data-theme="melange-dark">
+    <pre style="background: #292522; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
     <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
     <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
 <a-p>}</a-p></code></pre>
-    <span class="theme-name">Rustdoc Light</span>
+    <span class="theme-name">Melange Dark</span>
 </div>
-<div class="theme-preview" data-variant="dark" data-theme="rustdoc-dark">
-    <pre style="background: #2a2a2a; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+<div class="theme-preview" data-variant="light" data-theme="melange-light">
+    <pre style="background: #f1f1f1; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
     <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
     <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
 <a-p>}</a-p></code></pre>
-    <span class="theme-name">Rustdoc Dark</span>
+    <span class="theme-name">Melange Light</span>
+</div>
+<div class="theme-preview" data-variant="dark" data-theme="monokai">
+    <pre style="background: #2d2a2e; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Monokai</span>
+</div>
+<div class="theme-preview" data-variant="dark" data-theme="nord">
+    <pre style="background: #2e3440; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Nord</span>
+</div>
+<div class="theme-preview" data-variant="dark" data-theme="one-dark">
+    <pre style="background: #282c34; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">One Dark</span>
+</div>
+<div class="theme-preview" data-variant="dark" data-theme="rose-pine-moon">
+    <pre style="background: #232136; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Rosé Pine Moon</span>
 </div>
 <div class="theme-preview" data-variant="dark" data-theme="rustdoc-ayu">
     <pre style="background: #191f26; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
@@ -584,26 +578,40 @@
 <a-p>}</a-p></code></pre>
     <span class="theme-name">Rustdoc Ayu</span>
 </div>
-<div class="theme-preview" data-variant="light" data-theme="dayfox">
-    <pre style="background: #f6f2ee; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+<div class="theme-preview" data-variant="dark" data-theme="rustdoc-dark">
+    <pre style="background: #2a2a2a; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
     <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
     <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
 <a-p>}</a-p></code></pre>
-    <span class="theme-name">Dayfox</span>
+    <span class="theme-name">Rustdoc Dark</span>
 </div>
-<div class="theme-preview" data-variant="light" data-theme="alabaster">
-    <pre style="background: #f7f7f7; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+<div class="theme-preview" data-variant="light" data-theme="rustdoc-light">
+    <pre style="background: #f5f5f5; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
     <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
     <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
 <a-p>}</a-p></code></pre>
-    <span class="theme-name">Alabaster</span>
+    <span class="theme-name">Rustdoc Light</span>
 </div>
-<div class="theme-preview" data-variant="dark" data-theme="cobalt2">
-    <pre style="background: #193549; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+<div class="theme-preview" data-variant="dark" data-theme="solarized-dark">
+    <pre style="background: #002b36; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
     <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
     <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
 <a-p>}</a-p></code></pre>
-    <span class="theme-name">Cobalt2</span>
+    <span class="theme-name">Solarized Dark</span>
+</div>
+<div class="theme-preview" data-variant="light" data-theme="solarized-light">
+    <pre style="background: #fdf6e3; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Solarized Light</span>
+</div>
+<div class="theme-preview" data-variant="dark" data-theme="tokyo-night">
+    <pre style="background: #1a1b26; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Tokyo Night</span>
 </div>
 <div class="theme-preview" data-variant="dark" data-theme="zenburn">
     <pre style="background: #3f3f3f; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
@@ -611,13 +619,6 @@
     <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
 <a-p>}</a-p></code></pre>
     <span class="theme-name">Zenburn</span>
-</div>
-<div class="theme-preview" data-variant="dark" data-theme="desert256">
-    <pre style="background: #000000; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">Desert256</span>
 </div>
 </div>
                     <p>

@@ -3,7 +3,7 @@
 use crate::css::generate_rustdoc_theme_css;
 use crate::html::{TransformError, TransformResult, transform_html};
 use arborium::Highlighter;
-use fs_extra::dir::{self, CopyOptions};
+use fs_extra::dir::CopyOptions;
 use std::fs;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
@@ -60,14 +60,21 @@ impl Processor {
         if let Some(ref out) = self.options.output_dir
             && out != &self.options.input_dir
         {
-            // Create output directory if it doesn't exist
-            if !out.exists() {
-                fs::create_dir_all(out)?;
+            // Remove output directory if it exists (clean slate)
+            if out.exists() {
+                fs::remove_dir_all(out)?;
             }
+            fs::create_dir_all(out)?;
 
-            // Copy contents using fs_extra (handles symlinks, permissions, etc.)
-            let options = CopyOptions::new().overwrite(true).copy_inside(true);
-            dir::copy(&self.options.input_dir, out, &options)
+            // List all items in the input directory
+            let items: Vec<PathBuf> = fs::read_dir(&self.options.input_dir)?
+                .filter_map(|e| e.ok())
+                .map(|e| e.path())
+                .collect();
+
+            // Copy items directly into output (not nested)
+            let options = CopyOptions::new().overwrite(true);
+            fs_extra::copy_items(&items, out, &options)
                 .map_err(|e| ProcessError::Io(std::io::Error::other(e.to_string())))?;
         }
 
@@ -114,8 +121,10 @@ impl Processor {
         let static_files = output_dir.join("static.files");
 
         if !static_files.exists() {
-            // Not a rustdoc output directory, or CSS is embedded
-            return Ok(None);
+            return Err(ProcessError::CssPatch(format!(
+                "static.files directory not found at {}. Is this a rustdoc output directory?",
+                static_files.display()
+            )));
         }
 
         // Find rustdoc-*.css file
@@ -129,7 +138,10 @@ impl Processor {
             .map(|e| e.path());
 
         let Some(css_path) = css_file else {
-            return Ok(None);
+            return Err(ProcessError::CssPatch(format!(
+                "No rustdoc-*.css file found in {}",
+                static_files.display()
+            )));
         };
 
         // Read existing CSS
@@ -174,6 +186,8 @@ pub enum ProcessError {
     Io(std::io::Error),
     /// HTML transformation error.
     Transform(TransformError),
+    /// CSS patching error.
+    CssPatch(String),
 }
 
 impl From<std::io::Error> for ProcessError {
@@ -193,6 +207,7 @@ impl std::fmt::Display for ProcessError {
         match self {
             ProcessError::Io(e) => write!(f, "IO error: {}", e),
             ProcessError::Transform(e) => write!(f, "Transform error: {}", e),
+            ProcessError::CssPatch(msg) => write!(f, "CSS patch error: {}", msg),
         }
     }
 }

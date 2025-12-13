@@ -147,9 +147,58 @@
                     <span>Enhanced with arborium-rustdoc</span>
                 </div>
                 <div class="iframe-container">
-                    <iframe src="rustdoc-comparison/after/doc/arborium_docsrs_demo/index.html"></iframe>
+                    <iframe src="rustdoc-comparison/after/arborium_docsrs_demo/index.html"></iframe>
                 </div>
             </div>
         </div>
+        <script>
+            // Synchronize scroll positions between iframes
+            (function() {
+                const iframes = document.querySelectorAll('iframe');
+                const [beforeIframe, afterIframe] = iframes;
+                let syncing = false;
+
+                function syncScroll(source, target) {
+                    if (syncing) return;
+                    syncing = true;
+
+                    const sourceDoc = source.contentDocument || source.contentWindow.document;
+                    const targetDoc = target.contentDocument || target.contentWindow.document;
+
+                    // Sync scroll position (as percentage to handle different content heights)
+                    const sourceEl = sourceDoc.scrollingElement || sourceDoc.documentElement;
+                    const targetEl = targetDoc.scrollingElement || targetDoc.documentElement;
+
+                    const scrollPercentX = sourceEl.scrollLeft / (sourceEl.scrollWidth - sourceEl.clientWidth || 1);
+                    const scrollPercentY = sourceEl.scrollTop / (sourceEl.scrollHeight - sourceEl.clientHeight || 1);
+
+                    targetEl.scrollLeft = scrollPercentX * (targetEl.scrollWidth - targetEl.clientWidth);
+                    targetEl.scrollTop = scrollPercentY * (targetEl.scrollHeight - targetEl.clientHeight);
+
+                    requestAnimationFrame(() => { syncing = false; });
+                }
+
+                function setupSync() {
+                    try {
+                        const beforeDoc = beforeIframe.contentWindow;
+                        const afterDoc = afterIframe.contentWindow;
+
+                        beforeDoc.addEventListener('scroll', () => syncScroll(beforeIframe, afterIframe));
+                        afterDoc.addEventListener('scroll', () => syncScroll(afterIframe, beforeIframe));
+                    } catch (e) {
+                        console.warn('Could not sync iframe scrolls (cross-origin?):', e);
+                    }
+                }
+
+                // Wait for both iframes to load
+                let loaded = 0;
+                iframes.forEach(iframe => {
+                    iframe.addEventListener('load', () => {
+                        loaded++;
+                        if (loaded === 2) setupSync();
+                    });
+                });
+            })();
+        </script>
     </body>
 </html>

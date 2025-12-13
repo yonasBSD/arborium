@@ -30,4 +30,4 @@ mod processor;
 
 pub use css::generate_rustdoc_theme_css;
 pub use html::transform_html;
-pub use processor::{ProcessOptions, Processor, ProcessorStats};
+pub use processor::{ProcessError, ProcessOptions, Processor, ProcessorStats};

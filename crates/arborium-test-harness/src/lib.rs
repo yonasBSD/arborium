@@ -31,7 +31,7 @@ pub use arborium_tree_sitter as tree_sitter;
 use std::fs;
 use std::path::Path;
 
-use arborium_highlight::{Grammar, TreeSitterGrammar, TreeSitterGrammarConfig};
+use arborium_highlight::{CompiledGrammar, GrammarConfig, ParseContext};
 use arborium_tree_sitter::Language;
 
 // Re-export CAPTURE_NAMES from arborium-theme as HIGHLIGHT_NAMES for convenience
@@ -64,8 +64,8 @@ pub fn test_grammar(
     _locals_query: &str,
     crate_dir: &str,
 ) {
-    // Create TreeSitterGrammar config
-    let config = TreeSitterGrammarConfig {
+    // Create grammar config
+    let config = GrammarConfig {
         language,
         highlights_query,
         injections_query,
@@ -73,13 +73,18 @@ pub fn test_grammar(
     };
 
     // Validate queries compile by creating the grammar
-    let mut grammar = TreeSitterGrammar::new(config).unwrap_or_else(|e| {
+    let grammar = CompiledGrammar::new(config).unwrap_or_else(|e| {
         panic!(
             "Query validation failed for {}: {:?}\n\
              This usually means highlights.scm references a node type that doesn't exist in the grammar.\n\
              Check the grammar's node-types.json to see valid node types.",
             name, e
         );
+    });
+
+    // Create a parse context for this grammar
+    let mut ctx = ParseContext::for_grammar(&grammar).unwrap_or_else(|e| {
+        panic!("Failed to create parse context for {}: {:?}", name, e);
     });
 
     // Find samples from arborium.kdl
@@ -111,7 +116,7 @@ pub fn test_grammar(
         });
 
         // Parse with the grammar
-        let result = grammar.parse(&sample_code);
+        let result = grammar.parse(&mut ctx, &sample_code);
 
         // Count highlight spans
         let highlight_count = result.spans.len();
