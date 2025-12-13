@@ -1376,9 +1376,11 @@ let hostModule = null;
 // Cache for loaded grammar plugins
 const grammarCache = {};
 
-// Map from grammar handle to plugin instance (for window.arboriumHost.parse)
+// Map from grammar handle to plugin instance and session (for window.arboriumHost.parse)
+// Each entry: { plugin, language, session }
 const handleToPlugin = new Map();
 let nextHandle = 1;
+let currentHandle = null; // Track the currently active grammar handle
 
 // Cache for fetched sample content
 const examplesCache = {};
@@ -1464,34 +1466,47 @@ function setupArboriumHost() {
             const plugin = await loadGrammarPlugin(language);
             if (!plugin) return 0; // 0 = not found
 
-            // Check if already have a handle
-            for (const [handle, p] of handleToPlugin) {
-                if (p.language === language) return handle;
-            }
-
-            // Create new handle
+            // Create new handle with a persistent session for incremental highlighting
             const handle = nextHandle++;
-            handleToPlugin.set(handle, { plugin, language });
+            const session = plugin.create_session();
+            handleToPlugin.set(handle, { plugin, language, session });
+            currentHandle = handle; // Track this as the current active handle
             return handle;
         },
 
         // Parse text using a grammar handle (sync)
+        // Uses persistent session for incremental highlighting
         parse(handle, text) {
             const entry = handleToPlugin.get(handle);
             if (!entry) return { spans: [], injections: [] };
 
-            const { plugin } = entry;
-            const session = plugin.create_session();
+            const { plugin, session } = entry;
             try {
+                // Reuse the session - just set new text and parse
                 plugin.set_text(session, text);
                 const val = plugin.parse(session);
                 return { spans: val?.spans || [], injections: val?.injections || [] };
             } catch (e) {
                 console.error(`Parse error for handle ${handle}:`, e);
                 return { spans: [], injections: [] };
-            } finally {
-                plugin.free_session(session);
             }
+        },
+
+        // Free a grammar handle and release its session memory
+        freeGrammar(handle) {
+            const entry = handleToPlugin.get(handle);
+            if (!entry) return;
+
+            const { plugin, session } = entry;
+            try {
+                // Free the session
+                if (plugin.free_session) {
+                    plugin.free_session(session);
+                }
+            } catch (e) {
+                console.error(`Error freeing session for handle ${handle}:`, e);
+            }
+            handleToPlugin.delete(handle);
         },
     };
 }
@@ -1814,6 +1829,7 @@ async function previewLanguage(id) {
     // Load example if available and re-highlight
     const sourceEl = document.getElementById('source');
     const editorContainer = document.getElementById('demo');
+    const loadingMessage = document.getElementById('loading-message');
     const example = await fetchExample(id);
     if (example) {
         sourceEl.value = example;
@@ -1823,14 +1839,24 @@ async function previewLanguage(id) {
         const source = sourceEl.value;
         const output = document.getElementById('output');
         if (source) {
-            // Show loading state
-            editorContainer.classList.add('highlighting');
+            // Update loading message with pretty language name
+            const langInfo = languageInfo[id];
+            const prettyName = langInfo?.name || id;
+            if (loadingMessage) {
+                loadingMessage.textContent = `Loading ${prettyName} grammar`;
+            }
+
+            // Delay showing loading state by 500ms
+            const loadingTimeout = setTimeout(() => {
+                editorContainer.classList.add('highlighting');
+            }, 500);
             try {
                 const html = await highlightCode(id, source);
                 output.innerHTML = html;
             } catch (e) {
                 console.error('Preview highlighting failed:', e);
             } finally {
+                clearTimeout(loadingTimeout);
                 editorContainer.classList.remove('highlighting');
             }
         }
@@ -1842,6 +1868,12 @@ async function previewLanguage(id) {
 
 // Select a language
 async function selectLanguage(id) {
+    // Free the previous grammar's session before loading a new one
+    if (currentHandle !== null && window.arboriumHost && window.arboriumHost.freeGrammar) {
+        window.arboriumHost.freeGrammar(currentHandle);
+        currentHandle = null;
+    }
+
     selectedLang = id;
     updateLabel(id);
     exitSearchMode();
@@ -2351,14 +2383,24 @@ async function doHighlight() {
     const source = document.getElementById('source').value;
     const output = document.getElementById('output');
     const editorContainer = document.getElementById('demo');
+    const loadingMessage = document.getElementById('loading-message');
 
     if (!source) {
         output.innerHTML = '<span class="loading">Enter some code to highlight</span>';
         return;
     }
 
-    // Show loading state
-    editorContainer.classList.add('highlighting');
+    // Update loading message with pretty language name
+    const langInfo = languageInfo[selectedLang];
+    const prettyName = langInfo?.name || selectedLang;
+    if (loadingMessage) {
+        loadingMessage.textContent = `Loading ${prettyName} grammar`;
+    }
+
+    // Delay showing loading state by 500ms - only show if highlighting takes longer
+    const loadingTimeout = setTimeout(() => {
+        editorContainer.classList.add('highlighting');
+    }, 500);
 
     try {
         const start = performance.now();
@@ -2372,6 +2414,7 @@ async function doHighlight() {
         output.innerHTML = `<span class="error">${error}</span>`;
         updateStatus('Highlighting failed', false);
     } finally {
+        clearTimeout(loadingTimeout);
         editorContainer.classList.remove('highlighting');
     }
 }

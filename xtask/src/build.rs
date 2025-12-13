@@ -259,12 +259,13 @@ impl OutputPrinter {
     fn new(total: usize) -> Self {
         let multi = MultiProgress::new();
 
+        // Progress bar at top with fixed width (40 chars max)
         let style = ProgressStyle::default_bar()
-            .template("{spinner:.cyan} {msg} {wide_bar:.cyan/dim} {pos}/{len} ({percent}%)")
+            .template("{spinner:.cyan} [{bar:40.cyan/dim}] {pos}/{len} {msg}")
             .unwrap()
-            .progress_chars("━╸─");
+            .progress_chars("━━╸");
 
-        let progress = multi.add(ProgressBar::new(total as u64));
+        let progress = multi.insert(0, ProgressBar::new(total as u64));
         progress.set_style(style);
         progress.set_message("Building plugins");
 
@@ -865,7 +866,7 @@ pub fn build_demo(repo_root: &Utf8Path, crates_dir: &Utf8Path, dev: bool) -> Res
     println!(
         "  {} {} to serve the demo locally",
         "→".blue(),
-        "cargo xtask serve".cyan()
+        "cargo xtask serve --dev".cyan()
     );
 
     Ok(())
@@ -948,13 +949,22 @@ fn build_single_plugin(
             "--artifact-dir",
             artifact_dir.as_str(),
         ])
-        // Some environments set global CFLAGS (e.g. `-fembed-bitcode=all`) which are
-        // not applicable to wasm32 builds and can cause noisy warnings or failures
-        // in cc-rs-based build scripts. Clear target-specific flags for wasm32.
+        // For wasm32 targets, clear environment flags that don't apply:
+        // Some environments set global CFLAGS (e.g. `-fembed-bitcode=all` on macOS)
+        // which cause warnings or failures in cc-rs-based build scripts when building WASM.
+        // Also clear Apple SDK-related variables that inject iOS/macOS-specific flags.
+        .env("CFLAGS", "")
+        .env("CXXFLAGS", "")
         .env("CFLAGS_wasm32_unknown_unknown", "")
         .env("CFLAGS_wasm32-unknown-unknown", "")
         .env("CXXFLAGS_wasm32_unknown_unknown", "")
         .env("CXXFLAGS_wasm32-unknown-unknown", "")
+        // Prevent cc-rs from inheriting Apple SDK flags (like -fembed-bitcode=all for iOS)
+        .env("SDKROOT", "")
+        .env("IPHONEOS_DEPLOYMENT_TARGET", "")
+        .env("TVOS_DEPLOYMENT_TARGET", "")
+        .env("WATCHOS_DEPLOYMENT_TARGET", "")
+        .env("XROS_DEPLOYMENT_TARGET", "")
         .env(
             "RUSTFLAGS",
             "-Zunstable-options -Cpanic=immediate-abort -Copt-level=s -Cembed-bitcode=yes -Clto=fat -Ccodegen-units=1 -Cstrip=symbols",
