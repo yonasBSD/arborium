@@ -27,6 +27,26 @@ struct Args {
     verbose: bool,
 }
 
+/// Format a size difference as a human-readable string with appropriate unit.
+fn format_size_diff(bytes: i64) -> String {
+    let sign = if bytes >= 0 { "+" } else { "" };
+    let abs_bytes = bytes.unsigned_abs();
+
+    if abs_bytes >= 1024 * 1024 * 1024 {
+        format!(
+            "{}{:.2} GB",
+            sign,
+            bytes as f64 / (1024.0 * 1024.0 * 1024.0)
+        )
+    } else if abs_bytes >= 1024 * 1024 {
+        format!("{}{:.2} MB", sign, bytes as f64 / (1024.0 * 1024.0))
+    } else if abs_bytes >= 1024 {
+        format!("{}{:.2} KB", sign, bytes as f64 / 1024.0)
+    } else {
+        format!("{}{} B", sign, bytes)
+    }
+}
+
 fn main() -> Result<()> {
     let args: Args = facet_args::from_std_args()?;
 
@@ -83,8 +103,34 @@ fn main() -> Result<()> {
         stats.blocks_skipped.to_string().yellow()
     );
 
-    if let Some(css_path) = stats.css_file_modified {
+    if let Some(ref css_path) = stats.css_file_modified {
         eprintln!("  {} CSS patched: {}", "✓".green(), css_path.display());
+    }
+
+    // Size statistics
+    let input_mb = stats.bytes_input as f64 / (1024.0 * 1024.0);
+    let output_mb = stats.bytes_output as f64 / (1024.0 * 1024.0);
+    let inflation_pct = stats.html_inflation_percent();
+
+    eprintln!();
+    eprintln!("{}", "Size statistics:".bold());
+    eprintln!("  Input:  {:.2} MB", input_mb);
+    eprintln!("  Output: {:.2} MB", output_mb);
+    let size_diff = stats.bytes_output as i64 - stats.bytes_input as i64;
+    let size_diff_str = format_size_diff(size_diff);
+
+    if inflation_pct >= 0.0 {
+        eprintln!(
+            "  HTML inflation: {} ({})",
+            format!("+{:.2}%", inflation_pct).yellow(),
+            size_diff_str.yellow()
+        );
+    } else {
+        eprintln!(
+            "  HTML deflation: {} ({})",
+            format!("{:.2}%", inflation_pct).green(),
+            size_diff_str.green()
+        );
     }
 
     if !stats.unsupported_languages.is_empty() {
@@ -95,7 +141,12 @@ fn main() -> Result<()> {
         );
     }
 
-    eprintln!("\n  Completed in {:.2}s", elapsed.as_secs_f64());
+    eprintln!(
+        "\n  Completed in {:.2}s (processing: {:.2}s @ {:.1} MB/s)",
+        elapsed.as_secs_f64(),
+        stats.process_duration.as_secs_f64(),
+        stats.throughput_mb_s()
+    );
 
     Ok(())
 }

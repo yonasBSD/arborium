@@ -39,13 +39,18 @@ struct TransformState {
 /// Transform rustdoc HTML, adding syntax highlighting to non-Rust code blocks.
 ///
 /// Uses lol_html for streaming HTML transformation.
+/// The highlighter is forked internally to satisfy lol_html's 'static closure requirements.
 pub fn transform_html(
     html: &str,
-    highlighter: Highlighter,
+    highlighter: &mut Highlighter,
 ) -> Result<(String, TransformResult), TransformError> {
+    // Fork the highlighter - shares the grammar store but has its own parse context
+    // This is needed because lol_html requires 'static closures
+    let forked = highlighter.fork();
+
     // Shared state wrapped in Rc<RefCell<>> for the closure dance
     let state = Rc::new(RefCell::new(TransformState {
-        highlighter: Some(highlighter),
+        highlighter: Some(forked),
         ..Default::default()
     }));
 
@@ -208,13 +213,14 @@ pub fn transform_html(
 }
 
 /// Extract language name from a class attribute like "language-toml" or "language-json".
+/// The language is normalized to lowercase for consistent matching.
 fn extract_language_from_class(class: &str) -> Option<String> {
     for part in class.split_whitespace() {
         if let Some(lang) = part.strip_prefix("language-")
             && !lang.is_empty()
-            && lang != "rust"
+            && lang.to_lowercase() != "rust"
         {
-            return Some(lang.to_string());
+            return Some(lang.to_lowercase());
         }
     }
     None
@@ -265,7 +271,13 @@ mod tests {
             extract_language_from_class("language-json foo"),
             Some("json".to_string())
         );
+        // Uppercase is normalized to lowercase
+        assert_eq!(
+            extract_language_from_class("language-TOML"),
+            Some("toml".to_string())
+        );
         assert_eq!(extract_language_from_class("language-rust"), None);
+        assert_eq!(extract_language_from_class("language-RUST"), None);
         assert_eq!(extract_language_from_class("foo bar"), None);
     }
 
@@ -280,8 +292,8 @@ mod tests {
         let html = r#"<pre class="language-toml"><code>[package]
 name = "test"</code></pre>"#;
 
-        let highlighter = Highlighter::new();
-        let (output, result) = transform_html(html, highlighter).unwrap();
+        let mut highlighter = Highlighter::new();
+        let (output, result) = transform_html(html, &mut highlighter).unwrap();
 
         assert_eq!(result.blocks_highlighted, 1);
         assert_eq!(result.blocks_skipped, 0);
@@ -293,8 +305,8 @@ name = "test"</code></pre>"#;
     fn test_transform_html_skips_rust() {
         let html = r#"<pre class="language-rust rust"><code>fn main() {}</code></pre>"#;
 
-        let highlighter = Highlighter::new();
-        let (output, result) = transform_html(html, highlighter).unwrap();
+        let mut highlighter = Highlighter::new();
+        let (output, result) = transform_html(html, &mut highlighter).unwrap();
 
         assert_eq!(result.blocks_highlighted, 0);
         assert_eq!(result.blocks_skipped, 1);
@@ -307,8 +319,8 @@ name = "test"</code></pre>"#;
     fn test_transform_html_handles_unsupported_language() {
         let html = r#"<pre class="language-nosuchlang"><code>some code</code></pre>"#;
 
-        let highlighter = Highlighter::new();
-        let (output, result) = transform_html(html, highlighter).unwrap();
+        let mut highlighter = Highlighter::new();
+        let (output, result) = transform_html(html, &mut highlighter).unwrap();
 
         assert_eq!(result.blocks_highlighted, 0);
         assert_eq!(result.blocks_skipped, 1);
@@ -327,8 +339,8 @@ name = "test"</code></pre>"#;
         let html = r#"<pre class="language-toml"><code>[deps]
 foo = &quot;bar&quot;</code></pre>"#;
 
-        let highlighter = Highlighter::new();
-        let (output, result) = transform_html(html, highlighter).unwrap();
+        let mut highlighter = Highlighter::new();
+        let (output, result) = transform_html(html, &mut highlighter).unwrap();
 
         assert_eq!(result.blocks_highlighted, 1);
         // The highlighter should have received decoded content
@@ -340,8 +352,8 @@ foo = &quot;bar&quot;</code></pre>"#;
     fn test_transform_html_preserves_non_code_content() {
         let html = r#"<html><body><h1>Title</h1><pre class="language-json"><code>{"key": "value"}</code></pre><p>Footer</p></body></html>"#;
 
-        let highlighter = Highlighter::new();
-        let (output, result) = transform_html(html, highlighter).unwrap();
+        let mut highlighter = Highlighter::new();
+        let (output, result) = transform_html(html, &mut highlighter).unwrap();
 
         assert_eq!(result.blocks_highlighted, 1);
         assert!(output.contains("<h1>Title</h1>"));
