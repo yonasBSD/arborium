@@ -56,11 +56,15 @@ jobs:
         run: "set -e\n./xtask/target/release/xtask gen --version ${{ steps.version.outputs.version }} --quiet"
         shell: bash
       - 
+        name: Create generate output tarball
+        run: "set -e\ntar --exclude='node_modules' --exclude='dist' -cf generate-output.tar crates/ langs/ packages/ xtask/target/release/xtask version.json"
+        shell: bash
+      - 
         name: Upload generate output
         uses: actions/upload-artifact@v4
         with: 
           name: generate-output
-          path: "crates/\nlangs/\nxtask/target/release/xtask\nversion.json"
+          path: generate-output.tar
           retention-days: "1"
 
 
@@ -83,8 +87,8 @@ jobs:
           path: .
 
       - 
-        name: Make xtask executable
-        run: "set -e\nchmod +x xtask/target/release/xtask"
+        name: Extract generate output
+        run: "set -e\ntar -xf generate-output.tar && rm generate-output.tar"
         shell: bash
       - 
         name: Rust cache
@@ -131,8 +135,8 @@ jobs:
           path: .
 
       - 
-        name: Make xtask executable
-        run: "set -e\nchmod +x xtask/target/release/xtask"
+        name: Extract generate output
+        run: "set -e\ntar -xf generate-output.tar && rm generate-output.tar"
         shell: bash
       - 
         name: Install Rust
@@ -185,8 +189,8 @@ jobs:
           path: .
 
       - 
-        name: Make xtask executable
-        run: "set -e\nchmod +x xtask/target/release/xtask"
+        name: Extract generate output
+        run: "set -e\ntar -xf generate-output.tar && rm generate-output.tar"
         shell: bash
       - 
         name: Run Clippy
@@ -216,8 +220,8 @@ jobs:
           path: .
 
       - 
-        name: Make xtask executable
-        run: "set -e\nchmod +x xtask/target/release/xtask"
+        name: Extract generate output
+        run: "set -e\ntar -xf generate-output.tar && rm generate-output.tar"
         shell: bash
       - 
         name: Build docs
@@ -246,8 +250,8 @@ jobs:
           path: .
 
       - 
-        name: Make xtask executable
-        run: "set -e\nchmod +x xtask/target/release/xtask"
+        name: Extract generate output
+        run: "set -e\ntar -xf generate-output.tar && rm generate-output.tar"
         shell: bash
       - 
         name: Build css, html, javascript, json, scss, tsx, typescript, xml
@@ -281,8 +285,8 @@ jobs:
           path: .
 
       - 
-        name: Make xtask executable
-        run: "set -e\nchmod +x xtask/target/release/xtask"
+        name: Extract generate output
+        run: "set -e\ntar -xf generate-output.tar && rm generate-output.tar"
         shell: bash
       - 
         name: Build asm, c, cpp, d, go, objc, rust, x86asm, zig
@@ -316,8 +320,8 @@ jobs:
           path: .
 
       - 
-        name: Make xtask executable
-        run: "set -e\nchmod +x xtask/target/release/xtask"
+        name: Extract generate output
+        run: "set -e\ntar -xf generate-output.tar && rm generate-output.tar"
         shell: bash
       - 
         name: Build clojure, java, kotlin, scala
@@ -351,8 +355,8 @@ jobs:
           path: .
 
       - 
-        name: Make xtask executable
-        run: "set -e\nchmod +x xtask/target/release/xtask"
+        name: Extract generate output
+        run: "set -e\ntar -xf generate-output.tar && rm generate-output.tar"
         shell: bash
       - 
         name: Build agda, commonlisp, elixir, elm, erlang, gleam, haskell, idris, lean, ocaml, scheme
@@ -386,8 +390,8 @@ jobs:
           path: .
 
       - 
-        name: Make xtask executable
-        run: "set -e\nchmod +x xtask/target/release/xtask"
+        name: Extract generate output
+        run: "set -e\ntar -xf generate-output.tar && rm generate-output.tar"
         shell: bash
       - 
         name: Build awk, bash, batch, fish, lua, perl, php, powershell, python, ruby, zsh
@@ -421,8 +425,8 @@ jobs:
           path: .
 
       - 
-        name: Make xtask executable
-        run: "set -e\nchmod +x xtask/target/release/xtask"
+        name: Extract generate output
+        run: "set -e\ntar -xf generate-output.tar && rm generate-output.tar"
         shell: bash
       - 
         name: Build caddy, cmake, dockerfile, dot, graphql, hcl, ini, jq, kdl, meson, nginx, ninja, nix, query, ron, sql, ssh-config, toml, yaml
@@ -456,8 +460,8 @@ jobs:
           path: .
 
       - 
-        name: Make xtask executable
-        run: "set -e\nchmod +x xtask/target/release/xtask"
+        name: Extract generate output
+        run: "set -e\ntar -xf generate-output.tar && rm generate-output.tar"
         shell: bash
       - 
         name: Build ada, glsl, hlsl, julia, matlab, prolog, r, sparql, tlaplus, verilog, vhdl
@@ -491,8 +495,8 @@ jobs:
           path: .
 
       - 
-        name: Make xtask executable
-        run: "set -e\nchmod +x xtask/target/release/xtask"
+        name: Extract generate output
+        run: "set -e\ntar -xf generate-output.tar && rm generate-output.tar"
         shell: bash
       - 
         name: Build capnp, dart, devicetree, rescript, starlark, swift, textproto, thrift, uiua, yuri
@@ -526,8 +530,8 @@ jobs:
           path: .
 
       - 
-        name: Make xtask executable
-        run: "set -e\nchmod +x xtask/target/release/xtask"
+        name: Extract generate output
+        run: "set -e\ntar -xf generate-output.tar && rm generate-output.tar"
         shell: bash
       - 
         name: Build c-sharp, elisp, fsharp, postscript, vb, vim
@@ -561,8 +565,8 @@ jobs:
           path: .
 
       - 
-        name: Make xtask executable
-        run: "set -e\nchmod +x xtask/target/release/xtask"
+        name: Extract generate output
+        run: "set -e\ntar -xf generate-output.tar && rm generate-output.tar"
         shell: bash
       - 
         name: Build asciidoc, diff, jinja2, markdown, svelte, typst, vue
@@ -604,8 +608,8 @@ jobs:
           path: .
 
       - 
-        name: Make xtask executable
-        run: "set -e\nchmod +x xtask/target/release/xtask"
+        name: Extract generate output
+        run: "set -e\ntar -xf generate-output.tar && rm generate-output.tar"
         shell: bash
       - 
         name: Authenticate with crates.io
@@ -653,8 +657,8 @@ jobs:
           path: .
 
       - 
-        name: Make xtask executable
-        run: "set -e\nchmod +x xtask/target/release/xtask"
+        name: Extract generate output
+        run: "set -e\ntar -xf generate-output.tar && rm generate-output.tar"
         shell: bash
       - 
         name: Download plugins group acorn

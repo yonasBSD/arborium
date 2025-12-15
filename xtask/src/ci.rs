@@ -342,18 +342,18 @@ pub mod common {
             .with_inputs([("tool", "cargo-nextest")])
     }
 
-    /// Download generate output from artifact.
-    pub fn download_generate_output() -> Step {
-        Step::uses("Download generate output", "actions/download-artifact@v4")
-            .with_inputs([("name", "generate-output"), ("path", ".")])
-    }
-
-    /// Make xtask executable after download (permissions not preserved in artifacts).
-    pub fn make_xtask_executable() -> Step {
-        Step::run(
-            "Make xtask executable",
-            "chmod +x xtask/target/release/xtask",
-        )
+    /// Download generate output from artifact and extract tar.
+    /// We use tar instead of raw artifact upload because GitHub Actions artifacts
+    /// use zip which doesn't preserve Unix file permissions.
+    pub fn download_generate_output() -> Vec<Step> {
+        vec![
+            Step::uses("Download generate output", "actions/download-artifact@v4")
+                .with_inputs([("name", "generate-output"), ("path", ".")]),
+            Step::run(
+                "Extract generate output",
+                "tar -xf generate-output.tar && rm generate-output.tar",
+            ),
+        ]
     }
 }
 
@@ -454,10 +454,18 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
                 // Note: no root Cargo.toml/lock - each crate is standalone
                 // Includes xtask binary so downstream jobs don't need to rebuild it.
                 // Includes version.json so publish jobs know the release version.
+                // We tar first because GitHub Actions artifacts use zip which doesn't
+                // preserve Unix file permissions (causing lib.rs to be excluded from
+                // cargo publish).
+                Step::run(
+                    "Create generate output tarball",
+                    // Exclude node_modules and dist to avoid bloat - only generated source files needed
+                    "tar --exclude='node_modules' --exclude='dist' -cf generate-output.tar crates/ langs/ packages/ xtask/target/release/xtask version.json",
+                ),
                 Step::uses("Upload generate output", "actions/upload-artifact@v4")
                     .with_inputs([
                         ("name", "generate-output"),
-                        ("path", "crates/\nlangs/\nxtask/target/release/xtask\nversion.json"),
+                        ("path", "generate-output.tar"),
                         ("retention-days", "1"),
                     ]),
             ]),
@@ -475,20 +483,21 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
             .name("Test (Linux)")
             .container(CONTAINER)
             .needs(["generate"])
-            .steps([
-                checkout(),
-                download_generate_output(),
-                make_xtask_executable(),
-                rust_cache(),
-                Step::run("Build", "cargo build --manifest-path crates/arborium/Cargo.toml --verbose"),
-                Step::run("Run tests", "cargo nextest run --manifest-path crates/arborium/Cargo.toml --verbose --no-tests=pass"),
-                Step::run(
-                    "Build with all features",
-                    "cargo build --manifest-path crates/arborium/Cargo.toml --all-features --verbose",
-                ),
-                Step::run("Build arborium-rustdoc", "cargo build --manifest-path crates/arborium-rustdoc/Cargo.toml --verbose"),
-                Step::run("Test arborium-rustdoc", "cargo test --manifest-path crates/arborium-rustdoc/Cargo.toml --verbose"),
-            ]),
+            .steps(
+                [checkout()].into_iter()
+                    .chain(download_generate_output())
+                    .chain([
+                        rust_cache(),
+                        Step::run("Build", "cargo build --manifest-path crates/arborium/Cargo.toml --verbose"),
+                        Step::run("Run tests", "cargo nextest run --manifest-path crates/arborium/Cargo.toml --verbose --no-tests=pass"),
+                        Step::run(
+                            "Build with all features",
+                            "cargo build --manifest-path crates/arborium/Cargo.toml --all-features --verbose",
+                        ),
+                        Step::run("Build arborium-rustdoc", "cargo build --manifest-path crates/arborium-rustdoc/Cargo.toml --verbose"),
+                        Step::run("Test arborium-rustdoc", "cargo test --manifest-path crates/arborium-rustdoc/Cargo.toml --verbose"),
+                    ])
+            ),
     );
 
     // Test macOS (no container, needs to install tools)
@@ -498,18 +507,19 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
         Job::new(runners::MACOS)
             .name("Test (macOS)")
             .needs(["generate"])
-            .steps([
-                checkout(),
-                download_generate_output(),
-                make_xtask_executable(),
-                install_rust(),
-                rust_cache(),
-                install_nextest(),
-                Step::run("Build", "cargo build --manifest-path crates/arborium/Cargo.toml --verbose"),
-                Step::run("Run tests", "cargo nextest run --manifest-path crates/arborium/Cargo.toml --verbose --no-tests=pass"),
-                Step::run("Build arborium-rustdoc", "cargo build --manifest-path crates/arborium-rustdoc/Cargo.toml --verbose"),
-                Step::run("Test arborium-rustdoc", "cargo test --manifest-path crates/arborium-rustdoc/Cargo.toml --verbose"),
-            ]),
+            .steps(
+                [checkout()].into_iter()
+                    .chain(download_generate_output())
+                    .chain([
+                        install_rust(),
+                        rust_cache(),
+                        install_nextest(),
+                        Step::run("Build", "cargo build --manifest-path crates/arborium/Cargo.toml --verbose"),
+                        Step::run("Run tests", "cargo nextest run --manifest-path crates/arborium/Cargo.toml --verbose --no-tests=pass"),
+                        Step::run("Build arborium-rustdoc", "cargo build --manifest-path crates/arborium-rustdoc/Cargo.toml --verbose"),
+                        Step::run("Test arborium-rustdoc", "cargo test --manifest-path crates/arborium-rustdoc/Cargo.toml --verbose"),
+                    ])
+            ),
     );
 
     // Clippy
@@ -520,13 +530,14 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
             .name("Clippy")
             .container(CONTAINER)
             .needs(["generate"])
-            .steps([
-                checkout(),
-                download_generate_output(),
-                make_xtask_executable(),
-                Step::run("Run Clippy", "cargo clippy --manifest-path crates/arborium/Cargo.toml --all-targets -- -D warnings"),
-                Step::run("Run Clippy on arborium-rustdoc", "cargo clippy --manifest-path crates/arborium-rustdoc/Cargo.toml --all-targets -- -D warnings"),
-            ]),
+            .steps(
+                [checkout()].into_iter()
+                    .chain(download_generate_output())
+                    .chain([
+                        Step::run("Run Clippy", "cargo clippy --manifest-path crates/arborium/Cargo.toml --all-targets -- -D warnings"),
+                        Step::run("Run Clippy on arborium-rustdoc", "cargo clippy --manifest-path crates/arborium-rustdoc/Cargo.toml --all-targets -- -D warnings"),
+                    ])
+            ),
     );
 
     // Documentation
@@ -537,16 +548,16 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
             .name("Documentation")
             .container(CONTAINER)
             .needs(["generate"])
-            .steps([
-                checkout(),
-                download_generate_output(),
-                make_xtask_executable(),
-                Step::run(
-                    "Build docs",
-                    "cargo doc --manifest-path crates/arborium/Cargo.toml --no-deps",
-                )
-                .with_env([("RUSTDOCFLAGS", "-D warnings")]),
-            ]),
+            .steps(
+                [checkout()]
+                    .into_iter()
+                    .chain(download_generate_output())
+                    .chain([Step::run(
+                        "Build docs",
+                        "cargo doc --manifest-path crates/arborium/Cargo.toml --no-deps",
+                    )
+                    .with_env([("RUSTDOCFLAGS", "-D warnings")])]),
+            ),
     );
 
     // =========================================================================
@@ -571,24 +582,26 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
                     .name(job_name)
                     .container(CONTAINER)
                     .needs(["generate"])
-                    .steps([
-                        checkout(),
-                        download_generate_output(),
-                        make_xtask_executable(),
-                        Step::run(
-                            format!("Build {}", display_grammars),
-                            format!(
-                                "./xtask/target/release/xtask build {} -o dist/plugins",
-                                grammars_list
-                            ),
-                        ),
-                        Step::uses("Upload plugins artifact", "actions/upload-artifact@v4")
-                            .with_inputs([
-                                ("name", format!("plugins-group-{}", group.name)),
-                                ("path", "dist/plugins".to_string()),
-                                ("retention-days", "7".to_string()),
+                    .steps(
+                        [checkout()]
+                            .into_iter()
+                            .chain(download_generate_output())
+                            .chain([
+                                Step::run(
+                                    format!("Build {}", display_grammars),
+                                    format!(
+                                        "./xtask/target/release/xtask build {} -o dist/plugins",
+                                        grammars_list
+                                    ),
+                                ),
+                                Step::uses("Upload plugins artifact", "actions/upload-artifact@v4")
+                                    .with_inputs([
+                                        ("name", format!("plugins-group-{}", group.name)),
+                                        ("path", "dist/plugins".to_string()),
+                                        ("retention-days", "7".to_string()),
+                                    ]),
                             ]),
-                    ]),
+                    ),
             );
         }
     }
@@ -604,25 +617,27 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
             .needs(["generate", "test-linux", "test-macos", "clippy"])
             .when(IS_RELEASE)
             .permissions([("id-token", "write"), ("contents", "read")])
-            .steps([
-                checkout(),
-                download_generate_output(),
-                make_xtask_executable(),
-                // Exchange OIDC token for crates.io access token
-                Step::uses(
-                    "Authenticate with crates.io",
-                    "rust-lang/crates-io-auth-action@v1",
-                )
-                .with_id("crates-io-auth"),
-                Step::run(
-                    "Publish to crates.io",
-                    "./xtask/target/release/xtask publish crates",
-                )
-                .with_env([(
-                    "CARGO_REGISTRY_TOKEN",
-                    "${{ steps.crates-io-auth.outputs.token }}",
-                )]),
-            ]),
+            .steps(
+                [checkout()]
+                    .into_iter()
+                    .chain(download_generate_output())
+                    .chain([
+                        // Exchange OIDC token for crates.io access token
+                        Step::uses(
+                            "Authenticate with crates.io",
+                            "rust-lang/crates-io-auth-action@v1",
+                        )
+                        .with_id("crates-io-auth"),
+                        Step::run(
+                            "Publish to crates.io",
+                            "./xtask/target/release/xtask publish crates",
+                        )
+                        .with_env([(
+                            "CARGO_REGISTRY_TOKEN",
+                            "${{ steps.crates-io-auth.outputs.token }}",
+                        )]),
+                    ]),
+            ),
     );
 
     // =========================================================================
@@ -632,11 +647,8 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
         let mut npm_needs = vec!["generate".to_string()];
         npm_needs.extend(plugin_job_ids.iter().cloned());
 
-        let mut npm_steps = vec![
-            checkout(),
-            download_generate_output(),
-            make_xtask_executable(),
-        ];
+        let mut npm_steps: Vec<Step> = vec![checkout()];
+        npm_steps.extend(download_generate_output());
 
         // Download all plugin artifacts
         for group_name in &plugin_group_names {
