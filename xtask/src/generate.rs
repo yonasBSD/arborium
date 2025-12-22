@@ -178,8 +178,8 @@ struct DocsrsDemoReadmeTemplate<'a> {
 }
 
 #[derive(TemplateSimple)]
-#[template(path = "root_readme.stpl.md")]
-struct RootReadmeTemplate<'a> {
+#[template(path = "crates_arborium_readme.stpl.md")]
+struct CratesArboriumReadmeTemplate<'a> {
     version: &'a str,
     /// List of permissively-licensed grammars (MIT, Apache-2.0, etc.)
     permissive_grammars: &'a [LanguageEntry],
@@ -2237,7 +2237,7 @@ dlmalloc = "0.2"
     }
 
     // =========================================================================
-    // Generate root README.md from template
+    // Generate crates/arborium/README.md from template
     // =========================================================================
 
     // Collect all grammars and separate by license type
@@ -2286,30 +2286,30 @@ dlmalloc = "0.2"
         .cloned()
         .collect();
 
-    let root_readme_content = RootReadmeTemplate {
+    let crates_arborium_readme_content = CratesArboriumReadmeTemplate {
         version: &prepared.workspace_version,
         permissive_grammars: &permissive_grammars,
         gpl_grammars: &gpl_grammars,
     }
     .render_once()
-    .expect("RootReadmeTemplate render failed");
+    .expect("CratesArboriumReadmeTemplate render failed");
 
-    let root_readme_path = prepared.repo_root.join("README.md");
-    if root_readme_path.exists() {
-        let old_content = fs::read_to_string(&root_readme_path)?;
-        if old_content != root_readme_content {
+    let crates_arborium_readme_path = prepared.repo_root.join("crates/arborium/README.md");
+    if crates_arborium_readme_path.exists() {
+        let old_content = fs::read_to_string(&crates_arborium_readme_path)?;
+        if old_content != crates_arborium_readme_content {
             plan.add(Operation::UpdateFile {
-                path: root_readme_path,
+                path: crates_arborium_readme_path,
                 old_content: Some(old_content),
-                new_content: root_readme_content,
-                description: "Update root README.md".to_string(),
+                new_content: crates_arborium_readme_content,
+                description: "Update crates/arborium/README.md".to_string(),
             });
         }
     } else {
         plan.add(Operation::CreateFile {
-            path: root_readme_path,
-            content: root_readme_content,
-            description: "Create root README.md".to_string(),
+            path: crates_arborium_readme_path,
+            content: crates_arborium_readme_content,
+            description: "Create crates/arborium/README.md".to_string(),
         });
     }
 

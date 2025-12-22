@@ -48,6 +48,13 @@ crates/arborium-rustdoc/Cargo.toml
 crates/arborium-rustdoc/README.md
 crates/arborium-mdbook/Cargo.toml
 crates/arborium-mdbook/README.md
+crates/arborium-cli/README.md
+crates/arborium-cli/Cargo.toml
+crates/arborium-docsrs-demo/README.md
+crates/arborium-docsrs-demo/Cargo.toml
+crates/arborium/Cargo.toml
+crates/arborium/README.md
+packages/arborium/package.json
 
 # Grammar crates are under langs/group-*/*/crate/
 
