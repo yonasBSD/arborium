@@ -12,14 +12,12 @@ which = "7"
 facet = { git = "https://github.com/facet-rs/facet", features = ["indexmap"] }
 facet-value = { git = "https://github.com/facet-rs/facet" }
 facet-args = { git = "https://github.com/facet-rs/facet" }
-facet-kdl = { git = "https://github.com/facet-rs/facet" }
 facet-json = { git = "https://github.com/facet-rs/facet" }
 facet-yaml = { git = "https://github.com/facet-rs/facet" }
 facet-pretty = { git = "https://github.com/facet-rs/facet" }
 facet-diff = { git = "https://github.com/facet-rs/facet" }
 facet-toml = { git = "https://github.com/facet-rs/facet" }
 indexmap = { version = "2", features = ["std"] }
-miette = { version = "7", features = ["fancy"] }
 thiserror = "2"
 structstruck = "0.4"
 rootcause = "0.10"

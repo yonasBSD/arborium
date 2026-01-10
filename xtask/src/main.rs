@@ -4,7 +4,7 @@
 //!
 //! Commands:
 //! - `lint` - Validate all grammars
-//! - `gen \[name\]` - Regenerate crate files from arborium.kdl and build the static demo
+//! - `gen \[name\]` - Regenerate crate files from arborium.yaml and build the static demo
 //! - `serve` - Build and serve the WASM demo locally
 
 mod cache;
@@ -57,7 +57,7 @@ enum Command {
         strict: bool,
     },
 
-    /// Regenerate crate files (Cargo.toml, build.rs, lib.rs, grammar/src/) from arborium.kdl
+    /// Regenerate crate files (Cargo.toml, build.rs, lib.rs, grammar/src/) from arborium.yaml
     Gen {
         /// Optional grammar name to regenerate (regenerates all if omitted)
         #[facet(args::positional, default)]
@@ -240,17 +240,15 @@ enum PublishAction {
 }
 
 fn main() {
-    // Install Miette's graphical error handler for nice CLI diagnostics
-    miette::set_hook(Box::new(|_| {
-        Box::new(miette::MietteHandlerOpts::new().build())
-    }))
-    .ok();
-
     // Initialize tracing subscriber for structured logging
     tracing_subscriber::fmt::init();
 
     let args: Args = facet_args::from_std_args().unwrap_or_else(|e| {
-        eprintln!("{:?}", miette::Report::new(e));
+        if let Some(text) = e.help_text() {
+            eprintln!("{text}");
+        } else {
+            eprintln!("{:?}", e);
+        }
         std::process::exit(1);
     });
 

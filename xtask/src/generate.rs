@@ -1,6 +1,6 @@
-/// Generate command - regenerates crate files from arborium.kdl.
+/// Generate command - regenerates crate files from arborium.yaml.
 ///
-/// This command reads arborium.kdl files and generates:
+/// This command reads arborium.yaml files and generates:
 /// - Cargo.toml
 /// - build.rs
 /// - src/lib.rs
@@ -267,8 +267,10 @@ fn get_grammar_dependencies(config: &crate::types::CrateConfig) -> Vec<(String, 
     let mut deps = Vec::new();
 
     for grammar in &config.grammars {
-        for dep in &grammar.dependencies {
-            deps.push((dep.npm.clone(), dep.krate.clone()));
+        if let Some(dependencies) = &grammar.dependencies {
+            for dep in dependencies {
+                deps.push((dep.npm.clone(), dep.krate.clone()));
+            }
         }
     }
 
@@ -669,12 +671,12 @@ fn generate_cargo_toml(
     let grammar_name = grammar.map(|g| g.name.as_ref()).unwrap_or(grammar_id);
 
     let tag = grammar
-        .map(|g| g.tag.value.as_str())
+        .map(|g| g.tag.as_str())
         .unwrap_or("programming");
 
-    // Use license from arborium.kdl, fallback to MIT if empty
+    // Use license from arborium.yaml, fallback to MIT if empty
     let license: &str = {
-        let l: &str = config.license.value.as_ref();
+        let l: &str = config.license.as_ref();
         if l.is_empty() { "MIT" } else { l }
     };
 
@@ -785,39 +787,38 @@ fn generate_readme(crate_name: &str, config: &crate::types::CrateConfig) -> Stri
 
     let grammar_name = grammar.map(|g| g.name.as_ref()).unwrap_or(grammar_id);
 
-    let upstream_url: &str = config.repo.value.as_ref();
+    let upstream_url: &str = config.repo.as_ref();
     // Extract repo name from URL for display
     let upstream_repo = upstream_url
         .strip_prefix("https://github.com/")
         .unwrap_or(upstream_url);
 
-    let commit: &str = config.commit.value.as_ref();
+    let commit: &str = config.commit.as_ref();
 
     let license: &str = {
-        let l: &str = config.license.value.as_ref();
+        let l: &str = config.license.as_ref();
         if l.is_empty() { "MIT" } else { l }
     };
 
     // Extract optional grammar metadata
     let description = grammar
         .and_then(|g| g.description.as_ref())
-        .map(|d| d.value.as_str())
+        .map(|d| d.as_str())
         .unwrap_or("");
 
     let inventor = grammar
         .and_then(|g| g.inventor.as_ref())
-        .map(|i| i.value.as_str())
+        .map(|i| i.as_str())
         .unwrap_or("");
 
     let year = grammar
-        .and_then(|g| g.year.as_ref())
-        .map(|y| y.value)
+        .and_then(|g| g.year)
         .unwrap_or(0);
 
     let language_link = grammar
         .and_then(|g| g.link.as_ref())
-        .map(|l| l.value.as_str())
-        .unwrap_or_else(|| upstream_url);
+        .map(|l| l.as_str())
+        .unwrap_or(upstream_url);
 
     let crate_name_snake = crate_name.replace('-', "_");
 
@@ -966,7 +967,7 @@ fn prepare_temp_structures(
                 continue;
             }
         }
-        // Skip crates without arborium.kdl
+        // Skip crates without arborium.yaml
         let Some(config) = crate_state.config.clone() else {
             continue;
         };
@@ -1411,8 +1412,13 @@ fn extract_highlights_prepend(
         None => return result,
     };
 
-    for prepend in &highlights.prepend {
-        let crate_name = &prepend.crate_name.value;
+    let prepends = match &highlights.prepend {
+        Some(p) => p,
+        None => return result,
+    };
+
+    for prepend in prepends {
+        let crate_name = &prepend.crate_name;
 
         // Resolve relative path for Cargo.toml
         if let Some(rel_path) = resolve_crate_relative_path(from_crate_path, crate_name, registry) {
@@ -1446,7 +1452,7 @@ fn extract_injection_deps(
     };
 
     let injections = match &grammar.injections {
-        Some(inj) => &inj.values,
+        Some(inj) => inj,
         None => return result,
     };
 
@@ -1763,16 +1769,16 @@ fn plan_crate_files_only(
         }
     }
 
-    // Copy arborium.kdl and samples for tests
-    let def_kdl = def_path.join("arborium.kdl");
-    if def_kdl.exists() {
-        let kdl_content = fs::read_to_string(&def_kdl)?;
-        let crate_kdl = crate_path.join("arborium.kdl");
+    // Copy arborium.yaml and samples for tests
+    let def_yaml = def_path.join("arborium.yaml");
+    if def_yaml.exists() {
+        let yaml_content = fs::read_to_string(&def_yaml)?;
+        let crate_yaml = crate_path.join("arborium.yaml");
         plan_file_update(
             &mut plan,
-            &crate_kdl,
-            kdl_content,
-            "arborium.kdl for tests",
+            &crate_yaml,
+            yaml_content,
+            "arborium.yaml for tests",
             mode,
         )?;
 
@@ -1922,19 +1928,19 @@ fn plan_plugin_crate_files(
     let grammar_description = grammar
         .description
         .as_ref()
-        .map(|d| d.value.as_str())
+        .map(|d| d.as_str())
         .unwrap_or("");
     let language_link = grammar
         .link
         .as_ref()
-        .map(|l| l.value.as_str())
+        .map(|l| l.as_str())
         .unwrap_or("");
     let inventor = grammar
         .inventor
         .as_ref()
-        .map(|i| i.value.as_str())
+        .map(|i| i.as_str())
         .unwrap_or("");
-    let year = grammar.year.as_ref().map(|y| y.value).unwrap_or(0);
+    let year = grammar.year.unwrap_or(0);
 
     // Generate npm/package.json
     let package_json_path = npm_path.join("package.json");
@@ -2177,8 +2183,8 @@ dlmalloc = "0.2"
         extensions.push((grammar_id.clone(), grammar_id.clone()));
 
         // Collect aliases (used for both store.rs normalization and lib.rs extensions)
-        if let Some(ref alias_config) = grammar.aliases {
-            for alias in &alias_config.values {
+        if let Some(ref alias_list) = grammar.aliases {
+            for alias in alias_list {
                 aliases.push((alias.clone(), grammar_id.clone()));
                 // Aliases also serve as file extensions
                 extensions.push((alias.clone(), grammar_id.clone()));
@@ -2197,7 +2203,7 @@ dlmalloc = "0.2"
     let mut all_grammars = Vec::new();
     for prepared_temp in &prepared.prepared_temps {
         let config = &prepared_temp.config;
-        let license = config.license.value.as_str();
+        let license = config.license.as_str();
 
         // Skip grammars with empty license (placeholders/not yet implemented)
         if license.is_empty() {
@@ -2205,17 +2211,17 @@ dlmalloc = "0.2"
         }
 
         // Get repository URL
-        let repo_url = if config.repo.value.as_str() == "local" {
+        let repo_url = if config.repo.as_str() == "local" {
             "local".to_string()
         } else {
-            config.repo.value.to_string()
+            config.repo.to_string()
         };
 
         // Process each grammar in this crate
         for grammar in &config.grammars {
             let entry = LanguageEntry {
-                feature: format!("lang-{}", grammar.id.value.as_str()),
-                name: grammar.name.value.to_string(),
+                feature: format!("lang-{}", grammar.id.as_str()),
+                name: grammar.name.to_string(),
                 license: license.to_string(),
                 repo_url: repo_url.clone(),
             };
@@ -2352,7 +2358,6 @@ fn plan_shared_crates(prepared: &PreparedStructures, mode: PlanMode) -> Result<P
         "arborium-plugin-runtime",
         "arborium-wire",
         "arborium-query",
-        "miette-arborium",
         "arborium-rustdoc",
         "arborium-mdbook",
     ];
@@ -2634,55 +2639,6 @@ This grammar highlights the query DSL itself, including:
 use arborium_query::{language, HIGHLIGHTS_QUERY};
 
 // Use with arborium's highlighting engine
-```
-"#
-        }
-        "miette-arborium" => {
-            r#"# miette-arborium
-
-Syntax highlighting for [miette](https://crates.io/crates/miette) diagnostics using arborium.
-
-## Features
-
-- Automatic language detection from file extensions
-- Tree-sitter based highlighting (same engine as the main arborium crate)
-- All arborium themes available
-- Zero configuration needed
-
-## Quick Start
-
-```rust
-fn main() {
-    // Install the highlighter globally (call once at startup)
-    miette_arborium::install_global().ok();
-
-    // Now all miette errors will have syntax highlighting!
-}
-```
-
-## With Custom Theme
-
-```rust
-fn main() {
-    let theme = arborium_theme::builtin::github_light().clone();
-    miette_arborium::install_global_with_theme(theme).ok();
-}
-```
-
-## Example Output
-
-Error diagnostics will show syntax-highlighted code snippets:
-
-```
-  × cannot find derive macro `Facet` in this scope
-   ╭─[src/lib.rs:3:10]
- 1 │ use facet::Facet;
- 2 │
- 3 │ #[derive(Facet)]
-   ·          ──┬──
-   ·            ╰── cannot find derive macro `Facet` in this scope
- 4 │ struct FooBar {
-   ╰────
 ```
 "#
         }
@@ -3025,7 +2981,6 @@ all-languages = [
 arborium = {{ version = "{version}", path = "../arborium" }}
 facet = "0.33.0"
 facet-args = "0.33.0"
-miette = {{ version = "7.6.0", features = ["fancy-no-backtrace"] }}
 "#
     ));
 

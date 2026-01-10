@@ -1,6 +1,6 @@
 //! Serve command - builds and serves the WASM demo.
 //!
-//! This module generates registry.json from arborium.kdl files and serves
+//! This module generates registry.json from arborium.yaml files and serves
 //! the demo with all grammar metadata and inlined sample content.
 
 use crate::theme_gen::{self, HIGHLIGHTS, Theme};
@@ -55,7 +55,6 @@ struct CodeBlocks {
     docsrs_script: CodeBlock,
     docsrs_cargo: CodeBlock,
     rustdoc_postprocess: CodeBlock,
-    miette_example: CodeBlock,
     html_example_traditional: CodeBlock,
     html_example_arborium: CodeBlock,
 }
@@ -181,7 +180,7 @@ impl Registry {
 
     /// Serialize to pretty JSON using facet-json.
     pub fn to_json_pretty(&self) -> String {
-        facet_json::to_string_pretty(self)
+        facet_json::to_string_pretty(self).expect("registry serialization failed")
     }
 }
 
@@ -195,13 +194,16 @@ impl RegistryGrammar {
     ) -> Self {
         let samples: Vec<RegistrySample> = grammar
             .samples
-            .iter()
+            .as_ref()
+            .map(|s| s.iter())
+            .into_iter()
+            .flatten()
             .filter_map(|sample| RegistrySample::from_sample_config(sample, def_path))
             .collect();
 
         // Extract repo URL (skip "local" which means maintained in this repo)
         let grammar_repo = {
-            let repo = config.repo.value.as_str();
+            let repo = config.repo.as_str();
             if repo == "local" {
                 None
             } else {
@@ -210,24 +212,23 @@ impl RegistryGrammar {
         };
 
         Self {
-            id: grammar.id.value.to_string(),
+            id: grammar.id.to_string(),
             crate_name: crate_name.to_string(),
-            name: grammar.name.value.to_string(),
-            icon: grammar.icon.as_ref().map(|i| i.value.clone()),
-            tier: grammar.tier.as_ref().map(|t| t.value),
-            tag: grammar.tag.value.to_string(),
-            description: grammar.description.as_ref().map(|d| d.value.clone()),
-            inventor: grammar.inventor.as_ref().map(|i| i.value.clone()),
-            year: grammar.year.as_ref().map(|y| y.value),
-            link: grammar.link.as_ref().map(|l| l.value.clone()),
-            trivia: grammar.trivia.as_ref().map(|t| t.value.clone()),
+            name: grammar.name.to_string(),
+            icon: grammar.icon.clone(),
+            tier: grammar.tier,
+            tag: grammar.tag.to_string(),
+            description: grammar.description.clone(),
+            inventor: grammar.inventor.clone(),
+            year: grammar.year,
+            link: grammar.link.clone(),
+            trivia: grammar.trivia.clone(),
             aliases: grammar
                 .aliases
-                .as_ref()
-                .map(|a| a.values.clone())
+                .clone()
                 .unwrap_or_default(),
             grammar_repo,
-            grammar_license: Some(config.license.value.to_string()),
+            grammar_license: Some(config.license.to_string()),
             samples,
             def_path: def_path.to_string(),
         }
@@ -238,14 +239,14 @@ impl RegistrySample {
     /// Build from a SampleConfig (content is served separately).
     fn from_sample_config(sample: &SampleConfig, crate_path: &Utf8Path) -> Option<Self> {
         // Check the file exists
-        let sample_path = crate_path.join(&*sample.path);
+        let sample_path = crate_path.join(&sample.path);
         if !sample_path.exists() {
             return None;
         }
 
         Some(Self {
-            path: sample.path.value.to_string(),
-            description: sample.description.as_ref().map(|d| d.value.clone()),
+            path: sample.path.to_string(),
+            description: sample.description.clone(),
         })
     }
 }
@@ -562,7 +563,6 @@ fn generate_shared_crate_manifests(repo_root: &Path) -> Result<(), String> {
         "arborium-plugin-runtime",
         "arborium-wire",
         "arborium-query",
-        "miette-arborium",
         "arborium-rustdoc",
         "arborium-mdbook",
     ];
@@ -666,7 +666,7 @@ fn copy_plugins_json(crates_dir: &Utf8Path, demo_dir: &Path, dev: bool) -> Resul
         }
 
         // Write to demo directory
-        let output = facet_json::to_string_pretty(&json);
+        let output = facet_json::to_string_pretty(&json).map_err(|e| e.to_string())?;
         fs::write(&output_path, output).map_err(|e| e.to_string())?;
     } else {
         // Generate a minimal plugins.json from registry if build hasn't been run
@@ -819,7 +819,7 @@ fn parse_icon_cache(content: &str) -> BTreeMap<String, String> {
 }
 
 fn serialize_icon_cache(icons: &BTreeMap<String, String>) -> String {
-    facet_json::to_string_pretty(icons)
+    facet_json::to_string_pretty(icons).expect("icon cache serialization failed")
 }
 
 /// Convert a theme name to a CSS-friendly ID (kebab-case, lowercase)
@@ -913,14 +913,6 @@ rustdoc-args = ["--html-in-header", "arborium-header.html"]"#,
             lang: "bash",
             source: r#"# Process rustdoc output in-place
 arborium-rustdoc ./target/doc ./target/doc-highlighted"#,
-        },
-        miette_example: CodeBlock {
-            lang: "rust",
-            source: r#"use miette::GraphicalReportHandler;
-use miette_arborium::ArboriumHighlighter;
-
-let handler = GraphicalReportHandler::new()
-    .with_syntax_highlighting(ArboriumHighlighter::new());"#,
         },
         html_example_traditional: CodeBlock {
             lang: "html",
@@ -1163,7 +1155,7 @@ fn build_language_info_js(registry: &Registry) -> String {
             js.push_str(&format!("        \"tier\": {},\n", tier));
         }
         if let Some(ref desc) = grammar.description {
-            // description is already HTML in arborium.kdl
+            // description is already HTML in arborium.yaml
             js.push_str(&format!(
                 "        \"description\": \"{}\",\n",
                 escape_for_js(desc)
@@ -1182,7 +1174,7 @@ fn build_language_info_js(registry: &Registry) -> String {
             js.push_str(&format!("        \"url\": \"{}\",\n", escape_for_js(link)));
         }
         if let Some(ref trivia) = grammar.trivia {
-            // trivia is already HTML in arborium.kdl
+            // trivia is already HTML in arborium.yaml
             js.push_str(&format!(
                 "        \"trivia\": \"{}\",\n",
                 escape_for_js(trivia)
