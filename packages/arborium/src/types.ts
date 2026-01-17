@@ -212,6 +212,8 @@ export interface ArboriumConfig {
   pluginsUrl?: string;
   /** Base URL for the Rust host module (for local testing) */
   hostUrl?: string;
+  /** Object to use for logging (default: global.console) */
+  logger?: Pick<Console, "debug" | "error" | "warn">;
   /** Custom grammar resolution for JS */
   resolveJs?(args: ResolveArgs): MaybePromise<unknown>;
   /** Custom grammar resolution for WASM */
