@@ -100,6 +100,11 @@ Thanks to all individual sponsors:
 </a>
 </p>
 
+## Co-developed with LLMs
+
+This project was co-developed with LLMs such as Claude, Codex, etc. Human
+maintainers are responsible for their contributions regardless of machine help.
+
 ## License
 
 This project is dual-licensed under [MIT](LICENSE-MIT) OR [Apache-2.0](LICENSE-APACHE).
