@@ -1,0 +1,25 @@
+repo: https://github.com/FallenAngel97/tree-sitter-rego
+commit: ddd39af81fe8b0288102a7cb97959dfce723e0f3
+license: MIT
+
+grammars:
+  - id: rego
+    name: Rego
+    tag: config
+    tier: 4
+    aliases:
+      - opa
+
+    generate_plugin: true
+
+    icon: file-icons:openpolicyagent
+
+    inventor: Torin Sandall (Open Policy Agent / Styra)
+    year: 2016
+    description: 'Policy language for the <a href="https://www.openpolicyagent.org/">Open Policy Agent</a> (OPA); see the <a href="https://www.openpolicyagent.org/docs/latest/policy-language/">Rego language reference</a>.'
+    link: https://en.wikipedia.org/wiki/Open_Policy_Agent
+    trivia: "Rego was inspired by Datalog and extends it to support structured document models such as JSON."
+
+    samples:
+      - path: samples/example.rego
+        description: GenAI policy from https://www.openpolicyagent.org/.
